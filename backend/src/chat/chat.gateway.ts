@@ -9,6 +9,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
+import { ChatRoomDTO } from './dto/chat.dto';
+
+let	channel_list = new Map <string, ChatRoomDTO>();
+
 
 @WebSocketGateway({ namespace: 'chat', cors: true })
 export class ChatGateway
@@ -35,6 +39,7 @@ export class ChatGateway
     console.log('disconnect');
     console.log(client.id);
   }
+
   /**
    * @name ft_room_refresh
    * @param client
@@ -47,19 +52,42 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: string,
   ) {
-    client.emit('room-list', this.ft_room_list());
+    client.emit('room-refresh', this.ft_room_list());
+  }
+
+  /**
+   * @name ft_room_create
+   * @param client
+   * @param payload
+   * @emits server
+   * @brief 방 생성시 실행
+   */
+  @SubscribeMessage('room-create')
+  ft_room_create(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: ChatRoomDTO,
+  ) {
+	if (this.server.adapter.rooms.has(payload.room_name))
+	{
+		client.emit('room-create', {});
+		return ;
+	}
+    client.join(payload.room_name);
+	channel_list.set(payload.room_name, payload);
+    console.log(channel_list);
+	client.emit('room-create', payload);
+    this.server.emit('room-refresh', this.ft_room_list());
   }
 
   /**
    * @name ft_room_list
-   * @returns room_list : string []
+   * @returns room_list : ChatRoomDto []
    * @brief 방 모든 목록을 가져온다
    */
-  ft_room_list(): string[] {
-    let room_list: string[] = [];
-    this.server.adapter.rooms.forEach((val, key, map) => {
-      console.log(val, key);
-      room_list.push(key);
+  ft_room_list(): ChatRoomDTO [] {
+    let room_list: ChatRoomDTO [] = [];
+    channel_list.forEach((val, key) => {
+      room_list.push(val);
     });
     return room_list;
   }
