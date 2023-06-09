@@ -9,3 +9,12 @@ main : 최종적으로 코드 적용할 브랜치 입니다.
 
 # commit convention
 아직 미정입니다.
+
+
+# npm install backend
+npm install @nestjs/websockets  
+npm install socket.io
+npm install @nestjs/platform-socket.io
+
+# npm install frontend
+socket.io-client
