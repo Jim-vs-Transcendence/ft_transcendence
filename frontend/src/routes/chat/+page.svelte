@@ -45,8 +45,10 @@ function CreateRoom(){
 function JoinRoom(room_select: ChatRoomIF) {
 	console.log("[" + room_select._room_password + "]")
 	if (room_select._room_password == "")
+	{
 		io_chat.emit("room-join", room_select);
-	
+		return ;
+	}
 	popup_data._message = "password input";
 	popup_data._option._room = room_select;
 	popup_data._option._index = 2;

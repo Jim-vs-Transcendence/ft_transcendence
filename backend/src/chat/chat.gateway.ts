@@ -74,7 +74,7 @@ export class ChatGateway
 		client.emit('room-create', {});
 		return ;
 	}
-	console.log("room-create : " + payload);
+	console.log("room-create : ", payload);
     client.join(payload._room_name);
 	channel_list.set(payload._room_name, payload);
 	client.emit('room-create', payload);
