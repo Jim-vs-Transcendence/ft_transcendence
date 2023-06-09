@@ -38,6 +38,7 @@ export class ChatGateway
   handleDisconnect(@ConnectedSocket() client: Socket) {
     console.log('disconnect');
     console.log(client.id);
+    client.emit('room-refresh', this.ft_room_list());
   }
 
   /**
