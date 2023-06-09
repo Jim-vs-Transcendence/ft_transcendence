@@ -1,4 +1,7 @@
-interface ChatRoomIF {
-	room_name: string;
-	room_password: string;
+import { io_chat } from "$lib/webSocketConnection_chat";
+import type { PageLoad } from "./$types";
+
+
+export const load: PageLoad = async () => {
+	io_chat.emit("room-refresh", "page load");
 };

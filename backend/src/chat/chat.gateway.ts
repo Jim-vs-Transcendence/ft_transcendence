@@ -45,7 +45,7 @@ export class ChatGateway
    * @name ft_room_refresh
    * @param client
    * @param payload
-   * @emits server => "room-list"
+   * @emits server => "room-refresh"
    * @brief 방 리스트 목록 조회
    */
   @SubscribeMessage('room-refresh')
@@ -53,6 +53,7 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: string,
   ) {
+	console.log(payload);
     client.emit('room-refresh', this.ft_room_list());
   }
 
@@ -60,7 +61,7 @@ export class ChatGateway
    * @name ft_room_create
    * @param client
    * @param payload
-   * @emits server
+   * @emits server => "room-refresh"
    * @brief 방 생성시 실행
    */
   @SubscribeMessage('room-create')
@@ -75,9 +76,32 @@ export class ChatGateway
 	}
     client.join(payload.room_name);
 	channel_list.set(payload.room_name, payload);
-    console.log(channel_list);
 	client.emit('room-create', payload);
     this.server.emit('room-refresh', this.ft_room_list());
+  }
+
+
+  /**
+   * @name ft_room_create
+   * @param client
+   * @param payload
+   * @emits client => "room-join"
+   * @brief 방 접속
+   */
+  @SubscribeMessage('room-join')
+  ft_room_join(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: ChatRoomDTO,
+  ) {
+	if (!this.server.adapter.rooms.has(payload.room_name)
+		&& channel_list.get(payload.room_name).room_password != payload.room_password)
+	{
+		client.emit('room-join', {});
+		return ;
+	}
+    client.join(payload.room_name);
+	client.emit('room-join', channel_list.get(payload.room_name));
+	// !## 선택 다시 방의 목록을 새로고침하여 안의 유저들을 확인할것인가?
   }
 
   /**
