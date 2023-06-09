@@ -1,0 +1,12 @@
+{
+  "name": "all",
+  "version": "0.3.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "back": "cd backend; nest start --watch",
+    "front": "cd frontend; npm run dev"
+  }
+}
