@@ -69,13 +69,14 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: ChatRoomDTO,
   ) {
-	if (this.server.adapter.rooms.has(payload.room_name))
+	if (this.server.adapter.rooms.has(payload._room_name))
 	{
 		client.emit('room-create', {});
 		return ;
 	}
-    client.join(payload.room_name);
-	channel_list.set(payload.room_name, payload);
+	console.log("room-create : " + payload);
+    client.join(payload._room_name);
+	channel_list.set(payload._room_name, payload);
 	client.emit('room-create', payload);
     this.server.emit('room-refresh', this.ft_room_list());
   }
@@ -93,14 +94,14 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: ChatRoomDTO,
   ) {
-	if (!this.server.adapter.rooms.has(payload.room_name)
-		&& channel_list.get(payload.room_name).room_password != payload.room_password)
+	if (!this.server.adapter.rooms.has(payload._room_name)
+		&& channel_list.get(payload._room_name)._room_password != payload._room_password)
 	{
 		client.emit('room-join', {});
 		return ;
 	}
-    client.join(payload.room_name);
-	client.emit('room-join', channel_list.get(payload.room_name));
+    client.join(payload._room_name);
+	client.emit('room-join', channel_list.get(payload._room_name));
 	// !## 선택 다시 방의 목록을 새로고침하여 안의 유저들을 확인할것인가?
   }
 

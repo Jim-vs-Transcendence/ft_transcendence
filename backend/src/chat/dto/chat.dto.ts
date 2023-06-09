@@ -5,9 +5,9 @@ import {
 
 export class ChatRoomDTO {
   @IsString()
-  readonly room_name: string;
+  readonly _room_name: string;
 
   @IsOptional()
   @IsString()
-  readonly room_password: string;
+  readonly _room_password: string;
 }
