@@ -11,7 +11,7 @@
 	});
 
 
-	function ft_goto_chatroom(room_select: string)
+	function JoinRoom(room_select: string)
 	{
 		goto('/chat/' + room_select);
 	};
@@ -19,6 +19,6 @@
 </script>
 <lu>
 {#each rooms_list as room}
-	<li id="room" on:keydown={ () => { ft_goto_chatroom(room) } }  > {room} </li>
+	<li id="room" on:keydown={ () => { JoinRoom(room) } }  > {room} </li>
 {/each}
 </lu>
