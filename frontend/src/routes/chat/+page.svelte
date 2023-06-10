@@ -18,6 +18,7 @@ io_chat.on('room-create', (data: ChatRoomIF) => {
 	console.log(data);
 	if (!data._room_name)
 		console.log("생성 불가");
+	goto("/chat/" + data._room_name);
 });
 
 io_chat.on('room-join', (data: ChatRoomIF) => {
