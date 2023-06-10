@@ -10,7 +10,6 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
 import { ChatMsgDTO, ChatRoomDTO, PayLoadDTO } from './dto/chat.dto';
-import { ConsoleLogger } from '@nestjs/common';
 
 let channel_list = new Map<string, ChatRoomDTO>();
 
@@ -119,7 +118,7 @@ export class ChatGateway
   }
 
   /**
-   *
+   * @name ft_chat_connect
    * @param client
    * @param payload
    * @emits client => "chat-connect"
@@ -145,27 +144,54 @@ export class ChatGateway
   }
 
   /**
+   * @name ft_chat_msg_event
    * @param client
    * @param payload
+   * @emits client.to(room_name) => "chat-connect"
+   * @brief url 이 정상적인 룸이 있는지 확인
    */
   @SubscribeMessage('chat-msg-event')
   ft_chat_msg_event(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: ChatMsgDTO,
   ) {
-    console.log("chat-msg-event",payload);
-	if (!this.server.adapter.rooms.has(payload._room_info._room_name))
-	{      
-		console.log(
+    console.log('chat-msg-event', payload);
+    if (!this.server.adapter.rooms.has(payload._room_info._room_name)) {
+      console.log(
         '\x1b[38;5;196m',
         'Error ::',
         '\x1b[0m',
         'chat-connect url is not enable',
       );
-	  return ;
-	}
-	console.log(client.to(payload._room_info._room_name));
-    client.to(payload._room_info._room_name).emit("chat-msg-event", payload)
+      return;
+    }
+    client.to(payload._room_info._room_name).emit('chat-msg-event', payload);
     // client.emit("chat-msg-event",payload._msg );
+  }
+
+  /**
+   * @name ft_chat_exit_room
+   * @param client
+   * @param payload
+   * @emits server => "room-refresh"
+   * @brief channel 확인 삭제
+   */
+  @SubscribeMessage('chat-exit-room')
+  ft_chat_exit_room(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: ChatMsgDTO,
+  ) {
+    client.leave(payload._room_info._room_name);
+    if (!this.server.adapter.rooms.has(payload._room_info._room_name)) {
+      console.log(
+        '\x1b[38;5;227m',
+        'delete channel',
+        '\x1b[38;5;46m',
+        payload._room_info._room_name,
+        '\x1b[0m',
+      );
+      channel_list.delete(payload._room_info._room_name);
+      this.server.emit('room-refresh', this.ft_room_list());
+    }
   }
 }

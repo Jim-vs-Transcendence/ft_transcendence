@@ -18,7 +18,6 @@ interface ChatMsgIF {
 	_room_info: ChatRoomIF;
 }
 
-
 interface PayLoadIF {
 	_url: string = '';
 	_check: boolean = false;
