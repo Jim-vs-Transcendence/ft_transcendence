@@ -7,6 +7,18 @@ import { io_chat } from '$lib/webSocketConnection_chat';
 let rooms_list: ChatRoomIF[] = [];
 let room_name: string = "";
 let room_password: string = "";
+let popup_data: popupIF = {
+	_active : false,
+	_message : "",
+	_option : {
+		_index : 0, 
+		_password : "", 
+		_room : {
+			_room_name : "", 
+			_room_password : ""
+		}
+	}
+};
 
 
 
@@ -77,6 +89,7 @@ function ft_room_create_keydown(e : KeyboardEvent) {
 		return ;
 	CreateRoom();
 }
+
 function ft_popup_create()
 {
 	popup_data._active = true;
@@ -84,7 +97,6 @@ function ft_popup_create()
 	popup_data._option._index = 1;
 }
 
-let popup_data: popupIF;
 </script>
 
 <lu>
