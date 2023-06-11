@@ -9,7 +9,7 @@ interface SendOptions {
 const send = async ({ method = '', path = '', data = {} }: SendOptions = {}) => {
   let backUrl = import.meta.env.VITE_API_URL;
   const commonUrl = backUrl; // TODO move to .env
-  const url = commonUrl + path;
+  const url = commonUrl + '/' + path;
   const getToken = localStorage.getItem('authToken'); //로컬스토리지에 저장된 키 값을 헤더에 붙여서 보낸다
   const headers = {
     'Content-Type': 'application/json',
