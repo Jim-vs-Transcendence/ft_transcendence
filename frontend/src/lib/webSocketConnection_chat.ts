@@ -1,4 +1,4 @@
-const backUrl : string = import.meta.env.BACK_URL;
+const backUrl : string = import.meta.env.VITE_API_URL;
 
 import ioClient from 'socket.io-client';
 const ENDPOINT = backUrl + '/chat';

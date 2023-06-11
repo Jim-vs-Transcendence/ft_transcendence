@@ -19,6 +19,8 @@ import { FriendsController } from './users/friend/friend.controller';
 import { FriendsService } from './users/friend/friend.service';
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
