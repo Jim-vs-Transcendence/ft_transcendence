@@ -3,7 +3,7 @@
 	import { afterUpdate } from 'svelte';
 	import { onDestroy } from 'svelte';
 
-	let backUrl = import.meta.env.VITE_API_URL;
+	const backUrl = import.meta.env.VITE_API_URL;
 
 	import ioClient from 'socket.io-client';
 	const ENDPOINT = backUrl + '/game';

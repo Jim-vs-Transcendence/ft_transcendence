@@ -18,9 +18,11 @@ import { FriendModule } from './users/friend/friend.module';
 import { FriendsController } from './users/friend/friend.controller';
 import { FriendsService } from './users/friend/friend.service';
 import { ChatModule } from './chat/chat.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
+    GameModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,

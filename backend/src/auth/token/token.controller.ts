@@ -36,7 +36,7 @@ export class TokenController {
     @Req() req: any,
     // @Headers('authtoken') token: string,
   ): Promise<boolean | User> {
-    console.log(req.user);
+    // console.log(req.user);
     // const user = await this.tokenService.verifyToken(token);
     if (!req.user) return false;
 
