@@ -62,6 +62,7 @@ export class FriendsController {
     @Req() req: RequestWithUser,
     @Param('user_from') user_from: string,
   ): Promise<boolean> {
+    console.log('accept');
     return this.friendsService.acceptFriendRequest(req.user, user_from);
   }
 
@@ -75,6 +76,19 @@ export class FriendsController {
     @Param('user_to') user_to: string,
   ): Promise<boolean> {
     return this.friendsService.deleteFriend(req.user, user_to);
+  }
+
+  @Delete('requests/:user_from')
+  @ApiOperation({
+    summary: '친구 요청 거절 API',
+    description: '친구를 요청을 거절합니다.',
+  })
+  rejectFriendRequest(
+    @Req() req: RequestWithUser,
+    @Param('user_from') user_from: string,
+  ): Promise<boolean> {
+    console.log('reject');
+    return this.friendsService.deleteFriend(user_from, req.user);
   }
 
   // Block a user
