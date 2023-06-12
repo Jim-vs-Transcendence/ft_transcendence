@@ -36,11 +36,25 @@
         });
         isRefused = true;
     }
+
+    //프로필 팝업
+    import { storePopup } from '@skeletonlabs/skeleton';
+    import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+
+    storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+			
+
+
 </script>
 
 {#if !isRefused}
     <div>
-    <Avatar src={friend.avatar} on:click={() => goProfile(friend.id)} width="w-7" rounded="rounded-full" />
+    <Avatar 
+        src={friend.avatar} 
+        on:click={() => goProfile(friend.id)}
+        width="w-7" 
+        rounded="rounded-full" 
+    />
     <span class="flex-auto">
         <dt>{friend.id}</dt>
         {#if friend.friendStatus === FriendRequestStatus.PENDING}

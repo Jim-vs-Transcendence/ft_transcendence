@@ -15,7 +15,6 @@
     let isBlocked : boolean = false;
     $ : isBlocked;
 
-    // export let isFriend: boolean;
     let qr : any;
     let popQR : boolean = false;
 
@@ -23,7 +22,7 @@
     let friendInfo : friendDTO;
     let friendStat : string;
 
-    import { getApi, petchApi, postApi, delApi } from '../../service/api';
+    import { getApi, petchApi, postApi, delApi, postApiWithFile } from '../../service/api';
 
     // Two-factor toggle
     import { SlideToggle } from '@skeletonlabs/skeleton';
@@ -94,7 +93,6 @@
 
     //프로필 사진 업로드
     import { FileButton } from '@skeletonlabs/skeleton';
-	import FriendsList from './FriendsList.svelte';
     
     // 투팩터 초기 설정
     onMount(async () => {
@@ -102,7 +100,6 @@
 		try{
 			if (isMyself === true)
             {
-                console.log("123");
                 if (profile_info.two_factor === true)
                 {
                     twoFactor = 100;
@@ -122,6 +119,36 @@
 		}
 	});  
 
+    // 아바타 업로드
+    let uploaded_pic: FileList;
+    $: profile_info.avatar;
+
+    async function uploadHandler(): Promise<void> {
+        try {
+            if (uploaded_pic && uploaded_pic.length > 0) {
+            const file = uploaded_pic[0];
+
+            if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+                alert('jpeg나 png만 지원합니다');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('당신 얼굴의 크기가 너무 큽니다. 5MB까지만 올릴 수 있습니다.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await postApiWithFile({
+                path: 'user/uploads',
+                file
+            });
+            profile_info = await getApi({ path: 'user/' + profile_info.id });
+            }
+        } catch (error) {
+            console.error('에러 발생:', error);
+        }
+    }
 
     // 닉네임 변경
     async function handleChangeNickname() {
@@ -202,7 +229,11 @@
     <ul class="text-center">
       {#if isMyself}
         <div>
-            <FileButton name="files" />
+            <FileButton 
+                name="files"
+                bind:files={uploaded_pic}
+                on:change={uploadHandler}
+                >얼굴 개시</FileButton>
             <button on:click={handleChangeNickname}>가짜이름 변경</button>
         </div>
       {:else}
