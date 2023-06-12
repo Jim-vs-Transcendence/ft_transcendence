@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import Popup from '$lib/popup.svelte';
 	import { io_chat } from '$lib/webSocketConnection_chat';
+	import { onMount } from 'svelte';
 
 	let rooms_list: ChatRoomIF[] = [];
 	let room_name: string = '';
@@ -26,7 +27,7 @@
 	io_chat.on('room-create', (data: ChatRoomIF) => {
 		console.log(data);
 		if (!data._room_name) console.log('생성 불가');
-		goto('/chat/' + data._room_name);
+		goto('/main/' + data._room_name);
 	});
 
 	io_chat.on('room-join', (data: ChatRoomIF) => {
@@ -34,7 +35,7 @@
 			console.log('접속 불가');
 			io_chat.emit('room-refresh', 'room-join error');
 		}
-		goto('/chat/' + data._room_name);
+		goto('/main/' + data._room_name);
 	});
 
 	function CreateRoom() {
@@ -85,6 +86,10 @@
 		popup_data._message = '방 생성';
 		popup_data._option._index = 1;
 	}
+
+	onMount(() => {
+		io_chat.emit('room-refresh', 'page load chat list');
+	})
 </script>
 
 <lu>

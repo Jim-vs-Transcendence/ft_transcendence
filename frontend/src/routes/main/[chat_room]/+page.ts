@@ -3,7 +3,7 @@ import type { LoadEvent } from '@sveltejs/kit';
 import type { PageLoad, RouteParams } from './$types';
 
 export const load: PageLoad = async (
-	url: LoadEvent<RouteParams, null, {}, '/chat/[chat_room]'>
+	url: LoadEvent<RouteParams, null, {}, '/main/[chat_room]'>
 ) => {
 	/**
 	 * 접속 불가 url 막는 방식 생각해야함
