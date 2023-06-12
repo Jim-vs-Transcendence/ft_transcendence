@@ -4,6 +4,7 @@
     export let isFriend: boolean;
 
     $: isFriend;
+    $: friendStat;
 
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
@@ -93,12 +94,15 @@
 
     //프로필 사진 업로드
     import { FileButton } from '@skeletonlabs/skeleton';
+	import FriendsList from './FriendsList.svelte';
     
     // 투팩터 초기 설정
     onMount(async () => {
+        profile_info = await getApi({ path: 'user/' + profile_info.id });
 		try{
 			if (isMyself === true)
             {
+                console.log("123");
                 if (profile_info.two_factor === true)
                 {
                     twoFactor = 100;
@@ -171,6 +175,7 @@
             }  
             });
             isBlocked = true;
+            friendStat = "blocked";
             } catch (error) {
                 alert("블럭 오류");
             }
@@ -183,6 +188,7 @@
             }  
             });
             isBlocked = false;
+            friendStat = " ";
             } catch (error) {
                 alert("블럭 해제 오류");
             }
@@ -252,10 +258,10 @@
                 <button class="flex-1" on:click={deleteFriend}>무참히 절교</button>
             {:else}
                 <button class="flex-1" on:click={requestFriend}>동무 추가</button>
-                {#if isBlocked === false}
-                    <button class="flex-1" on:click={blockToggle}>검열</button>
-                {:else}
+                {#if friendStat === "blocked"}
                     <button class="flex-1" on:click={blockToggle}>검열 해제</button>
+                {:else}
+                    <button class="flex-1" on:click={blockToggle}>검열</button>
                 {/if}
             {/if}
             </div>

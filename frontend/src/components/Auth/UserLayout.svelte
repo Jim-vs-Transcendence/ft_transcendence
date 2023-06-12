@@ -5,7 +5,10 @@
   import '../../service/friendDTO';
 
   export let userInfo: UserDTO ;
-  export let friendList: friendDTO[] ;
+  export let friendList: friendDTO[];
+
+  //friendsList 컴포넌트
+  import FriendsList from '../Profile/FriendsList.svelte';
 
   //css
   import { AppBar } from '@skeletonlabs/skeleton';
@@ -37,20 +40,10 @@ const openDrawer = () => {
 
 <!-- 친구 목록 : 옆으로 뜨는거 수정해야함 -->
 <dl class="list-dl">
-	<div>
     {#each friendList as friend}
-    <div>
-      <Avatar src={friend.avatar} on:click={() => goProfile(friend.id)} width="w-7" rounded="rounded-full" />
-      <span class="flex-auto">
-        <dt>{friend.id}</dt>
-        <dd>{friend.friendStatus}</dd>
-      </span>
-    </div>
-  {/each}
-
+      <FriendsList friend={friend} userInfo={userInfo} />
+    {/each}
 </Drawer>
-
-
 
 <!-- 상단바 -->
 <AppBar slot="headline" class="h-16">
