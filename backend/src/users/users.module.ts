@@ -5,9 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Friend } from './entities/friend.entity';
 import { TokenService } from 'src/auth/token/token.service';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Friend])],
+  imports: [
+    TypeOrmModule.forFeature([User, Friend]),
+    MulterModule.register({
+      dest: '../data/profile',
+    }),
+  ],
   controllers: [UsersController],
   providers: [UsersService, TokenService],
   exports: [UsersService],

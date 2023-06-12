@@ -30,7 +30,7 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42') {
       id: profile.nickname,
       nickname: profile.nickname,
       email: profile.email,
-      avatar: profile.avatar,
+      avatar: 'http://43.202.12.31:3000/user/uploads/_default.jpg',
       win: 0,
       lose: 0,
       level: 0,

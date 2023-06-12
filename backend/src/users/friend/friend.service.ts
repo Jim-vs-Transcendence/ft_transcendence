@@ -24,7 +24,9 @@ export class FriendsService {
   // Find a friend request
   async findFriend(user_to: string) {
     const friendEntities = await this.friendRepository.find({
-      where: { user_to: user_to },
+      where: { user_to: user_to,
+        // friend_status: In([FriendRequestStatus.PENDING, FriendRequestStatus.ACCEPTED]),
+      },
     });
 
     const ret: friendDTO[] = await Promise.all(

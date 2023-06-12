@@ -6,12 +6,24 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TokenGuard } from 'src/auth/token/token.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { Express, Request, Response } from 'express';
+import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
+import { promises as fs } from 'fs';
+import { join } from 'path';
 
 @Controller('user')
 // @UseGuards(TokenGuard)
@@ -89,5 +101,39 @@ export class UsersController {
   })
   async deleteUser(@Param('id') id: string): Promise<boolean> {
     return this.usersService.deleteUser(id);
+  }
+
+  @Post('uploads')
+  @UseGuards(TokenGuard)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: '../data/profile',
+        filename(_, file, callback): void {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return callback(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  async uploadImage(
+    @Req() req: RequestWithUser,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    console.log('uploads');
+    return await this.usersService.uploadImage(req, file);
+  }
+
+  @Get('uploads/:filename')
+  async getImage(@Param('filename') filename: string, @Res() res: Response) {
+    res.sendFile(filename, { root: '../data/profile' });
+  }
+
+  @Delete('uploads/:filename')
+  async deleteImage(@Param('filename') filename: string): Promise<string> {
+    return await this.usersService.deleteImage(filename);
   }
 }
