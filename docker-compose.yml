@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+
+  postgresql:
+    image: postgres
+    restart: always
+    container_name: postgresql
+    expose:
+      - 6000
+    ports:
+      - "127.0.0.1:6000:5432"
+    env_file:
+      - .env
+#     volumes:
+#       - postgresDB:/var/lib/postgresql/data
+
+# volumes:
+#   postgresDB:
+#     driver_opts:
+#       type: none
+#       o: bind
+#       device: /home/ubuntu/ft_transcendence/data/postgresql
+#     name: postgresDB

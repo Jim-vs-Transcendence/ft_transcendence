@@ -19,10 +19,9 @@ export class ChatMsgDTO {
 }
 
 export class PayLoadDTO {
-	@IsString()
-	readonly _url: string;
+  @IsString()
+  readonly _url: string;
 
-	@IsBoolean()
-	_check: boolean;
+  @IsBoolean()
+  _check: boolean;
 }
-  

@@ -1,0 +1,15 @@
+.chat-btn {
+    background-color: #007bff;
+    color: #fff;
+    font-size: 1rem; /* Decrease the font size */
+    padding: 0.25rem 0.5rem; /* Decrease the padding */
+    border-radius: 0.25rem;
+  }
+  
+  .game-btn {
+    background-color: #28a745;
+    color: #fff;
+    font-size: 1rem; /* Decrease the font size */
+    padding: 0.25rem 0.5rem; /* Decrease the padding */
+    border-radius: 0.25rem;
+  }
