@@ -18,7 +18,7 @@ services:
 # volumes:
 #   postgresDB:
 #     driver_opts:
-#       type: volume
+#       type: none
 #       o: bind
-#       device: /home/ubuntu/user-back/data/postgresql
+#       device: /home/ubuntu/ft_transcendence/data/postgresql
 #     name: postgresDB
