@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Avatar } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import { io_chat } from '$lib/webSocketConnection_chat';
 	import { each } from 'svelte/internal';
@@ -32,7 +33,8 @@
 	io_chat.emit('chat-connect', data);
 
 	function ft_chat_send_msg() {
-		if (chat_data._msg) io_chat.emit('chat-msg-event', chat_data);
+		// if (chat_data._msg) io_chat.emit('chat-msg-event', chat_data);
+		msg_list = [... msg_list, chat_data._msg]
 		chat_data._msg = '';
 	}
 
@@ -45,16 +47,115 @@
 		io_chat.emit('chat-exit-room', chat_data);
 		goto('/main');
 	}
+
+	// ------------------
+
+	let messageFeed = [
+		{
+			id: 0,
+			host: true,
+			avatar: 48,
+			name: 'Jane',
+			timestamp: 'Yesterday @ 2:30pm',
+			message: 'Some message text.',
+			color: 'variant-soft-primary'
+		},
+		{
+			host: false,
+			avatar: 14,
+			name: 'Michael',
+			timestamp: 'Yesterday @ 2:45pm',
+			message: 'Some message text.',
+			color: 'variant-soft-primary'
+		}
+	];
+
+	let elemChat: HTMLElement;
+
+	function scrollChatBottom(behavior?: ScrollBehavior): void {
+		elemChat.scrollTo({ top: elemChat.scrollHeight, behavior });
+	}
+
+	function addMessage(): void {
+		const newMessage = {
+			id: messageFeed.length,
+			host: true,
+			avatar: 48,
+			name: 'Jane',
+			timestamp: new Date(),
+			message: chat_data._msg,
+			color: 'variant-soft-primary'
+		};
+		// Append the new message to the message feed
+		messageFeed = [...messageFeed, newMessage];
+		// Clear the textarea message
+		chat_data._msg = '';
+		// Smoothly scroll to the bottom of the feed
+		setTimeout(() => { scrollChatBottom('smooth'); }, 0);
+	}
+
 </script>
 
-<div>here is chatroom</div>
-<div>
-	<lu>
-		{#each msg_list as msg}
-			<li>{msg}</li>
-		{/each}
-	</lu>
-	<input type="text" bind:value={chat_data._msg} />
-	<button on:keydown={ft_chat_send_msg_keydown} on:click={ft_chat_send_msg}>send</button>
+<!-- <section class="w-full max-h-[400px] p-4 overflow-y-auto space-y-4">
+	{#each messageFeed as bubble, i}
+		{#if bubble.host === true}
+			<pre>host: {JSON.stringify(bubble, null, 2)}</pre>
+		{:else}
+			<pre>guest: {JSON.stringify(bubble, null, 2)}</pre>
+		{/if}
+	{/each}
+</section> -->
+
+
+<div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
+	<div class="bg-surface-500/30 p-4">(nav)
+	</div>
+	<div class="bg-surface-500/30 p-4">
+		<!--  -->
+		<div class="grid grid-cols-[auto_1fr] gap-5">
+			<Avatar src="https://i.pravatar.cc/?img={"bubble.avatar"}" width="w-12" />
+			<div class="card p-4 variant-soft rounded-tl-none space-y-2">
+				<header class="flex justify-between items-center">
+					<p class="font-bold">{"bubble.name"}</p>
+					<small class="opacity-50">{"bubble.timestamp"}</small>
+				</header>
+				{#each msg_list as msg}
+					<p class="font-bold"> {msg} </p>
+				{/each}
+			</div>
+		</div>
+	
+		<div class="grid grid-cols-[1fr_auto] gap-2">
+			<div class="card p-4 rounded-tr-none space-y-2 {"bubble.color"}">
+				<header class="flex justify-between items-center">
+					<p class="font-bold">{"bubble.name"}</p>
+					<small class="opacity-50">{"bubble.timestamp"}</small>
+				</header>
+				{#each msg_list as msg}
+					<p class="font-bold"> {msg} </p>
+				{/each}
+			</div>
+			<Avatar src="https://i.pravatar.cc/?img={"bubble.avatar"}" width="w-12" />
+		</div>
+	
+		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
+			<button class="input-group-shim">+</button>
+			<textarea
+				bind:value={chat_data._msg}
+				on:keydown={ft_chat_send_msg_keydown}
+				class="bg-transparent border-0 ring-0"
+				name="prompt"
+				id="prompt"
+				placeholder="Write a message..."
+				rows="1"
+			/>
+			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
+		</div>
+		<!--  -->
+	
+	
+	</div>
 </div>
-<button on:mousedown={ft_exit_chat_room}> go back </button>
+					
+
+<!-- <div bind:this={elemChat} class="overflow-y-auto">(chat)</div> -->
