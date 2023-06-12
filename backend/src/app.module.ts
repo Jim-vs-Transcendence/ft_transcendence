@@ -42,7 +42,7 @@ import { GameModule } from './game/game.module';
     UsersModule,
     TokenModule,
     FriendModule,
-    ChatModule,
+    // ChatModule,
   ],
   controllers: [
     AuthController,

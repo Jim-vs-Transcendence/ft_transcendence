@@ -2,44 +2,32 @@
 	import { onMount } from 'svelte';
 	import { afterUpdate } from 'svelte';
 	import { onDestroy } from 'svelte';
-
-	const backUrl = import.meta.env.VITE_API_URL;
-
-	import ioClient from 'socket.io-client';
-	const ENDPOINT = backUrl + '/game';
-
-	// const ENDPOINT = 'http://175.117.47.114:1414/game';
-
-	const io_game = ioClient(ENDPOINT);
-
-
-	let canvas: any;
-	let context: any;
-
-	let roomName: string;
-
-	// Ball Location
-	let ballRadius: number;
-
-	// Paddle
-	let paddleWidth: number;
-	let paddleHeight: number;
-
-	// score
-	let scoreTextSize: number;
-	let scoreMargin: number;
-
-	let score1X: number;
-	let score2X: number;
-
-	let scoreY: number;
+	import { io_game } from '$lib/webSocketConnection_game';
+	import { gameRoom } from '$lib/gameData';
 
 	let cnt: number = 0;
 
-	function setRoomName(name: string) {
-		console.log('setting');
-		roomName = name;
-	}
+	let canvas: HTMLCanvasElement;
+	let context: any;
+
+	// Paddle
+	let leftPaddleX: number
+	let rightPaddleX: number
+
+	let paddleWidth: number
+	let paddleHeight: number
+
+	// score
+	let scoreTextSize: number
+	let scoreMargin: number
+
+	let score1X: number
+	let score2X: number
+	let scoreY: number
+
+	let leftScore: number
+	let rightScore: number
+	
 
 	function setEndGame(flag: boolean) {
 		if (flag) {
@@ -58,12 +46,13 @@
 	}
 
 	function initPlayer(Player: any) {
-		console.log('initPlayer');
+		console.log(Player);
 		canvas.width = Player.canvasWidth;
 		canvas.height = Player.canvasHeight;
 		canvas.style.backgroundColor = Player.canvasColor;
 
-		ballRadius = Player.ballRadius;
+		gameRoom._ballRadius = Player.ballRadius;
+		gameRoom._ballSpeed = Player.ballSpeed;
 
 		paddleWidth = Player.paddleWidth;
 		paddleHeight = Player.paddleHeight;
@@ -71,16 +60,22 @@
 		scoreTextSize = canvas.height * 0.3;
 		scoreMargin = canvas.width * 0.2;
 
+		leftPaddleX = Player.leftPaddleX;
+		rightPaddleX = Player.rightPaddleX;
+
 		score1X = canvas.width / 2 - scoreMargin;
 		score2X = canvas.width / 2 + scoreMargin;
-
 		scoreY = canvas.height / 2 + (scoreTextSize * 3) / 8;
+
+		leftScore = Player.updateData.leftScore;
+		rightScore = Player.updateData.rightScore;
 	}
 
-	function draw(player: any) {
+	function draw(moveData: any) {
+		console.log(moveData)
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.beginPath();
-		context.arc(player.ballX, player.ballY, player.ballRadius, 0, Math.PI * 2, false);
+		context.arc(moveData.ballX, moveData.ballY, gameRoom._ballRadius, 0, Math.PI * 2, false);
 		context.fillStyle = 'white';
 		context.fill();
 		context.closePath();
@@ -89,26 +84,26 @@
 		context.font = `${scoreTextSize}px Arial`;
 		context.fillStyle = 'white';
 		context.textAlign = 'center';
-		context.fillText(player.leftScore, score1X, scoreY);
+		context.fillText(leftScore, score1X, scoreY);
 
-		context.fillText(player.rightScore, score2X, scoreY);
+		context.fillText(rightScore, score2X, scoreY);
 
 		context.globalAlpha = 1;
 
 		context.fillStyle = 'white';
 		context.fillRect(
-			player.leftPaddleX,
-			player.leftPaddleY,
-			player.paddleWidth,
-			player.paddleHeight
+			leftPaddleX,
+			moveData.leftPaddleY,
+			paddleWidth,
+			paddleHeight
 		);
 
 		context.fillStyle = 'white';
 		context.fillRect(
-			player.rightPaddleX,
-			player.rightPaddleY,
-			player.paddleWidth,
-			player.paddleHeight
+			rightPaddleX,
+			moveData.rightPaddleY,
+			paddleWidth,
+			paddleHeight
 		);
 	}
 
@@ -117,21 +112,18 @@
 			cnt++;
 			console.log('enter press');
 			if (cnt === 1) {
-				io_game.emit('gameReady', roomName);
+				io_game.emit('gameReady', gameRoom._roomName);
 			}
 		} else if (event.key === 'ArrowDown') {
-			console.log('up press');
-			io_game.emit('downKey', roomName);
+			io_game.emit('downKey', gameRoom._roomName);
 		} else if (event.key === 'ArrowUp') {
-			console.log('down press');
-			io_game.emit('upKey', roomName);
+			io_game.emit('upKey', gameRoom._roomName);
 		} else if (event.key === 'ArrowLeft') {
-			console.log('down press');
-			io_game.emit('leftTest', roomName);
+			io_game.emit('gameRestart', gameRoom._roomName);
 		}
 	}
 
-	onMount(() => {
+	// onMount(() => {
 		canvas = document.createElement('canvas');
 		context = canvas.getContext('2d');
 
@@ -140,33 +132,38 @@
 		window.addEventListener('keydown', handleKeyPress);
 
 		io_game.on('connected', (Player: any) => {
-			console.log('connected?');
-			console.log(Player);
 			initPlayer(Player);
-			draw(Player);
-		});
-		io_game.on('handShaking', (flag: boolean) => {
-			if (flag) {
-				io_game.emit('handShaking', true);
-			}
+			draw(Player.updateData.moveData);
 		});
 
-		io_game.on('roomName', (name: string) => {
-			console.log('room name: ', name);
-			setRoomName(name);
-			console.log(roomName);
-		});
+
+
+		// io_game.on('roomName', (name: string) => {
+		// });
+
+		io_game.on('restart', (flag: boolean) => {
+			if (flag)
+			{
+				leftScore = 0;
+				rightScore = 0;
+			}
+		})
 
 		io_game.on('ballMove', (player: any) => {
-			console.log('ball move: ', player);
 			draw(player);
 		});
+
+		io_game.on('scoring', (player: any) => {
+			leftScore = player.leftScore;
+			rightScore = player.rightScore;
+			draw(player.moveData);
+		})
 
 		io_game.on('endGame', (flag: boolean) => {
 			console.log('end game:', flag ? 'true' : 'false');
 			setEndGame(flag);
 		});
-	});
+	// });
 
 	// onDestroy(() => {
 	// 	io_game.disconnect();

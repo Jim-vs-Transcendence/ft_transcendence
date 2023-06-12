@@ -1,6 +1,6 @@
 import { ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, MessageBody, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket, Namespace } from 'socket.io';
-import { gameDataDto } from './gameDto/gameData.dto';
+import { GameInitData, GameUpdateData, MoveData } from './dto/gameData.dto';
 import { Room } from './data/playerData'
 import { GameService } from './game.service';
 /* 
@@ -20,12 +20,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@WebSocketServer() server: Namespace;
 
 	private service: GameService;
-	public rooms: Room[];
-	private players: gameDataDto[];
+	public rooms = new Map<string, Room>();
+	public roomKey = new Map<string, string>();
+	private players: GameInitData[];
 
 	constructor() {
 		this.service = new GameService(this);
-		this.rooms = [];
+		this.rooms;
 		this.players = [];
 	}
 	// Canvas Info
@@ -39,15 +40,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	handleDisconnect(client: Socket) {
-		console.log('game disconnect');
-		//console.log('disconnect');
-		console.log(client.id);
+		let destroyedRoom: string = this.roomKey.get(client.id);
+		let room: Room = this.rooms.get(destroyedRoom);
+		if (room.leftPlayer.socketId === client.id) {
+			// rightPlayer win
+		}
+		else {
+			// leftPlayer Win
+		}
+		this.service.endGame(room);
+		console.log('disconnect', client.id);
 	}
 
-
 	public findRoom(roomName: string): Room {
-		let room: Room = this.rooms.find((room: Room) =>
-			room.roomName === roomName);
+		let room: Room = this.rooms.get(roomName);
 		return room;
 	}
 
@@ -55,7 +61,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleConnection(
 		@ConnectedSocket() client: Socket
 	) {
-
+		console.log('connect', client.id);
 		this.server.to(client.id).emit('handShaking', true);
 	}
 
@@ -65,22 +71,29 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody() flag: boolean,
 	) {
 		if (flag) {
-			let player: gameDataDto = new gameDataDto();
+			console.log('handshake succ');
+			console.log(client.id);
+			let player: GameInitData = new GameInitData();
+			player.updateData = new GameUpdateData();
+			player.updateData.moveData = new MoveData();
+
 			this.service.initPlayer(player, client.id);
-			console.log(player);
-			this.server.to(client.id).emit('connected', player);
+			// this.server.to(client.id).emit('connected', player);
 			this.players.push(player);
+
 			if (this.players.length >= 2) {
 				console.log(this.players.length);
 				let room: Room = new Room();
+
 				room.leftPlayer = this.players.shift();
 				room.rightPlayer = this.players.shift();
-				room.roomName = room.leftPlayer.socketId;
-				room.leftPlayer.roomName = room.roomName;
-				room.rightPlayer.roomName = room.roomName;
-				this.rooms.push(room);
-				this.server.to(room.leftPlayer.socketId).emit('roomName', room.roomName);
-				this.server.to(room.rightPlayer.socketId).emit('roomName', room.roomName);
+				this.rooms.set(room.leftPlayer.socketId, room);
+
+				this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
+				this.roomKey.set(room.rightPlayer.socketId, room.leftPlayer.socketId);
+
+				this.server.to(room.leftPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
+				this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 			}
 		}
 	}
@@ -92,7 +105,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 		@MessageBody() roomName: string,
 	) {
-		console.log(roomName);
 		let room = this.findRoom(roomName);
 		if (room) {
 			this.service.getReady(room, client.id);
@@ -129,17 +141,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
-
-	@SubscribeMessage('leftTest')
+	@SubscribeMessage('gameRestart')
 	waitTester(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() roomName: string,
 	) {
-		console.log(roomName);
+
 		let room = this.findRoom(roomName);
 		if (room) {
-			console.log(room.endTimer);
-			clearTimeout(room.endTimer);
+			if (client.id === room.leftPlayer.socketId) {
+				room.leftReady = true;
+			}
+			else {
+				room.rightReady = true;
+			}
+			if (room.leftReady && room.rightReady) {
+				clearTimeout(room.endTimer);
+				this.server.to(room.leftPlayer.socketId).emit('restart', true);
+				this.server.to(room.rightPlayer.socketId).emit('restart', true);
+				this.service.getReady(room, client.id);
+			}
 		}
 	}
 }

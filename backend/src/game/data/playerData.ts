@@ -1,12 +1,13 @@
-import { gameDataDto } from "../gameDto/gameData.dto";
+import { GameInitData } from "../dto/gameData.dto";
 
 export class Room {
-    isEnd: boolean;
     endTimer: any;
     dataFrame: any;
-    roomName: string;
-    leftPlayer: gameDataDto;
-    rightPlayer: gameDataDto;
+
+    leftPlayer: GameInitData;
+    rightPlayer: GameInitData;
+
+    isEnd: boolean;
     leftReady: boolean;
     rightReady: boolean;
 }
