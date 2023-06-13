@@ -24,9 +24,9 @@ socket.on("dm-chat", (data : DmChatIF) => {
 			dmData = JSON.parse(loadDmChat);
 		else
 			dmData = new Map<string, string[]>();
-		if (!dmData.has(data._from))
-			dmData.set(data._from, []);
-		dmData.get(data._from)?.push(data._msg);
+		if (!dmData.has(data._to))
+			dmData.set(data._to, []);
+		dmData.get(data._to)?.push(data._msg);
 		localStorage.setItem(DM_KEY, JSON.stringify(dmData));
 	}
 })
