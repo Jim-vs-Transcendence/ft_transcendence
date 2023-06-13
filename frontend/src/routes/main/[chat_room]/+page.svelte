@@ -2,6 +2,7 @@
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import { io_chat } from '$lib/webSocketConnection_chat';
+	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { each } from 'svelte/internal';
 
 	export let data: PayLoadIF; // extern
@@ -94,6 +95,8 @@
 		setTimeout(() => { scrollChatBottom('smooth'); }, 0);
 	}
 
+	let tabSet: number = 0;
+
 </script>
 
 <!-- <section class="w-full max-h-[400px] p-4 overflow-y-auto space-y-4">
@@ -108,7 +111,20 @@
 
 
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
-	<div class="bg-surface-500/30 p-4">(nav)
+	<div class="bg-surface-500/30 p-10">
+		<TabGroup>
+			<Tab bind:group={tabSet} name="tab1" value={0}>(label)</Tab>
+			<Tab bind:group={tabSet} name="tab2" value={1}>(label)</Tab>
+			<!-- Tab Panels --->
+			<svelte:fragment slot="panel">
+				{#if tabSet === 0}
+					(tab panel 1 contents)
+				{:else if tabSet === 1}
+					(tab panel 2 contents)
+				{/if}
+			</svelte:fragment>
+		</TabGroup>
+			
 	</div>
 	<div class="bg-surface-500/30 p-4">
 		<!--  -->
