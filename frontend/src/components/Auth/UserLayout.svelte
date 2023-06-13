@@ -59,6 +59,6 @@ const openDrawer = () => {
   </h1>
   <div slot="trail" class="flex items-center space-x-6">
     <!-- 아바타, 친구목록 -->
-    <Avatar src={userInfo.avatar} on:click={goProfile(userInfo.id)} width="w-8" rounded="rounded-full" style="cursor: pointer;" />    <button type="button" class="btn btn-sm variant-filled" on:click={openDrawer}>동무 목록</button>
+    <Avatar src={userInfo.avatar} on:click={ () => {goProfile(userInfo.id)}} width="w-8" rounded="rounded-full" style="cursor: pointer;" />    <button type="button" class="btn btn-sm variant-filled" on:click={openDrawer}>동무 목록</button>
   </div>
 </AppBar>

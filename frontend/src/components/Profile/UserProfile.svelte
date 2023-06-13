@@ -152,7 +152,14 @@
 
     // 닉네임 변경
     async function handleChangeNickname() {
-        const nickname : string = prompt('변경할 가짜 이름을 입력하세요');
+        const nickname : string = prompt_string();
+        function prompt_string () : string
+        {
+            let text : string | null = prompt('변경할 가짜 이름을 입력하세요');
+            if (text == null)
+                text = "";
+            return (text);
+        }
         if (nickname === "" ||nickname === profile_info.nickname) return;
         if (nickname.length > 20)
         {
