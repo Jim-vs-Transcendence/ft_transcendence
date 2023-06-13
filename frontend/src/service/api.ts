@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const send = async (method : string = '', path : string = '', data : any = {}, headers : any = {}) => {
+const send = async (method : string = '', path : string = '', data : any = {}, headers : any = {}) : Promise<any> => {
   const backUrl = import.meta.env.VITE_API_URL;
   const url = backUrl + '/' + path;
   const getToken = localStorage.getItem('authToken');
