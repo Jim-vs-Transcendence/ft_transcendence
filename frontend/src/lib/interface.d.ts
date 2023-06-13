@@ -22,3 +22,9 @@ interface PayLoadIF {
 	_url: string = '';
 	_check: boolean = false;
 }
+
+interface DmChatIF {
+	_msg: string = '';
+	_from: string = '';
+	_to: string = '';
+}

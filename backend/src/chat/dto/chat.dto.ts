@@ -25,3 +25,14 @@ export class PayLoadDTO {
   @IsBoolean()
   _check: boolean;
 }
+
+export class DmChatDTO {
+	@IsString()
+	readonly _msg: string;
+  
+	@IsString()
+	readonly _from: string;
+
+	@IsString()
+	readonly _to: string;
+  }
