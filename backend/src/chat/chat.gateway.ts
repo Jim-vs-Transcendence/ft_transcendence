@@ -9,9 +9,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
-import { ChatMsgDTO, ChatRoomDTO, PayLoadDTO } from './dto/chat.dto';
+import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, PayLoadDTO } from './dto/chat.dto';
 
-let channel_list = new Map<string, ChatRoomDTO>();
+let channel_list : Map<string, ChatRoomDTO> = new Map<string, ChatRoomDTO>();
+let socket_list : Map<string, Socket> = new Map<string, Socket>();
 
 @WebSocketGateway({ namespace: '/chat', cors: true })
 export class ChatGateway
@@ -25,12 +26,15 @@ export class ChatGateway
     this.server.server.engine.opts.pingInterval = 20000;
     this.server.server.engine.opts.upgradeTimeout = 20000;
   }
-
+  // chat.gateway.ts
   handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
+	const userid : string | string[] = client.handshake.query.userid;
     client.join('defult');
     client.leave(client.id);
     console.log('connect');
-    console.log(client.id);
+	if (typeof userid === 'string')
+		socket_list.set(userid, client);
+	socket_list.forEach((item, key) => {console.log(key);})
     client.emit('room-refresh', this.ft_room_list());
   }
 
@@ -148,7 +152,7 @@ export class ChatGateway
    * @param client
    * @param payload
    * @emits client.to(room_name) => "chat-connect"
-   * @brief url 이 정상적인 룸이 있는지 확인
+   * @brief 채팅방 채팅 전송 기능
    */
   @SubscribeMessage('chat-msg-event')
   ft_chat_msg_event(
@@ -193,5 +197,32 @@ export class ChatGateway
       channel_list.delete(payload._room_info._room_name);
       this.server.emit('room-refresh', this.ft_room_list());
     }
+  }
+  /**
+	 * @name ft_dm_chat
+	 * @param client
+	 * @param payload
+	 * @emits client => "dm-chat"
+	 * @brief Dm 전송 기능
+	 */
+  @SubscribeMessage('dm-chat')
+  ft_dm_chat(
+	@ConnectedSocket() client: Socket,
+	@MessageBody() payload: DmChatDTO,
+  ) {
+	  
+	console.log('chat-msg-event', payload);
+	if (!socket_list.has(payload._from)) {
+	  console.log(
+		'\x1b[38;5;196m',
+		'Error ::',
+		'\x1b[0m',
+		'chat-connect url is not enable',
+	  );
+	  client.emit()
+	  return;
+	}
+	client.to(payload._room_info._room_name).emit('chat-msg-event', payload);
+	// client.emit("chat-msg-event",payload._msg );
   }
 }
