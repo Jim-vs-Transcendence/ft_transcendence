@@ -1,22 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth42/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { AuthController } from './auth/auth42/auth.controller';
-import { AuthService } from './auth/auth42/auth.service';
-import { UsersController } from './users/users.controller';
+
 import { UsersModule } from './users/users.module';
-import { UsersService } from './users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { TokenModule } from './auth/token/token.module';
-import { TokenService } from './auth/token/token.service';
-import { TokenController } from './auth/token/token.controller';
-import { TwoFactorController } from './auth/two-factor/two-factor.controller';
-import { TwoFactorService } from './auth/two-factor/two-factor.service';
+
 import { Friend } from './users/entities/friend.entity';
 import { FriendModule } from './users/friend/friend.module';
-import { FriendsController } from './users/friend/friend.controller';
-import { FriendsService } from './users/friend/friend.service';
+
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
 
@@ -44,19 +37,7 @@ import { GameModule } from './game/game.module';
     FriendModule,
     ChatModule,
   ],
-  controllers: [
-    AuthController,
-    UsersController,
-    TokenController,
-    TwoFactorController,
-    FriendsController,
-  ],
-  providers: [
-    AuthService,
-    UsersService,
-    TokenService,
-    TwoFactorService,
-    FriendsService,
-  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
