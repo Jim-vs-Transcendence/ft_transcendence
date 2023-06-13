@@ -210,19 +210,17 @@ export class ChatGateway
 	@ConnectedSocket() client: Socket,
 	@MessageBody() payload: DmChatDTO,
   ) {
-	  
-	console.log('chat-msg-event', payload);
-	if (!socket_list.has(payload._from)) {
+	if (!socket_list.has(payload._to)) {
 	  console.log(
 		'\x1b[38;5;196m',
 		'Error ::',
 		'\x1b[0m',
-		'chat-connect url is not enable',
+		'socket is not enable',
 	  );
-	  client.emit()
+	  client.emit('dm-chat', payload);
 	  return;
 	}
-	client.to(payload._room_info._room_name).emit('chat-msg-event', payload);
+	socket_list.get(payload._to).emit('dm-chat', payload);
 	// client.emit("chat-msg-event",payload._msg );
   }
 }
