@@ -11,7 +11,6 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
@@ -20,10 +19,8 @@ import { TokenGuard } from 'src/auth/token/token.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { Express, Request, Response } from 'express';
+import { Express, Response } from 'express';
 import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
-import { promises as fs } from 'fs';
-import { join } from 'path';
 
 @Controller('user')
 // @UseGuards(TokenGuard)

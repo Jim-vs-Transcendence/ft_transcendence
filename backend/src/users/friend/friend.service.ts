@@ -24,7 +24,8 @@ export class FriendsService {
   // Find a friend request
   async findFriend(user_to: string) {
     const friendEntities = await this.friendRepository.find({
-      where: { user_to: user_to,
+      where: {
+        user_to: user_to,
         // friend_status: In([FriendRequestStatus.PENDING, FriendRequestStatus.ACCEPTED]),
       },
     });
@@ -115,7 +116,6 @@ export class FriendsService {
 
     // user_to accept
     request.friend_status = FriendRequestStatus.ACCEPTED;
-    const user = await this.usersRepository.findOne({ where: { id: user_to } });
     await this.friendRepository.save(request);
 
     // user_from create

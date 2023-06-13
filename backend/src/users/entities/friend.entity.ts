@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
-import { User } from './user.entity';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 export enum FriendRequestStatus {
   BLOCKED = 'blocked',

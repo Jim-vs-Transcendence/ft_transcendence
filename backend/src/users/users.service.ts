@@ -2,8 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { Friend } from './entities/friend.entity';
-import friendDTO from './friend/dto/friend.dto';
 import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
 import { promises as fs } from 'fs';
 import { join } from 'path';
@@ -12,7 +10,6 @@ import { join } from 'path';
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Friend) private friendRepository: Repository<Friend>,
   ) {}
 
   // User part

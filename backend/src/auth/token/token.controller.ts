@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Headers,
-  Param,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
@@ -32,12 +25,7 @@ export class TokenController {
     description:
       '토큰이 유효하다면 해당 토큰의 소유주의 id를 반환해주고 유효하지 않다면 false(boolean)을 반환해줍니다.',
   })
-  async verifyToken(
-    @Req() req: any,
-    // @Headers('authtoken') token: string,
-  ): Promise<boolean | User> {
-    // console.log(req.user);
-    // const user = await this.tokenService.verifyToken(token);
+  async verifyToken(@Req() req: any): Promise<boolean | User> {
     if (!req.user) return false;
 
     // const test = req.cookies['authToken'];

@@ -4,7 +4,6 @@ import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { toDataURL } from 'qrcode';
 import { TokenService } from '../token/token.service';
-import { Response } from 'express';
 
 @Injectable()
 export class TwoFactorService {
@@ -57,13 +56,6 @@ export class TwoFactorService {
     if (isCodeValidated == true) await this.tokenServiece.createToken(id);
 
     return isCodeValidated;
-    // if (isCodeValidated == false) res.send('false');
-    // else {
-    //   await this.tokenServiece.createToken(id);
-    //   res.redirect('http://localhost:5173/auth/login/' + id);
-    // res.location('http://localhost:5173/auth/login/' + id);
-    // res.send('true');
-    // }
   }
 
   // async deleteSecret(userId: string) : Promise<boolean> {

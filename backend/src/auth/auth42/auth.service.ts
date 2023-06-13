@@ -30,7 +30,7 @@ export class AuthService {
     if (user.two_factor == true)
       res.redirect('http://localhost:5173/auth/two/' + user.id);
     else {
-      const token = await this.tokenService.createToken(req.user.id);
+      await this.tokenService.createToken(req.user.id);
       res.redirect('http://localhost:5173/auth/login/' + user.id);
     }
   }
