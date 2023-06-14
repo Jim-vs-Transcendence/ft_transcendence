@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { AppShell } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import Popup from '$lib/popup.svelte';
 	import { io_chat } from '$lib/webSocketConnection_chat';
@@ -92,21 +93,29 @@
 	})
 </script>
 
-<lu>
-	{#each rooms_list as room}
-		<li
-			id="room"
-			on:mousedown={() => {
-				JoinRoom(room);
-			}}
-			style="padding: 20px; color: #00a; background-color: #aa3; width: 50%; margin: auto; border: solid #455 11px;"
-		>
-			{room._room_name}
-		</li>
-	{/each}
-</lu>
+<!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
+<!-- background 투명하게 변경할 것 -->
+<AppShell class="card p-4 max-h-[80%] overflow-auto space-y-4">
+	<svelte:fragment slot="header">
+		<button on:click={ft_popup_create}> CreateRoom </button>
+	</svelte:fragment>
+	<slot />
+	<lu>
+		{#each rooms_list as room}
+			<li
+				id="room"
+				on:mousedown={() => {
+					JoinRoom(room);
+				}}
+				style="padding: 20px; color: #00a; background-color: #aa3; width: 50%; margin: auto; border: solid #455 11px;"
+			>
+				{room._room_name}
+			</li>
+		{/each}
+	</lu>
+</AppShell>
 
-<button on:click={ft_popup_create}> CreateRoom </button>
+
 <Popup bind:property={popup_data} on:mousedown={ClosePopup}>
 	{#if popup_data._option._index == 1}
 		<input type="text" on:keydown={ft_room_create_keydown} bind:value={room_name} />
@@ -120,3 +129,12 @@
 		</form>
 	{/if}
 </Popup>
+
+
+<style>
+
+/* .listWrap { */
+	/* overflow-y: auto; */
+	/* Enable vertical scrolling */
+/* } */
+</style>

@@ -12,8 +12,27 @@
 		_room_info: {
 			_room_name: '',
 			_room_password: ''
+			// 소켓 통신을 위해 있다
+			// Data를 주고 받기 위한 구조체이다
+			// 따로 구조체를 만들어서 써야한다.
 		}
 	};
+
+	/*
+		- 채팅방에 접속한 사용자를 의미
+			- 채팅방 접속자의 정보
+			- 채팅방 접속자 각자 권한
+		- owner를 넘겨줄때
+		- 채팅방에 아무도 없게될때 채팅방이 사라져야한다.
+
+
+		- 초기 설정을 위해 class 추천
+	*/
+	let chat_room : ChatRoomInfo = {
+		// 채팅방 사용자 목록
+		
+	}
+
 	let msg_list: string[] = [];
 
 	function ft_error_goback() {
