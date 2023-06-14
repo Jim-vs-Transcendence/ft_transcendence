@@ -14,7 +14,6 @@ import { TwoFactorModule } from './auth/two-factor/two-factor.module';
 @Module({
   imports: [
     GameModule,
-    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -29,7 +28,7 @@ import { TwoFactorModule } from './auth/two-factor/two-factor.module';
       logging: process.env.DB_LOG === 'true',
       entities: [User, Friend],
     }),
-    TypeOrmModule.forFeature([User, Friend]),
+    AuthModule,
     UsersModule,
     TokenModule,
     FriendModule,

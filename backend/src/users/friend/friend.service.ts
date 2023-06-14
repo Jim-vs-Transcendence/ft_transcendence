@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
 import { Friend } from '../entities/friend.entity';
 import { FriendRequestStatus } from '../entities/friend.entity';
 import { friendDTO } from './dto/friend.dto';
@@ -14,8 +13,6 @@ import { UsersService } from '../users.service';
 @Injectable()
 export class FriendsService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>, // 수정필요
     @InjectRepository(Friend)
     private friendRepository: Repository<Friend>,
     private readonly usersService: UsersService,
@@ -32,9 +29,7 @@ export class FriendsService {
 
     const ret: friendDTO[] = await Promise.all(
       friendEntities.map(async (friend) => {
-        const userFrom = await this.usersRepository.findOne({
-          where: { id: friend.user_from },
-        });
+        const userFrom = await this.usersService.findOne(friend.user_from);
 
         if (!userFrom) {
           throw new NotFoundException(
