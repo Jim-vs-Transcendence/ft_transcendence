@@ -1,17 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth42/auth.module';
 import { ConfigModule } from '@nestjs/config';
-
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { TokenModule } from './auth/token/token.module';
-
 import { Friend } from './users/entities/friend.entity';
 import { FriendModule } from './users/friend/friend.module';
-
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
+import { TwoFactorModule } from './auth/two-factor/two-factor.module';
 
 @Module({
   imports: [
@@ -36,6 +34,7 @@ import { GameModule } from './game/game.module';
     TokenModule,
     FriendModule,
     ChatModule,
+    TwoFactorModule,
   ],
   controllers: [],
   providers: [],

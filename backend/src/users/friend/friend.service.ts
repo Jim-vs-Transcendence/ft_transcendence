@@ -15,7 +15,7 @@ import { UsersService } from '../users.service';
 export class FriendsService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersRepository: Repository<User>, // 수정필요
     @InjectRepository(Friend)
     private friendRepository: Repository<Friend>,
     private readonly usersService: UsersService,

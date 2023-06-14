@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import userDTO from './user.dto';
 
 @Injectable()
 export class UsersService {
@@ -13,20 +14,20 @@ export class UsersService {
   ) {}
 
   // User part
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<userDTO[]> {
     return this.userRepository.find();
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string): Promise<userDTO> {
     return this.userRepository.findOne({ where: { id: id } });
   }
 
-  async updateUser(id: string, user: User): Promise<boolean> {
+  async updateUser(id: string, user: userDTO): Promise<boolean> {
     await this.userRepository.update(id, user);
     return true;
   }
 
-  async saveUser(user: User): Promise<User> {
+  async saveUser(user: userDTO): Promise<userDTO> {
     return await this.userRepository.save(user);
   }
 

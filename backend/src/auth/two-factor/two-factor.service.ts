@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { authenticator } from 'otplib';
-import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { toDataURL } from 'qrcode';
 import { TokenService } from '../token/token.service';
+import userDTO from 'src/users/user.dto';
 
 @Injectable()
 export class TwoFactorService {
@@ -15,7 +15,7 @@ export class TwoFactorService {
   async generateTwoFactorAuthenticationSecret(userId: string) {
     const secret = authenticator.generateSecret();
 
-    const user: User = await this.userService.findOne(userId);
+    const user: userDTO = await this.userService.findOne(userId);
 
     user.two_factor_secret = secret;
     await this.userService.updateUser(userId, user);
@@ -40,7 +40,7 @@ export class TwoFactorService {
     userId: string,
     twoFactorAuthenticationCode: string,
   ) {
-    const user: User = await this.userService.findOne(userId);
+    const user: userDTO = await this.userService.findOne(userId);
     return authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: user.two_factor_secret,

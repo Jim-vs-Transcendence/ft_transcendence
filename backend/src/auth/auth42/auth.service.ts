@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { TokenService } from '../token/token.service';
-import { User } from 'src/users/entities/user.entity';
+import userDTO from 'src/users/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -40,7 +40,7 @@ export class AuthService {
 
     await this.tokenService.deleteToken((await userId).toString());
 
-    const user: User = await this.usersService.findOne(
+    const user: userDTO = await this.usersService.findOne(
       (await userId).toString(),
     );
     user.user_status = 0;

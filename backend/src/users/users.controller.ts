@@ -13,7 +13,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TokenGuard } from 'src/auth/token/token.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -21,6 +20,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Express, Response } from 'express';
 import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
+import userDTO from './user.dto';
 
 @Controller('user')
 // @UseGuards(TokenGuard)
@@ -35,9 +35,9 @@ export class UsersController {
   })
   @ApiCreatedResponse({
     description: '모든 유저의 정보를 반환해줍니다.',
-    type: User,
+    type: userDTO,
   })
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<userDTO[]> {
     return this.usersService.findAll();
   }
 
@@ -49,9 +49,9 @@ export class UsersController {
   @ApiCreatedResponse({
     description:
       '인자로 넘어온 id와 일치하는 유저의 정보(User entity)를 반환해줍니다',
-    type: User,
+    type: userDTO,
   })
-  async findOne(@Param('id') id: string): Promise<User> {
+  async findOne(@Param('id') id: string): Promise<userDTO> {
     return this.usersService.findOne(id);
   }
 
@@ -67,7 +67,7 @@ export class UsersController {
   })
   async updateUser(
     @Param('id') id: string,
-    @Body() user: User,
+    @Body() user: userDTO,
   ): Promise<boolean> {
     console.log('Patch!');
     return this.usersService.updateUser(id, user);
@@ -81,9 +81,9 @@ export class UsersController {
   @ApiCreatedResponse({
     description:
       '유저를 등록한 후 해당 유저의 정보(User entity)를 반환해줍니다.',
-    type: User,
+    type: userDTO,
   })
-  async saveUser(@Body() user: User): Promise<User> {
+  async saveUser(@Body() user: userDTO): Promise<userDTO> {
     return this.usersService.saveUser(user);
   }
 
