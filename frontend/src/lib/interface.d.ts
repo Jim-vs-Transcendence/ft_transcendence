@@ -8,9 +8,23 @@ interface popupIF {
 	};
 }
 
+
+enum Authority {
+    OWNER,
+    ADMIN,
+    USER,
+}
+interface ChatUserIF {
+    _authority: Authority;
+    _is_muted: boolean;
+    _user_id: string;
+}
+
 interface ChatRoomIF {
-	_room_name: string = '';
-	_room_password: string = '';
+    _room_name: string = '';
+    _room_password: string = '';
+    _participant_list: ChatUserIF[] = [];
+    _banned_list: string[] = [];
 }
 
 interface ChatMsgIF {
