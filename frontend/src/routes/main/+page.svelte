@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { AppShell } from '@skeletonlabs/skeleton';
+	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
+	import { getApi, petchApi, postApi, delApi } from '../../service/api';
 	import { goto } from '$app/navigation';
 	import Popup from '$lib/popup.svelte';
 	import { io_chat } from '$lib/webSocketConnection_chat';
@@ -91,28 +93,54 @@
 	onMount(() => {
 		io_chat.emit('room-refresh', 'page load chat list');
 	})
+
+	// try {
+	// 	petchApi( { path: 'user/'+profile_info.id , data:{
+	// 		two_factor: false
+	// 	},
+	// })
+	// } catch (error) {
+	// 	alert("설정 실패")
+	// }
 </script>
 
 <!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
 <!-- background 투명하게 변경할 것 -->
 <AppShell class="card p-4 max-h-[80%] overflow-auto space-y-4">
-	<svelte:fragment slot="header">
-		<button on:click={ft_popup_create}> CreateRoom </button>
-	</svelte:fragment>
+	<div class="button-container">
+		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
+		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Refresh</button>
+	</div>
+	  
 	<slot />
-	<lu>
+	<!-- <lu> -->
 		{#each rooms_list as room}
-			<li
-				id="room"
-				on:mousedown={() => {
+			<div class="logo-item grid place-content-center max-w-[70%] variant-filled-secondary" id="room"
+					on:click={() => {
+						JoinRoom(room);
+					}}>
+			<!-- <div class="logo-cloud  max-w-[65%] xl:grid-cols-2 logo-item variant-filled-secondary place-content-center" id="room"
+				on:click={() => {
 					JoinRoom(room);
-				}}
-				style="padding: 20px; color: #00a; background-color: #aa3; width: 50%; margin: auto; border: solid #455 11px;"
-			>
+				}}> -->
 				{room._room_name}
-			</li>
+			</div>
 		{/each}
-	</lu>
+	<!-- </lu> -->
+	<!-- </div> -->
+	<!-- <div class="logo-cloud grid-cols-1 lg:!grid-cols-3 gap-1"> -->
+	<!-- 	<li
+			id="room"
+			on:click={() => {
+				JoinRoom(room);
+			}}
+			class="variant-filled-surface "
+		>
+			{room._room_name}
+		</li>
+	</div> -->
+	<!-- style="padding: 20px; color: #z00a; background-color: #aa3; width: 50%; margin: auto; border: solid #455 11px;"... -->
+
 </AppShell>
 
 
@@ -128,13 +156,17 @@
 			<button on:click={ft_success_password}> 확인</button>
 		</form>
 	{/if}
+	
 </Popup>
 
 
 <style>
+  .button-container {
+    display: flex;
+    justify-content: center;
+  }
 
-/* .listWrap { */
-	/* overflow-y: auto; */
-	/* Enable vertical scrolling */
-/* } */
+  .centered-button {
+    margin: 0 8px;
+  }
 </style>
