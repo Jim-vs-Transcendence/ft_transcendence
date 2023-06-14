@@ -12,8 +12,7 @@ export class AuthGuard42 extends AuthGuard('42') {
   }
 
   handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
-    const httpConext = context.switchToHttp();
-    const res = httpConext.getResponse();
+    const res = context.switchToHttp().getResponse();
 
     if (err) {
       throw new InternalServerErrorException({
@@ -26,6 +25,7 @@ export class AuthGuard42 extends AuthGuard('42') {
     if (!user) {
       res.redirect('http://localhost:5173');
     }
+
     return user;
   }
 }
