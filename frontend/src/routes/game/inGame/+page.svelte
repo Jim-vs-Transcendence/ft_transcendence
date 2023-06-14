@@ -11,35 +11,34 @@
 	let context: any;
 
 	// Paddle
-	let leftPaddleX: number
-	let rightPaddleX: number
+	let leftPaddleX: number;
+	let rightPaddleX: number;
 
-	let paddleWidth: number
-	let paddleHeight: number
+	let paddleWidth: number;
+	let paddleHeight: number;
 
 	// score
-	let scoreTextSize: number
-	let scoreMargin: number
+	let scoreTextSize: number;
+	let scoreMargin: number;
 
-	let score1X: number
-	let score2X: number
-	let scoreY: number
+	let score1X: number;
+	let score2X: number;
+	let scoreY: number;
 
-	let leftScore: number
-	let rightScore: number
-	
+	let leftScore: number;
+	let rightScore: number;
 
 	function setEndGame(flag: boolean) {
 		if (flag) {
 			context.globalAlpha = 1;
 			context.font = `${scoreTextSize * 2}px Arial`;
-			context.fillStyle = 'blue';
+			context.fillStyle = 'while';
 			context.textAlign = 'center';
 			context.fillText('You win', canvas.width / 2, canvas.height / 2);
 		} else {
 			context.globalAlpha = 1;
 			context.font = `${scoreTextSize * 2}px Arial`;
-			context.fillStyle = 'red';
+			context.fillStyle = 'white';
 			context.textAlign = 'center';
 			context.fillText('You lose', canvas.width / 2, canvas.height / 2);
 		}
@@ -52,7 +51,7 @@
 		canvas.style.backgroundColor = Player.canvasColor;
 
 		gameRoom._ballRadius = Player.ballRadius;
-		gameRoom._ballSpeed = Player.ballSpeed;
+		// gameRoom._ballSpeed = Player.ballSpeed;
 
 		paddleWidth = Player.paddleWidth;
 		paddleHeight = Player.paddleHeight;
@@ -72,7 +71,7 @@
 	}
 
 	function draw(moveData: any) {
-		console.log(moveData)
+		console.log(moveData);
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.beginPath();
 		context.arc(moveData.ballX, moveData.ballY, gameRoom._ballRadius, 0, Math.PI * 2, false);
@@ -91,20 +90,10 @@
 		context.globalAlpha = 1;
 
 		context.fillStyle = 'white';
-		context.fillRect(
-			leftPaddleX,
-			moveData.leftPaddleY,
-			paddleWidth,
-			paddleHeight
-		);
+		context.fillRect(leftPaddleX, moveData.leftPaddleY, paddleWidth, paddleHeight);
 
 		context.fillStyle = 'white';
-		context.fillRect(
-			rightPaddleX,
-			moveData.rightPaddleY,
-			paddleWidth,
-			paddleHeight
-		);
+		context.fillRect(rightPaddleX, moveData.rightPaddleY, paddleWidth, paddleHeight);
 	}
 
 	function handleKeyPress(event: any) {
@@ -118,12 +107,12 @@
 			io_game.emit('downKey', gameRoom._roomName);
 		} else if (event.key === 'ArrowUp') {
 			io_game.emit('upKey', gameRoom._roomName);
-		} else if (event.key === 'ArrowLeft') {
+		} else if (event.key === 'Esc') {
 			io_game.emit('gameRestart', gameRoom._roomName);
 		}
 	}
 
-	// onMount(() => {
+	onMount(() => {
 		canvas = document.createElement('canvas');
 		context = canvas.getContext('2d');
 
@@ -131,23 +120,32 @@
 
 		window.addEventListener('keydown', handleKeyPress);
 
+		io_game.emit('TEST', gameRoom._roomName);
+
 		io_game.on('connected', (Player: any) => {
 			initPlayer(Player);
 			draw(Player.updateData.moveData);
 		});
 
-
-
-		// io_game.on('roomName', (name: string) => {
+		// io_game.on('handShaking', (flag: boolean) => {
+		// 	if (flag) {
+		// 		io_game.emit('handShaking', true);
+		// 	}
 		// });
 
+		// console.log(io_game.id);
+		// io_game.on('roomName', (roomName: string) => {
+		// 	gameRoom._roomName = roomName;
+		// 	console.log('got message from : ', roomName);
+		// });
+
+
 		io_game.on('restart', (flag: boolean) => {
-			if (flag)
-			{
+			if (flag) {
 				leftScore = 0;
 				rightScore = 0;
 			}
-		})
+		});
 
 		io_game.on('ballMove', (player: any) => {
 			draw(player);
@@ -157,13 +155,13 @@
 			leftScore = player.leftScore;
 			rightScore = player.rightScore;
 			draw(player.moveData);
-		})
+		});
 
 		io_game.on('endGame', (flag: boolean) => {
 			console.log('end game:', flag ? 'true' : 'false');
 			setEndGame(flag);
 		});
-	// });
+	});
 
 	// onDestroy(() => {
 	// 	io_game.disconnect();
@@ -171,7 +169,8 @@
 	// 	window.removeEventListener('keydown', handleKeyPress);
 	// });
 
-	afterUpdate(() => {
-		// Code to handle updates or re-renders, if needed
-	});
+	// afterUpdate(() => {
+	// 	// Code to handle updates or re-renders, if needed
+	// });
 </script>
+

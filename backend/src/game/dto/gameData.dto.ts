@@ -22,12 +22,14 @@ export class GameInitData {
 	canvasHeight: number;
 	canvasColor: string;
 
+	gameScore: number;
+
 	paddleWidth: number;
 	paddleHeight: number;
 	leftPaddleX: number;
 	rightPaddleX: number;
 
 	updateData: GameUpdateData;
-	ballSpeed: number;
 	ballRadius: number;
+	ballSpeed: number;
 }

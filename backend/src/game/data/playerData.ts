@@ -11,3 +11,13 @@ export class Room {
     leftReady: boolean;
     rightReady: boolean;
 }
+
+export class GameRoom {
+	_roomName: string;
+
+	_canvasColor: string;
+
+	// Ball Location
+	_ballRadius: number;
+	_gameScore: number;
+}

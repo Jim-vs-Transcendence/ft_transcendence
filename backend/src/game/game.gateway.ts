@@ -1,7 +1,7 @@
 import { ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, MessageBody, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket, Namespace } from 'socket.io';
 import { GameInitData, GameUpdateData, MoveData } from './dto/gameData.dto';
-import { Room } from './data/playerData'
+import { Room, GameRoom } from './data/playerData'
 import { GameService } from './game.service';
 /* 
  * service : gateway에서 호출되어 게임 내부 로직 변경 (현재 게이트웨이에 있는 private 함수들)
@@ -65,6 +65,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.server.to(client.id).emit('handShaking', true);
 	}
 
+	@SubscribeMessage('TEST')
+	handleGotoInGameHandler(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() RoomName: string,
+	) {
+		let room = this.findRoom(RoomName);
+		if (room) {
+			if (RoomName === client.id)
+				this.server.to(client.id).emit('connected', room.leftPlayer);
+			else
+				this.server.to(client.id).emit('connected', room.rightPlayer);
+		}
+	}
+
 	@SubscribeMessage('handShaking')
 	pushPlayer(
 		@ConnectedSocket() client: Socket,
@@ -78,7 +92,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			player.updateData.moveData = new MoveData();
 
 			this.service.initPlayer(player, client.id);
-			// this.server.to(client.id).emit('connected', player);
 			this.players.push(player);
 
 			if (this.players.length >= 2) {
@@ -98,6 +111,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
+	@SubscribeMessage('optionReady')
+	handleOptionReady(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() Room: GameRoom,
+	) {
+		let room = this.findRoom(Room._roomName);
+		if (room) {
+			this.service.setOption(room, Room);
+			this.service.optionReady(room, client.id);
+		}
+		else {
+			console.log('no room');
+		}
+	}
 
 	// Enter Key pressed : game ready
 	@SubscribeMessage('gameReady')

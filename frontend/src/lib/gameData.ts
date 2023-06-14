@@ -5,12 +5,12 @@ export interface GameRoom {
 
 	// Ball Location
 	_ballRadius: number;
-	_ballSpeed: number;
+	_gameScore: number;
 }
 
 export const gameRoom : GameRoom = {
 	_roomName: '',
 	_canvasColor: '',
 	_ballRadius: 0,
-	_ballSpeed: 0,
+	_gameScore: 0,
 }
