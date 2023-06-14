@@ -6,11 +6,13 @@ import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import userDTO from './user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private readonly configService: ConfigService,
   ) {}
 
   // User part
@@ -39,15 +41,25 @@ export class UsersService {
   async uploadImage(req: RequestWithUser, file: Express.Multer.File) {
     const user = await this.findOne(req.user);
 
-    if (user.avatar !== process.env.BACKEND_URL + 'user/uploads/_default.jpg')
+    if (
+      user.avatar !==
+      this.configService.get<string>('BACKEND_URL') +
+        'user/uploads/_default.jpg'
+    )
       this.deleteImage(user.avatar);
 
-    user.avatar = process.env.BACKEND_URL + 'user/uploads/' + file.filename;
+    user.avatar =
+      this.configService.get<string>('BACKEND_URL') +
+      'user/uploads/' +
+      file.filename;
 
     await this.updateUser(req.user, user);
     //file 잘못넘어 왔을 때 throw
     return {
-      url: process.env.BACKEND_URL + 'user/uploads/' + file.filename,
+      url:
+        this.configService.get<string>('BACKEND_URL') +
+        'user/uploads/' +
+        file.filename,
     };
   }
 

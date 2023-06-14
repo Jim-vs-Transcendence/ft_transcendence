@@ -4,10 +4,12 @@ import { UsersService } from 'src/users/users.service';
 import { toDataURL } from 'qrcode';
 import { TokenService } from '../token/token.service';
 import userDTO from 'src/users/user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TwoFactorService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly userService: UsersService,
     private readonly tokenServiece: TokenService,
   ) {}
@@ -22,7 +24,7 @@ export class TwoFactorService {
 
     const otpauthUrl = await authenticator.keyuri(
       userId,
-      process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME,
+      this.configService.get<string>('TWO_FACTOR_AUTHENTICATION_APP_NAME'),
       secret,
     );
 
