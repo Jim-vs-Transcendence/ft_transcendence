@@ -27,7 +27,7 @@ export class TokenService {
       const payload = await verify(
         token,
         this.configService.get<string>('JWT_SECRET'),
-        );
+      );
       if (token != this.jwtMap.get(payload['id'])) return false;
       return payload['id'];
     } catch {

@@ -6,7 +6,7 @@ export class userDTO {
   @IsString()
   id: string;
 
-  @ApiProperty({ description: '인트라 닉네임' })
+  @ApiProperty({ description: '유저 닉네임' })
   @IsString()
   nickname: string;
 
@@ -14,7 +14,7 @@ export class userDTO {
   @IsString()
   email: string;
 
-  @ApiProperty({ description: '인트라 이미지 주소' })
+  @ApiProperty({ description: '이미지 주소' })
   @IsString()
   avatar: string;
 

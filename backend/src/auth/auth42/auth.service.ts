@@ -10,7 +10,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  async login({ req, res }) {
+  async login({ req, res }): Promise<void> {
     let user = await this.usersService.findOne(req.user.id);
 
     if (!user) user = await this.usersService.saveUser(req.user);
@@ -22,9 +22,7 @@ export class AuthService {
     //   sameSite: 'none',
     // });
 
-    user = await this.usersService.findOne(req.user.id);
-    user.user_status = 1;
-
+    user.user_status = 1; //online
     await this.usersService.updateUser(user.id, user);
 
     if (user.two_factor == true)

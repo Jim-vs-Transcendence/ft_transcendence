@@ -8,7 +8,7 @@ export class User {
   id: string;
 
   @Column()
-  @ApiProperty({ description: '인트라 닉네임' })
+  @ApiProperty({ description: '유저 닉네임' })
   nickname: string;
 
   @Column()
@@ -16,7 +16,7 @@ export class User {
   email: string;
 
   @Column()
-  @ApiProperty({ description: '인트라 이미지 주소' })
+  @ApiProperty({ description: '이미지 주소' })
   avatar: string;
 
   @Column()
