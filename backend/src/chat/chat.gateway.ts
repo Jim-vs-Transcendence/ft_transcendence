@@ -29,11 +29,19 @@ export class ChatGateway
   // chat.gateway.ts
   handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
 	const userid : string | string[] = client.handshake.query.userid;
+	console.log('client.handshake.query.userid:', client.handshake.query.userid);
+	console.log('userid:', userid);
+
     client.join('defult');
     client.leave(client.id);
     console.log('connect');
 	if (typeof userid === 'string')
 		socket_list.set(userid, client);
+	this.server.sockets.forEach((item, key) => { console.log(
+        '\x1b[38;5;196m',
+        key,
+        '\x1b[0m',
+      );})
 	socket_list.forEach((item, key) => {console.log(key);})
     client.emit('room-refresh', this.ft_room_list());
   }
@@ -41,6 +49,10 @@ export class ChatGateway
   handleDisconnect(@ConnectedSocket() client: Socket) {
     console.log('disconnect');
     console.log(client.id);
+	const userid : string | string[] = client.handshake.query.userId;
+	if (typeof userid === 'string')
+		if (socket_list.get(userid).id === client.id)
+			socket_list.delete(userid);
     client.emit('room-refresh', this.ft_room_list());
   }
 

@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { io_chat } from '$lib/webSocketConnection_chat';
-	import { each } from 'svelte/internal';
+	import { socketStore } from '$lib/webSocketConnection_chat';
+	import type { Socket } from 'socket.io-client';
+	import { onDestroy, onMount } from 'svelte';
 
 	export let data: PayLoadIF; // extern
 
@@ -13,26 +14,35 @@
 		}
 	};
 	let msg_list: string[] = [];
+	let socket : Socket;
+	const unsubscribe = socketStore.subscribe((_socket : Socket) => {
+		socket = _socket;
+		console.log(socket);
+	})
 
-	function ft_error_goback() {
-		goto('/main');
-	}
+	onMount(() => {
+		/**
+	 	* 접속 불가 url 막는 방식 생각해야함
+	 	*/
 
-	io_chat.on('chat-connect', (data: PayLoadIF) => {
-		if (!data._check) console.log('PayLoad false');
-		chat_data._room_info._room_name = data._url;
-		// or popup 잘못된 접근입니다 확인 => goto (/main);
-	});
+		socket.on('chat-connect', (data: PayLoadIF) => {
+			if (!data._check) console.log('PayLoad false');
+			chat_data._room_info._room_name = data._url;
+			// or popup 잘못된 접근입니다 확인 => goto (/main);
+		});
+	
+		socket.on('chat-msg-event', (data: ChatMsgIF) => {
+			console.log('chat-msg-event', data._msg);
+			msg_list = [...msg_list, data._msg];
+		});
+	
+		socket.emit('chat-connect', data);
+	})
 
-	io_chat.on('chat-msg-event', (data: ChatMsgIF) => {
-		console.log('chat-msg-event', data._msg);
-		msg_list = [...msg_list, data._msg];
-	});
-
-	io_chat.emit('chat-connect', data);
+	onDestroy(unsubscribe);
 
 	function ft_chat_send_msg() {
-		if (chat_data._msg) io_chat.emit('chat-msg-event', chat_data);
+		if (chat_data._msg) socket.emit('chat-msg-event', chat_data);
 		chat_data._msg = '';
 	}
 
@@ -42,7 +52,11 @@
 	}
 
 	function ft_exit_chat_room() {
-		io_chat.emit('chat-exit-room', chat_data);
+		socket.emit('chat-exit-room', chat_data);
+		goto('/main');
+	}
+
+	function ft_error_goback() {
 		goto('/main');
 	}
 </script>

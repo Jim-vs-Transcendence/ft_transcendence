@@ -28,3 +28,7 @@ interface DmChatIF {
 	_from: string = '';
 	_to: string = '';
 }
+
+interface DmChatStoreIF {
+	[opponent : string] : DmChatIF[];
+}

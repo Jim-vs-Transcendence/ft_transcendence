@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Popup from '$lib/popup.svelte';
-	import { io_chat } from '$lib/webSocketConnection_chat';
-	import { onMount } from 'svelte';
+	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
+	import type { Socket } from 'socket.io-client';
+	import { onDestroy, onMount } from 'svelte';
 
+	let socket : Socket;
 	let rooms_list: ChatRoomIF[] = [];
 	let room_name: string = '';
 	let room_password: string = '';
@@ -19,24 +21,38 @@
 			}
 		}
 	};
+	const unsubscribe = socketStore.subscribe((_socket : Socket) => {
+		socket = _socket;
+	})
 
-	io_chat.on('room-refresh', (data: ChatRoomIF[]) => {
-		rooms_list = [...data];
-	});
-
-	io_chat.on('room-create', (data: ChatRoomIF) => {
-		console.log(data);
-		if (!data._room_name) console.log('생성 불가');
-		goto('/main/' + data._room_name);
-	});
-
-	io_chat.on('room-join', (data: ChatRoomIF) => {
-		if (!data._room_name) {
-			console.log('접속 불가');
-			io_chat.emit('room-refresh', 'room-join error');
+	onMount(async () => {
+		try {
+			await CreateSocket(socketStore);
+			socket.emit('room-refresh', 'page load chat list');
+	
+			socket.on('room-refresh', (data: ChatRoomIF[]) => {
+				rooms_list = [...data];
+			});
+		
+			socket.on('room-create', (data: ChatRoomIF) => {
+				console.log(data);
+				if (!data._room_name) console.log('생성 불가');
+				goto('/main/' + data._room_name);
+			});
+		
+			socket.on('room-join', (data: ChatRoomIF) => {
+				if (!data._room_name) {
+					console.log('접속 불가');
+					socket.emit('room-refresh', 'room-join error');
+				}
+				goto('/main/' + data._room_name);
+			});
+		} catch (error) {
+			console.log("socket loading error.");
 		}
-		goto('/main/' + data._room_name);
-	});
+	})
+
+	onDestroy(unsubscribe);
 
 	function CreateRoom() {
 		if (!room_name) {
@@ -44,7 +60,7 @@
 			return;
 		}
 		let send_msg: ChatRoomIF = { _room_name: room_name, _room_password: room_password };
-		io_chat.emit('room-create', send_msg);
+		socket.emit('room-create', send_msg);
 		room_name = '';
 		room_password = '';
 		popup_data._active = false;
@@ -53,7 +69,7 @@
 	function JoinRoom(room_select: ChatRoomIF) {
 		console.log('[' + room_select._room_password + ']');
 		if (room_select._room_password == '') {
-			io_chat.emit('room-join', room_select);
+			socket.emit('room-join', room_select);
 			return;
 		}
 		popup_data._message = 'password input';
@@ -66,7 +82,7 @@
 		console.log(popup_data._option._room._room_password);
 		console.log(room_password);
 		if (room_password == popup_data._option._room._room_password) {
-			io_chat.emit('room-join', popup_data._option._room);
+			socket.emit('room-join', popup_data._option._room);
 			popup_data._active = false;
 		}
 		popup_data._message = '비밀번호가 틀렷습니다';
@@ -87,9 +103,6 @@
 		popup_data._option._index = 1;
 	}
 
-	onMount(() => {
-		io_chat.emit('room-refresh', 'page load chat list');
-	})
 </script>
 
 <lu>
