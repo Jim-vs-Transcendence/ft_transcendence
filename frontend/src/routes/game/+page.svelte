@@ -12,36 +12,14 @@
 		await goto('/main');
 	};
 
-	const inGame = async () => {
-		await goto('/game/option')
-	}
-
-	
-	// let	status: boolean = true;
-
-	// $: status;
-
-	const url = new URL('http://localhost:5173/game/inGame');
-
-	// function navigateTo(path : URL) {
-	// 	window.history.pushState({}, "", path);
-	// 	window.dispatchEvent(new PopStateEvent("popstate"));
-	// 	}
-
 	onMount(() => {
 
-		io_game.on('handShaking', (flag: boolean) => {
-		if (flag) {
-			io_game.emit('handShaking', true);
-			}
-		});
-		
-		console.log(io_game.id);
+		io_game.emit('waitListInit', (userId: string));
+
 		io_game.on('roomName', (roomName: string) => {
 			gameRoom._roomName = roomName;
 			console.log('got message from : ', roomName);
 			goto('/game/option');
-			// status = true;
 		});
 	})
 

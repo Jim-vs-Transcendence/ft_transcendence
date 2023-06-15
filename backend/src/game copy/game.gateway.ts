@@ -3,6 +3,9 @@ import { Server, Socket, Namespace } from 'socket.io';
 import { GameInitData, GameUpdateData, MoveData } from './dto/gameData.dto';
 import { Room, GameRoom } from './data/playerData'
 import { GameService } from './game.service';
+import { User } from '../users/entities/user.entity'
+import { Injectable } from '@nestjs/common';
+import { UsersService } from 'src/users/users.service';
 /* 
  * service : gateway에서 호출되어 게임 내부 로직 변경 (현재 게이트웨이에 있는 private 함수들)
  * gateway : 클라이언트에서 받은 소켓 정보를 service 함수를 호출하여 핸들링
@@ -13,6 +16,7 @@ import { GameService } from './game.service';
  */
 
 
+
 @WebSocketGateway({ namespace: '/game', cors: true })
 // implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -20,17 +24,33 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@WebSocketServer() server: Namespace;
 
 	private service: GameService;
+
+	// rooms : 2명의 클라이언트가 들어있는 게임 룸
 	public rooms = new Map<string, Room>();
+
+	// refresh될 때 disconnect된 방을 찾기 위한 socket.id와 roomName을 저장한 자료구조
 	public roomKey = new Map<string, string>();
+
+	// userid가 키로써 User 데이터 자체를 가지고 있는 자료구조
+	public userData = new Map<string, User>();
+
 	private players: GameInitData[];
 
-	constructor() {
+	constructor(
+		public userRService: UsersService,
+	) {
 		this.service = new GameService(this);
 		this.rooms;
 		this.players = [];
 	}
 	// Canvas Info
 
+	@SubscribeMessage('mainConnect')
+	handleConnection(
+		@ConnectedSocket() client: Socket
+	) {
+		// chat 쪽에서 알아서 해줄거임
+	}
 
 	afterInit(server: Server) {
 		console.count('Init');
@@ -58,12 +78,35 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('waitListInit')
-	handleConnection(
-		@ConnectedSocket() client: Socket
+	pushPlayer(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() userId: string,
 	) {
-		console.log('connect', client.id);
-		this.server.to(client.id).emit('waitListInit', true);
+			console.log(client.id);
+			let player: GameInitData = new GameInitData();
+			player.updateData = new GameUpdateData();
+			player.updateData.moveData = new MoveData();
+
+			this.service.initPlayer(player, client.id);
+			this.players.push(player);
+
+			if (this.players.length >= 2) {
+				console.log(this.players.length);
+				let room: Room = new Room();
+
+				room.leftPlayer = this.players.shift();
+				room.rightPlayer = this.players.shift();
+				this.rooms.set(room.leftPlayer.socketId, room);
+
+				this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
+				this.roomKey.set(room.rightPlayer.socketId, room.leftPlayer.socketId);
+
+				this.server.to(room.leftPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
+				this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
+			}
 	}
+
+
 
 	@SubscribeMessage('TEST')
 	handleGotoInGameHandler(
@@ -76,35 +119,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				this.server.to(client.id).emit('connected', room.leftPlayer);
 			else
 				this.server.to(client.id).emit('connected', room.rightPlayer);
-		}
-	}
-
-	@SubscribeMessage('waitListInit')
-	pushPlayer(
-		@ConnectedSocket() client: Socket,
-		@MessageBody() userId: string,
-	) {
-		console.log(client.id);
-		let player: GameInitData = new GameInitData();
-		player.updateData = new GameUpdateData();
-		player.updateData.moveData = new MoveData();
-
-		this.service.initPlayer(player, client.id);
-		this.players.push(player);
-
-		if (this.players.length >= 2) {
-			console.log(this.players.length);
-			let room: Room = new Room();
-
-			room.leftPlayer = this.players.shift();
-			room.rightPlayer = this.players.shift();
-			this.rooms.set(room.leftPlayer.socketId, room);
-
-			this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
-			this.roomKey.set(room.rightPlayer.socketId, room.leftPlayer.socketId);
-
-			this.server.to(room.leftPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
-			this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 		}
 	}
 
@@ -164,28 +178,27 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.service.paddleUp(room, client.id);
 		}
 	}
+
+	@SubscribeMessage('gameRestart')
+	waitTester(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() roomName: string,
+	) {
+
+		let room = this.findRoom(roomName);
+		if (room) {
+			if (client.id === room.leftPlayer.socketId) {
+				room.leftReady = true;
+			}
+			else {
+				room.rightReady = true;
+			}
+			if (room.leftReady && room.rightReady) {
+				clearTimeout(room.endTimer);
+				this.server.to(room.leftPlayer.socketId).emit('restart', true);
+				this.server.to(room.rightPlayer.socketId).emit('restart', true);
+				this.service.getReady(room, client.id);
+			}
+		}
+	}
 }
-
-// 	@SubscribeMessage('gameRestart')
-// 	waitTester(
-// 		@ConnectedSocket() client: Socket,
-// 		@MessageBody() roomName: string,
-// 	) {
-
-// 		let room = this.findRoom(roomName);
-// 		if (room) {
-// 			if (client.id === room.leftPlayer.socketId) {
-// 				room.leftReady = true;
-// 			}
-// 			else {
-// 				room.rightReady = true;
-// 			}
-// 			if (room.leftReady && room.rightReady) {
-// 				clearTimeout(room.endTimer);
-// 				this.server.to(room.leftPlayer.socketId).emit('restart', true);
-// 				this.server.to(room.rightPlayer.socketId).emit('restart', true);
-// 				this.service.getReady(room, client.id);
-// 			}
-// 		}
-// 	}
-// }

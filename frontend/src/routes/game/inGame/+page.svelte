@@ -51,7 +51,6 @@
 		canvas.style.backgroundColor = Player.canvasColor;
 
 		gameRoom._ballRadius = Player.ballRadius;
-		// gameRoom._ballSpeed = Player.ballSpeed;
 
 		paddleWidth = Player.paddleWidth;
 		paddleHeight = Player.paddleHeight;
