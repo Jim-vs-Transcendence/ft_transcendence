@@ -54,7 +54,7 @@ export class UsersService {
       file.filename;
 
     await this.updateUser(req.user, user);
-    //file 잘못넘어 왔을 때 throw
+
     return {
       url:
         this.configService.get<string>('BACKEND_URL') +

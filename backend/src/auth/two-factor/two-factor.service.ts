@@ -14,7 +14,7 @@ export class TwoFactorService {
     private readonly tokenServiece: TokenService,
   ) {}
 
-  async generateTwoFactorAuthenticationSecret(userId: string) {
+  async generateTwoFactorSecret(userId: string) {
     const secret = authenticator.generateSecret();
 
     const user: userDTO = await this.userService.findOne(userId);
@@ -38,22 +38,16 @@ export class TwoFactorService {
     return await toDataURL(otpauthUrl);
   }
 
-  async isTwoFactorAuthenticationCodeValid(
-    userId: string,
-    twoFactorAuthenticationCode: string,
-  ) {
+  async isTwoFactorCodeValid(userId: string, twoFactorCode: string) {
     const user: userDTO = await this.userService.findOne(userId);
     return authenticator.verify({
-      token: twoFactorAuthenticationCode,
+      token: twoFactorCode,
       secret: user.two_factor_secret,
     });
   }
 
-  async twoFactorLogin(id: string, twoFactorAuthenticationCode: string) {
-    const isCodeValidated = await this.isTwoFactorAuthenticationCodeValid(
-      id,
-      twoFactorAuthenticationCode,
-    );
+  async twoFactorLogin(id: string, twoFactorCode: string) {
+    const isCodeValidated = await this.isTwoFactorCodeValid(id, twoFactorCode);
 
     if (isCodeValidated == true) await this.tokenServiece.createToken(id);
 
