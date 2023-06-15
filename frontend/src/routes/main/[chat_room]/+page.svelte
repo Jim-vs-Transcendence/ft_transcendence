@@ -4,14 +4,40 @@
 	import { io_chat } from '$lib/webSocketConnection_chat';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { each } from 'svelte/internal';
+	import ChatUserList from '../../../components/Chat/ChatUserList.svelte'
+	// import '../../../service/friendDTO'; // does not work
+	// import ChatUserList from '../../../service/friendDTO.ts';
 
 	export let data: PayLoadIF; // extern
+	// for profile
+	// export let friend: friendDTO;
+	const chatUserList: friendDTO[] = [
+		{
+			id: "jim",
+			nickname: "Jake",
+			avatar: "https://cdn.intra.42.fr/users/4011619616a8f569d7b6950caeee5577/jinwoole.jpg",
+		},
+		{
+			id: "jinwoole",
+			nickname: "Navigator",
+			avatar: "https://cdn.intra.42.fr/users/4011619616a8f569d7b6950caeee5577/jinwoole.jpg",
+		},
+		{
+			id: "gyeokim",
+			nickname: "MenU",
+			avatar: "https://cdn.intra.42.fr/users/4011619616a8f569d7b6950caeee5577/jinwoole.jpg",
+		}
+	];
+
+    export let userInfo: UserDTO;
+	// : ChatUserIF
 
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_room_info: {
 			_room_name: '',
 			_room_password: ''
+			// _participant_list: 
 			// 소켓 통신을 위해 있다
 			// Data를 주고 받기 위한 구조체이다
 			// 따로 구조체를 만들어서 써야한다.
@@ -116,6 +142,7 @@
 
 	let tabSet: number = 0;
 
+
 </script>
 
 <!-- <section class="w-full max-h-[400px] p-4 overflow-y-auto space-y-4">
@@ -132,14 +159,21 @@
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 	<div class="bg-surface-500/30 p-10">
 		<TabGroup>
-			<Tab bind:group={tabSet} name="tab1" value={0}>(label)</Tab>
-			<Tab bind:group={tabSet} name="tab2" value={1}>(label)</Tab>
+			<Tab bind:group={tabSet} name="tab1" value={0}> 채팅방 유저</Tab>
+			<!-- {#if } -->
+			<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
+			<!-- {/if} -->
 			<!-- Tab Panels --->
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
-					(tab panel 1 contents)
+					{#each chatUserList as chatUser}
+						<ChatUserList friend={chatUser} userInfo={userInfo} />
+					{/each}
+					<!-- {friend} -->
+					<!-- <ChatUserList friend={friend} userInfo={userInfo} /> -->
 				{:else if tabSet === 1}
-					(tab panel 2 contents)
+					(ban list)
+					<!-- {userInfo} -->
 				{/if}
 			</svelte:fragment>
 		</TabGroup>
