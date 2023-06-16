@@ -5,13 +5,13 @@
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { each } from 'svelte/internal';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte'
-	import '$lib/interface.d'
-	import { PayLoadIF, ChatUserIF } from '$lib/interface.d'
+	// import '$lib/interface.d'
+	import type { PayLoadIF, ChatUserIF } from '$lib/interface.d'
 
-	export let data: PayLoadIF; // extern
+	let data: PayLoadIF; // extern
 	// for profile
 	// export let friend: friendDTO;
-	const chatUserList: ChatUserIF[] = [
+	const  chatUserList: ChatUserIF[] = [
 		{
 			_authority: 1,
 			_is_muted: false,
