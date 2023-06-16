@@ -1,4 +1,7 @@
-export class MoveData {
+import { User } from '../../users/entities/user.entity'
+import { Socket } from 'socket.io';
+
+export class GameMoveData {
 	ballX: number;
 	ballY: number;
 	ballMoveX: boolean;
@@ -11,12 +14,13 @@ export class MoveData {
 export class GameUpdateData {
 	leftScore: number;
 	rightScore: number;
-	moveData: MoveData;
+	moveData: GameMoveData;
 }
 
-export class GameInitData {
+export class GamePlayerData {
 	socketId: string;
-	userId: string;
+	user: User;
+	isInGame: boolean;
 
 	canvasWidth: number;
 	canvasHeight: number;
@@ -32,4 +36,9 @@ export class GameInitData {
 	updateData: GameUpdateData;
 	ballRadius: number;
 	ballSpeed: number;
+}
+
+export class GameInvitePlayers {
+	left: Socket;
+	right: Socket;
 }

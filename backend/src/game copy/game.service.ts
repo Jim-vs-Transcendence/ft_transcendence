@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { Socket } from 'socket.io';
 import { GameGateway } from './game.gateway';
-import { GameRoom, Room } from './data/playerData';
-import { MoveData, GameInitData, GameUpdateData } from './dto/gameData.dto';
+import { GameRoom, GameClientOption } from './data/playerData';
+import { GamePlayerData, GameUpdateData, GameMoveData } from './dto/gameData.dto';
 
 @Injectable()
 export class GameService {
@@ -28,8 +29,13 @@ export class GameService {
 	private readonly initRightPaddleX: number = this.canvasWidth - (this.paddleWidth + this.paddleMargin);
 	private readonly initPaddleY: number = this.canvasHeight / 2 - this.paddleHeight / 2;
 
-	public initPlayer(player: GameInitData, socketId: string) {
-		player.socketId = socketId;
+	async initPlayer(player: GamePlayerData, client: Socket) {
+		player.socketId = client.id;
+		player.isInGame = false;
+		const userId: string | string[] = client.handshake.query.key;
+		if (userId !== null && typeof userId === 'string') {
+			player.user = await this.myGameGateway.userRService.findOne(userId);
+		}
 
 		player.canvasWidth = this.canvasWidth;
 		player.canvasHeight = this.canvasHeight;
@@ -50,16 +56,18 @@ export class GameService {
 		this.resetScore(player.updateData);
 	}
 
-	public setOption(room: Room, Room: GameRoom) {
-		room.leftPlayer.gameScore = Room._gameScore;
-		room.rightPlayer.gameScore = Room._gameScore;
-		room.leftPlayer.canvasColor = Room._canvasColor;
-		room.rightPlayer.canvasColor = Room._canvasColor;
-		room.leftPlayer.ballRadius = Room._ballRadius;
-		room.rightPlayer.ballRadius = Room._ballRadius;
+	public setOption(room: GameRoom, gameClientOption: GameClientOption) {
+		room.leftPlayer.gameScore = gameClientOption._gameScore;
+		room.rightPlayer.gameScore = gameClientOption._gameScore;
+		room.leftPlayer.canvasColor = gameClientOption._canvasColor;
+		room.rightPlayer.canvasColor = gameClientOption._canvasColor;
+		room.leftPlayer.ballRadius = gameClientOption._ballRadius;
+		room.rightPlayer.ballRadius = gameClientOption._ballRadius;
+		room.leftPlayer.isInGame = true;
+		room.rightPlayer.isInGame = true;
 	}
 
-	private setBallMove(player1: MoveData, player2: MoveData): void {
+	private setBallMove(player1: GameMoveData, player2: GameMoveData): void {
 		let moveX = (Math.random() < 0.5);
 		let moveY = (Math.random() < 0.5);
 
@@ -71,7 +79,7 @@ export class GameService {
 
 	// test function will be call back to main page
 	// 서비스로 가는데, 지우는 건 gateway가 해줘야 됨
-	public endGame(room: Room) {
+	public endGame(room: GameRoom) {
 		// 재시작 여부 판단 로직 추가
 		this.myGameGateway.roomKey.delete(room.leftPlayer.socketId);
 		this.myGameGateway.roomKey.delete(room.rightPlayer.socketId);
@@ -89,19 +97,19 @@ export class GameService {
 		player.rightScore = 0;
 	}
 
-	private resetPlayer(player: MoveData): void {
+	private resetPlayer(player: GameMoveData): void {
 		player.ballX = this.initBallX;
 		player.ballY = this.initBallY;
 		player.leftPaddleY = this.initPaddleY;
 		player.rightPaddleY = this.initPaddleY;
 	}
 
-	public resetGame(room: Room): void {
+	public resetGame(room: GameRoom): void {
 		room.rightPlayer.updateData.leftScore = room.leftPlayer.updateData.rightScore;
 		room.rightPlayer.updateData.rightScore = room.leftPlayer.updateData.leftScore;
 
-		this.myGameGateway.server.to(room.leftPlayer.socketId).emit('scoring', room.leftPlayer.updateData);
-		this.myGameGateway.server.to(room.rightPlayer.socketId).emit('scoring', room.rightPlayer.updateData);
+		this.myGameGateway.server.to(room.leftPlayer.socketId).emit('oneSetEnd', room.leftPlayer.updateData);
+		this.myGameGateway.server.to(room.rightPlayer.socketId).emit('oneSetEnd', room.rightPlayer.updateData);
 
 		if (room.leftPlayer.updateData.leftScore >= 3 || room.leftPlayer.updateData.rightScore >= 3) {
 			clearInterval(room.dataFrame);
@@ -115,12 +123,12 @@ export class GameService {
 			room.endTimer = setTimeout(this.endGame, 10000, room);
 
 			if (room.leftPlayer.updateData.leftScore >= 3) {
-				this.myGameGateway.server.to(room.leftPlayer.socketId).emit('endGame', true);
-				this.myGameGateway.server.to(room.rightPlayer.socketId).emit('endGame', false);
+				this.myGameGateway.server.to(room.leftPlayer.socketId).emit('gameEnd', true);
+				this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gameEnd', false);
 			}
 			else {
-				this.myGameGateway.server.to(room.leftPlayer.socketId).emit('endGame', false);
-				this.myGameGateway.server.to(room.rightPlayer.socketId).emit('endGame', true);
+				this.myGameGateway.server.to(room.leftPlayer.socketId).emit('gameEnd', false);
+				this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gameEnd', true);
 			}
 		}
 
@@ -129,11 +137,11 @@ export class GameService {
 		this.setBallMove(room.leftPlayer.updateData.moveData, room.rightPlayer.updateData.moveData);
 	}
 
-	private async gamePlay(room: Room) {
+	private async gamePlay(room: GameRoom) {
 		await this.sendGameData.bind(this)(room);
 	}
 
-	public sendGameData(room: Room) {
+	public sendGameData(room: GameRoom) {
 		console.log('what the fuck with you?', room.leftPlayer.ballRadius);
 		if (room.leftPlayer.updateData.moveData.ballX <= 0) {
 			room.leftPlayer.updateData.rightScore++;
@@ -196,7 +204,7 @@ export class GameService {
 	}
 
 	// Option 창에서 시작 버튼 누를 때 ready
-	public optionReady(room: Room, clientId: string) {
+	public optionReady(room: GameRoom, clientId: string) {
 		if (room.leftPlayer && clientId === room.leftPlayer.socketId) {
 			room.leftReady = true;
 		}
@@ -212,7 +220,7 @@ export class GameService {
 	}
 
 	// 실제 게임 화면에 넘어갔을 때 Enter클릭
-	public getReady(room: Room, clientId: string) {
+	public getReady(room: GameRoom, clientId: string) {
 		if (room.leftPlayer && clientId === room.leftPlayer.socketId) {
 			room.leftReady = true;
 		}
@@ -231,7 +239,7 @@ export class GameService {
 
 
 	// gameUpdateData를 보낸다
-	public paddleUp(room: Room, clientId: string) {
+	public paddleUp(room: GameRoom, clientId: string) {
 		if (room.leftPlayer && clientId === room.leftPlayer.socketId) {
 			room.leftPlayer.updateData.moveData.leftPaddleY -= 30;
 			if (room.leftPlayer.updateData.moveData.leftPaddleY <= 0)
@@ -246,7 +254,7 @@ export class GameService {
 		}
 	}
 
-	public paddleDown(room: Room, clientId: string) {
+	public paddleDown(room: GameRoom, clientId: string) {
 		if (room.leftPlayer && clientId === room.leftPlayer.socketId) {
 			room.leftPlayer.updateData.moveData.leftPaddleY += 30;
 			if (room.leftPlayer.updateData.moveData.leftPaddleY >= this.canvasHeight - this.paddleHeight)

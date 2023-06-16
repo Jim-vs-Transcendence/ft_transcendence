@@ -1,18 +1,19 @@
-import { GameInitData } from "../dto/gameData.dto";
+import exp from "constants";
+import { GamePlayerData } from "../dto/gameData.dto";
 
-export class Room {
+export class GameRoom {
     endTimer: any;
     dataFrame: any;
 
-    leftPlayer: GameInitData;
-    rightPlayer: GameInitData;
+    leftPlayer: GamePlayerData;
+    rightPlayer: GamePlayerData;
 
     isEnd: boolean;
     leftReady: boolean;
     rightReady: boolean;
 }
 
-export class GameRoom {
+export class GameClientOption {
 	_roomName: string;
 
 	_canvasColor: string;

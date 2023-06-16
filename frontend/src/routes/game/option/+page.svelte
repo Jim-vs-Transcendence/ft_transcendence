@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { io_game } from '$lib/webSocketConnection_game';
-	import { gameRoom } from '$lib/gameData';
+	import { gameClientOption } from '$lib/gameData';
 
 	let cnt: number = 0;
 
-	const match = async () => {
-		await goto('/game/inGame');
-	};
+	// const match = async () => {
+	// 	await goto('/game/inGame');
+	// };
 
 	function setReady() {
 		cnt++;
@@ -23,7 +23,6 @@
 	$: ballSize;
 	$: color;
 
-
 	import { RangeSlider } from '@skeletonlabs/skeleton';
 	let value: number;
 
@@ -31,11 +30,11 @@
 
 	function optionEmit() {
 		console.log(score, color, ballSize);
-		gameRoom._gameScore = score;
-		gameRoom._canvasColor = color;
-		gameRoom._ballRadius = ballSize;
-		console.log(gameRoom);
-		io_game.emit('optionReady', gameRoom);
+		gameClientOption._gameScore = score;
+		gameClientOption._canvasColor = color;
+		gameClientOption._ballRadius = ballSize;
+		console.log(gameClientOption);
+		io_game.emit('optionReady', gameClientOption);
 	}
 
 	function setScore() {
@@ -119,11 +118,22 @@
 		// ballSizeEmit();
 	}
 
-	io_game.on('optionReady', (flag: boolean) => {
-		// optionEmit();
-		if (flag) {
-			goto('/game/inGame');
-		}
+	
+	
+	onMount(() => {
+		io_game.emit('optionPageArrived', );
+		
+		io_game.on('gotoMain', (flag: boolean) => {
+			if (flag) {
+				goto('/main');
+			}
+		});
+
+		io_game.on('optionReady', (flag: boolean) => {
+			if (flag) {
+				goto('/game/inGame');
+			}
+		});
 	});
 </script>
 
@@ -134,7 +144,7 @@
 		<li>
 			<span class="flex justify-center items-center text-2xl">ㅇ옵션ㅇ</span>
 		</li>
-		{#if (io_game.id === gameRoom._roomName)}
+		{#if io_game.id === gameClientOption._roomName}
 			<li>
 				<span class="flex justify-center items-center" on:click={setScore}
 					>"참 잘했어요" 도장 개수 변경</span
@@ -162,22 +172,23 @@
 							three types of cone cells (trichromacy). Other animals may have a different number of cone
 							cell types or have eyes sensitive to different wavelength, such as bees that can distinguish
 							ultraviolet, and thus has a different color sensitivity range. Animal perception of color
-							originates from different light wavelength or spectral sensitivity in cone cell types, which
-							is then processed by the brain. Colors have perceived properties such as hue, colorfulness
+							originates from different light wavelength or spectral sensitivity in cone cell types,
+							which is then processed by the brain. Colors have perceived properties such as hue, colorfulness
 							(saturation) and luminance. Colors can also be additively mixed (commonly used for actual
-							light) or subtractively mixed (commonly used for materials). If the colors are mixed in the
-							right proportions, because of metamerism, they may look the same as a single-wavelength light.
-							For convenience, colors can be organized in a color space, which when being abstracted as
-							a mathematical color model can assign each region of color with a corresponding set of numbers.
-							As such, color spaces are an essential tool for color reproduction in print, photography,
-							computer monitors and television. The most well-known color models are RGB, CMYK, YUV, HSL
-							and HSV. Because the perception of color is an important aspect of human life, different
-							colors have been associated with emotions, activity, and nationality. Names of color regions
-							in different cultures can have different, sometimes overlapping areas. In visual arts, color
-							theory is used to govern the use of colors in an aesthetically pleasing and harmonious way.
-							The theory of color includes the color complements; color balance; and classification of
-							primary colors (traditionally red, yellow, blue), secondary colors (traditionally orange,
-							green, purple) and tertiary colors. The study of colors in general is called color science.
+							light) or subtractively mixed (commonly used for materials). If the colors are mixed in
+							the right proportions, because of metamerism, they may look the same as a single-wavelength
+							light. For convenience, colors can be organized in a color space, which when being abstracted
+							as a mathematical color model can assign each region of color with a corresponding set
+							of numbers. As such, color spaces are an essential tool for color reproduction in print,
+							photography, computer monitors and television. The most well-known color models are RGB,
+							CMYK, YUV, HSL and HSV. Because the perception of color is an important aspect of human
+							life, different colors have been associated with emotions, activity, and nationality. Names
+							of color regions in different cultures can have different, sometimes overlapping areas.
+							In visual arts, color theory is used to govern the use of colors in an aesthetically pleasing
+							and harmonious way. The theory of color includes the color complements; color balance;
+							and classification of primary colors (traditionally red, yellow, blue), secondary colors
+							(traditionally orange, green, purple) and tertiary colors. The study of colors in general
+							is called color science.
 						</Step>
 						<Step>
 							<svelte:fragment slot="header">쉬어가는 공간</svelte:fragment>

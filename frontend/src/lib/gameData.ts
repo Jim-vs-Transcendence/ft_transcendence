@@ -1,4 +1,4 @@
-export interface GameRoom {
+export interface GameClientOption {
 	_roomName: string;
 
 	_canvasColor: string;
@@ -8,7 +8,7 @@ export interface GameRoom {
 	_gameScore: number;
 }
 
-export const gameRoom : GameRoom = {
+export const gameClientOption : GameClientOption = {
 	_roomName: '',
 	_canvasColor: '',
 	_ballRadius: 0,

@@ -3,7 +3,8 @@
 	import { afterUpdate } from 'svelte';
 	import { onDestroy } from 'svelte';
 	import { io_game } from '$lib/webSocketConnection_game';
-	import { gameRoom } from '$lib/gameData';
+	import { gameClientOption } from '$lib/gameData';
+	import { goto } from '$app/navigation';
 
 	let cnt: number = 0;
 
@@ -50,7 +51,7 @@
 		canvas.height = Player.canvasHeight;
 		canvas.style.backgroundColor = Player.canvasColor;
 
-		gameRoom._ballRadius = Player.ballRadius;
+		gameClientOption._ballRadius = Player.ballRadius;
 
 		paddleWidth = Player.paddleWidth;
 		paddleHeight = Player.paddleHeight;
@@ -73,7 +74,7 @@
 		console.log(moveData);
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.beginPath();
-		context.arc(moveData.ballX, moveData.ballY, gameRoom._ballRadius, 0, Math.PI * 2, false);
+		context.arc(moveData.ballX, moveData.ballY, gameClientOption._ballRadius, 0, Math.PI * 2, false);
 		context.fillStyle = 'white';
 		context.fill();
 		context.closePath();
@@ -100,14 +101,14 @@
 			cnt++;
 			console.log('enter press');
 			if (cnt === 1) {
-				io_game.emit('gameReady', gameRoom._roomName);
+				io_game.emit('gameReady', gameClientOption._roomName);
 			}
 		} else if (event.key === 'ArrowDown') {
-			io_game.emit('downKey', gameRoom._roomName);
+			io_game.emit('downKey', gameClientOption._roomName);
 		} else if (event.key === 'ArrowUp') {
-			io_game.emit('upKey', gameRoom._roomName);
+			io_game.emit('upKey', gameClientOption._roomName);
 		} else if (event.key === 'Esc') {
-			io_game.emit('gameRestart', gameRoom._roomName);
+			io_game.emit('gameRestart', gameClientOption._roomName);
 		}
 	}
 
@@ -119,24 +120,17 @@
 
 		window.addEventListener('keydown', handleKeyPress);
 
-		io_game.emit('TEST', gameRoom._roomName);
+		io_game.emit('inGamePageArrived', gameClientOption._roomName);
 
-		io_game.on('connected', (Player: any) => {
+		io_game.on('gotoMain', (flag: boolean) => {
+			if (flag)
+				goto('/main');
+		})
+
+		io_game.on('gameDraw', (Player: any) => {
 			initPlayer(Player);
 			draw(Player.updateData.moveData);
 		});
-
-		// io_game.on('handShaking', (flag: boolean) => {
-		// 	if (flag) {
-		// 		io_game.emit('handShaking', true);
-		// 	}
-		// });
-
-		// console.log(io_game.id);
-		// io_game.on('roomName', (roomName: string) => {
-		// 	gameRoom._roomName = roomName;
-		// 	console.log('got message from : ', roomName);
-		// });
 
 
 		io_game.on('restart', (flag: boolean) => {
@@ -150,13 +144,13 @@
 			draw(player);
 		});
 
-		io_game.on('scoring', (player: any) => {
+		io_game.on('oneSetEnd', (player: any) => {
 			leftScore = player.leftScore;
 			rightScore = player.rightScore;
 			draw(player.moveData);
 		});
 
-		io_game.on('endGame', (flag: boolean) => {
+		io_game.on('gameEnd', (flag: boolean) => {
 			console.log('end game:', flag ? 'true' : 'false');
 			setEndGame(flag);
 		});

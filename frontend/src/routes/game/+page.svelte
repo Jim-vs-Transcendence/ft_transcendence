@@ -6,7 +6,7 @@
 	import { goto } from '$app/navigation';
 	import { io_game } from '$lib/webSocketConnection_game';
 
-	import { gameRoom } from '$lib/gameData';
+	import { gameClientOption } from '$lib/gameData';
 
 	const main = async () => {
 		await goto('/main');
@@ -14,10 +14,10 @@
 
 	onMount(() => {
 
-		io_game.emit('waitListInit', (userId: string));
+		io_game.emit('pushMatchList', );
 
 		io_game.on('roomName', (roomName: string) => {
-			gameRoom._roomName = roomName;
+			gameClientOption._roomName = roomName;
 			console.log('got message from : ', roomName);
 			goto('/game/option');
 		});
