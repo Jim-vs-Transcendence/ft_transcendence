@@ -19,7 +19,7 @@
 			_user_info: {
 				id: "jim",
 				nickname: "nickname",
-				avatar: "avatar",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
 				email: "email",
 				level: 0,
 				win: 0,
@@ -35,7 +35,7 @@
 			_user_info: {
 				id: "kyoulee",
 				nickname: "nickname",
-				avatar: "avatar",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
 				email: "email",
 				level: 0,
 				win: 0,
@@ -51,7 +51,7 @@
 			_user_info: {
 				id: "yolee",
 				nickname: "nickname",
-				avatar: "avatar",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
 				email: "email",
 				level: 0,
 				win: 0,
@@ -201,9 +201,9 @@
 			<!-- Tab Panels --->
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
-					<!-- {#each chatUserList as chatUser}
+					{#each chatUserList as chatUser}
 						<ChatUserList {chatUser}/>
-					{/each} -->
+					{/each}
 					<!-- {friend} -->
 					<!-- <ChatUserList friend={friend} userInfo={userInfo} />
 				{:else if tabSet === 1}

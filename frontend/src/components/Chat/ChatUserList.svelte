@@ -41,23 +41,26 @@
     }
 </script>
 
-{#if !isRefused}
-    <div>
-    <Avatar src={chatUser._user_info.avatar} on:click={() => goProfile(chatUser._user_info.id)} width="w-7" rounded="rounded-full" />
-    <!-- <span class="flex-auto">
-        <dt>{chatUser._user_info.id}</dt>
-        {#if chatUser._user_info.chatUserStatus === chatUserRequestStatus.PENDING}
-            <dd>친구신청 수락?</dd>
-            <button class="btn-icon" on:click={acceptchatUser}>
-                &#10003;
-            </button>
-            <button class="btn-icon" style="font-size: 19px" on:click={nochatUser}>
-                &#10005;
-            </button>
-        {:else}
-            <dd>대기중 아닌거</dd>
-        {/if}
+<ul class="list">
+    
+    </ul>
 
-    </span> -->
+<dl class="list-dl">
+    <li>
+        <span> </span>
+        <span class="flex-auto"> </span>
+    </li>
+    <!-- ... -->
+    <div>
+        {#if !isRefused}
+            <span class="flex-auto">
+                <dt> <Avatar src={chatUser._user_info.avatar} on:click={() => goProfile(chatUser._user_info.id)} width="w-7" rounded="rounded-full" />  {chatUser._user_info.id} | {chatUser._user_info.nickname}  </dt>
+            </span>
+            <span class="badge p-0">👑</span>
+            <!-- <span class="badge p-0">🗡️</span>
+            <span class="badge p-0">🔇</span> -->
+        {/if}
     </div>
-{/if}
+    <!-- ... -->
+</dl>
+    
