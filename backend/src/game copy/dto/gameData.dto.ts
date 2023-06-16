@@ -1,4 +1,3 @@
-import { User } from '../../users/entities/user.entity'
 import { Socket } from 'socket.io';
 
 export class GameMoveData {
@@ -19,7 +18,7 @@ export class GameUpdateData {
 
 export class GamePlayerData {
 	socketId: string;
-	user: User;
+	userId: string;
 	isInGame: boolean;
 
 	canvasWidth: number;
@@ -41,4 +40,11 @@ export class GamePlayerData {
 export class GameInvitePlayers {
 	left: Socket;
 	right: Socket;
+}
+
+export class GamePlayerScoreData {
+	player1Id: string;
+	player2Id: string;
+	player1Score: number;
+	player2Score: number;
 }

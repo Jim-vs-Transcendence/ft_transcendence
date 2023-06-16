@@ -1,9 +1,8 @@
 import { ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, MessageBody, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket, Namespace } from 'socket.io';
-import { GamePlayerData, GameUpdateData, GameMoveData, GameInvitePlayers } from './dto/gameData.dto';
+import { GamePlayerData, GameUpdateData, GameMoveData, GameInvitePlayers, GamePlayerScoreData } from './dto/gameData.dto';
 import { GameRoom, GameClientOption } from './data/playerData';
 import { GameService } from './game.service';
-import { UsersService } from 'src/users/users.service';
 /* 
  * service : gateway에서 호출되어 게임 내부 로직 변경 (현재 게이트웨이에 있는 private 함수들)
  * gateway : 클라이언트에서 받은 소켓 정보를 service 함수를 호출하여 핸들링
@@ -16,7 +15,6 @@ import { UsersService } from 'src/users/users.service';
 
 
 @WebSocketGateway({ namespace: '/game', cors: true })
-// implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
 	@WebSocketServer() server: Namespace;
@@ -32,14 +30,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	private players: GamePlayerData[];
 
-	constructor(
-		public userRService: UsersService,
-	) {
+	constructor() {
 		this.service = new GameService(this);
 		this.rooms;
 		this.players = [];
 	}
-	// Canvas Info
 
 	@SubscribeMessage('mainConnect')
 	handleConnection(
@@ -62,20 +57,28 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.players.slice(playerIndex);
 		}
 		else {
-			let destroyedRoom: string = this.roomKey.get(client.id);
+			const destroyedRoom: string = this.roomKey.get(client.id);
 			if (destroyedRoom) {
-				let room: GameRoom = this.rooms.get(destroyedRoom);
+				const room: GameRoom = this.rooms.get(destroyedRoom);
+				const gamePlayerScoreData: GamePlayerScoreData = new GamePlayerScoreData();
+
 				if (room.leftPlayer.isInGame === true) {
 					if (room.leftPlayer.socketId === client.id) {
 						// rightPlayer win
-						room.leftPlayer.user.lose++;
-						room.rightPlayer.user.win++;
+						gamePlayerScoreData.player1Id = room.leftPlayer.userId;
+						gamePlayerScoreData.player1Score = 0;
+						gamePlayerScoreData.player2Id = room.rightPlayer.userId;
+						gamePlayerScoreData.player2Score = room.rightPlayer.gameScore;
+						// user한테 PETCH로 gamePlayerScoreData를 보내주면 된다
 						this.server.to(room.rightPlayer.socketId).emit('gotoMain', true);
 					}
 					else {
 						// leftPlayer Win
-						room.rightPlayer.user.lose++;
-						room.leftPlayer.user.win++;
+						gamePlayerScoreData.player1Id = room.leftPlayer.userId;
+						gamePlayerScoreData.player1Score = room.leftPlayer.gameScore;
+						gamePlayerScoreData.player2Id = room.rightPlayer.userId;
+						gamePlayerScoreData.player2Score = 0;
+						// user한테 PETCH로 gamePlayerScoreData를 보내주면 된다
 						this.server.to(room.leftPlayer.socketId).emit('gotoMain', true);
 					}
 				}

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { GameGateway } from './game.gateway';
 import { GameRoom, GameClientOption } from './data/playerData';
-import { GamePlayerData, GameUpdateData, GameMoveData } from './dto/gameData.dto';
+import { GamePlayerData, GameUpdateData, GameMoveData, GamePlayerScoreData } from './dto/gameData.dto';
 
 @Injectable()
 export class GameService {
@@ -34,7 +34,7 @@ export class GameService {
 		player.isInGame = false;
 		const userId: string | string[] = client.handshake.query.key;
 		if (userId !== null && typeof userId === 'string') {
-			player.user = await this.myGameGateway.userRService.findOne(userId);
+			player.userId = userId;
 		}
 
 		player.canvasWidth = this.canvasWidth;
@@ -111,7 +111,9 @@ export class GameService {
 		this.myGameGateway.server.to(room.leftPlayer.socketId).emit('oneSetEnd', room.leftPlayer.updateData);
 		this.myGameGateway.server.to(room.rightPlayer.socketId).emit('oneSetEnd', room.rightPlayer.updateData);
 
-		if (room.leftPlayer.updateData.leftScore >= 3 || room.leftPlayer.updateData.rightScore >= 3) {
+		const endScore: number = room.leftPlayer.gameScore;
+
+		if (room.leftPlayer.updateData.leftScore >= endScore || room.leftPlayer.updateData.rightScore >= endScore) {
 			clearInterval(room.dataFrame);
 			room.isEnd = true;
 			room.leftReady = false;
@@ -122,14 +124,22 @@ export class GameService {
 			// 시간초가 지나면 메인 페이지 이동, 시간초 보다 restart가 빠르면 재시작
 			room.endTimer = setTimeout(this.endGame, 10000, room);
 
-			if (room.leftPlayer.updateData.leftScore >= 3) {
+			
+			if (room.leftPlayer.updateData.leftScore >= endScore) {
 				this.myGameGateway.server.to(room.leftPlayer.socketId).emit('gameEnd', true);
 				this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gameEnd', false);
+				
 			}
 			else {
 				this.myGameGateway.server.to(room.leftPlayer.socketId).emit('gameEnd', false);
 				this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gameEnd', true);
 			}
+			const gamePlayerScoreData: GamePlayerScoreData = new GamePlayerScoreData();
+			gamePlayerScoreData.player1Id = room.leftPlayer.userId;
+			gamePlayerScoreData.player1Score = room.leftPlayer.updateData.leftScore;
+			gamePlayerScoreData.player2Id = room.rightPlayer.userId;
+			gamePlayerScoreData.player2Score = room.rightPlayer.updateData.rightScore;
+			// user 쪽에서 DB에 POST하는 로직 추가
 		}
 
 		this.resetPlayer(room.leftPlayer.updateData.moveData);
@@ -142,7 +152,6 @@ export class GameService {
 	}
 
 	public sendGameData(room: GameRoom) {
-		console.log('what the fuck with you?', room.leftPlayer.ballRadius);
 		if (room.leftPlayer.updateData.moveData.ballX <= 0) {
 			room.leftPlayer.updateData.rightScore++;
 			this.resetGame(room);
