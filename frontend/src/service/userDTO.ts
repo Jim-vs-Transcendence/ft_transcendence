@@ -1,3 +1,4 @@
+// 왜 빨간줄이 뜨는가?
 interface UserDTO {
     id: string;
     nickname: string;
