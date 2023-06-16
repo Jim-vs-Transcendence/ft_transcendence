@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { TokenModule } from 'src/auth/token/token.module';
+import { MatchHistoryModule } from './match-history/match-history.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TokenModule } from 'src/auth/token/token.module';
       dest: '../data/profile',
     }),
     forwardRef(() => TokenModule),
+    forwardRef(() => MatchHistoryModule),
   ],
   controllers: [UsersController],
   providers: [UsersService],

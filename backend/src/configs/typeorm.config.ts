@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { Friend } from 'src/users/entities/friend.entity';
+import { MatchHistory } from 'src/users/entities/matchHistory.entity';
 import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
@@ -18,7 +19,7 @@ export class typeOrmConfigService implements TypeOrmOptionsFactory {
       database: this.configService.get<string>('DB_DATABASE'),
       synchronize: this.configService.get<boolean>('DB_SYNC'),
       logging: this.configService.get<boolean>('DB_LOG'),
-      entities: [User, Friend],
+      entities: [User, Friend, MatchHistory],
     };
   }
 }
