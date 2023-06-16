@@ -5,38 +5,73 @@
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { each } from 'svelte/internal';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte'
-	// import '../../../service/friendDTO'; // does not work
-	// import ChatUserList from '../../../service/friendDTO.ts';
+	import '$lib/interface.d'
+	import { PayLoadIF, ChatUserIF } from '$lib/interface.d'
 
 	export let data: PayLoadIF; // extern
 	// for profile
 	// export let friend: friendDTO;
-	const chatUserList: friendDTO[] = [
+	const chatUserList: ChatUserIF[] = [
 		{
-			id: "jim",
-			nickname: "Jake",
-			avatar: "https://cdn.intra.42.fr/users/4011619616a8f569d7b6950caeee5577/jinwoole.jpg",
+			_authority: 1,
+			_is_muted: false,
+			_user_id: "jim",
+			_user_info: {
+				id: "jim",
+				nickname: "nickname",
+				avatar: "avatar",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
 		},
 		{
-			id: "jinwoole",
-			nickname: "Navigator",
-			avatar: "https://cdn.intra.42.fr/users/4011619616a8f569d7b6950caeee5577/jinwoole.jpg",
+			_authority: 2,
+			_is_muted: false,
+			_user_id: "kyoulee",
+			_user_info: {
+				id: "kyoulee",
+				nickname: "nickname",
+				avatar: "avatar",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
 		},
 		{
-			id: "gyeokim",
-			nickname: "MenU",
-			avatar: "https://cdn.intra.42.fr/users/4011619616a8f569d7b6950caeee5577/jinwoole.jpg",
-		}
+			_authority: 3,
+			_is_muted: false,
+			_user_id: "yolee",
+			_user_info: {
+				id: "yolee",
+				nickname: "nickname",
+				avatar: "avatar",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+		},
 	];
 
-    export let userInfo: UserDTO;
+    // export let userInfo: UserDTO;
 	// : ChatUserIF
 
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_room_info: {
 			_room_name: '',
-			_room_password: ''
+			_room_password: '',
+			_participant_list: [],
+    		_banned_list: []
 			// _participant_list: 
 			// 소켓 통신을 위해 있다
 			// Data를 주고 받기 위한 구조체이다
@@ -54,10 +89,10 @@
 
 		- 초기 설정을 위해 class 추천
 	*/
-	let chat_room : ChatRoomInfo = {
-		// 채팅방 사용자 목록
+	// let chat_room : ChatRoomInfo = {
+	// 	// 채팅방 사용자 목록
 		
-	}
+	// }
 
 	let msg_list: string[] = [];
 
@@ -166,14 +201,14 @@
 			<!-- Tab Panels --->
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
-					{#each chatUserList as chatUser}
-						<ChatUserList friend={chatUser} userInfo={userInfo} />
-					{/each}
+					<!-- {#each chatUserList as chatUser}
+						<ChatUserList {chatUser}/>
+					{/each} -->
 					<!-- {friend} -->
-					<!-- <ChatUserList friend={friend} userInfo={userInfo} /> -->
+					<!-- <ChatUserList friend={friend} userInfo={userInfo} />
 				{:else if tabSet === 1}
 					(ban list)
-					<!-- {userInfo} -->
+					{userInfo} -->
 				{/if}
 			</svelte:fragment>
 		</TabGroup>
