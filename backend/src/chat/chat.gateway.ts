@@ -9,13 +9,12 @@ import {
 	WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
-import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, PayLoadDTO, ChatUser, ChatRoom } from './dto/chat.dto';
+import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, PayLoadDTO, ChatRoom } from './dto/chat.dto';
 import { UsersService } from 'src/users/users.service';
 '../../'
 // let channel_list = new Map<string, ChatRoom>();
 let channel_list: Map<string, ChatRoom> = new Map<string, ChatRoom>();
-let socket_list: Map<string, ChatUser> = new Map<string, ChatUser>();
-let socket_to_user: Map<string, string> = new Map<string, string>();
+let socket_list: Map<string, Socket> = new Map<string, Socket>();
 
 enum chat_auth {
 	USER,
@@ -39,9 +38,7 @@ export class ChatGateway
 		const userid: string | string[] = client.handshake.query.userid;
 		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
 		if (typeof userid === 'string') {
-			socket_list.set(userid, new ChatUser());
-			socket_list.get(userid)._socket = client;
-			socket_to_user.set(client.id, userid);
+			socket_list.set(userid, client);
 			client.join('defult');
 			client.leave(client.id);
 		}
@@ -49,16 +46,17 @@ export class ChatGateway
 	}
 
 	handleDisconnect(@ConnectedSocket() client: Socket) {
-		console.log('\x1b[38;5;196m Disconnect: ', socket_to_user.get(client.id), " : ", client.id, "\x1b[0m");
 		const userid: string | string[] = client.handshake.query.userId;
+		console.log('\x1b[38;5;196m Disconnect: ', userid, " : ", client.id, "\x1b[0m");
 		if (typeof userid === 'string')
-			if (socket_list.get(userid)._socket.id === client.id) {
-				socket_list.get(userid)._channel.forEach((val) => {
-					console.log("channel : ", val);
-				})
+		{
+			if (socket_list.get(userid).id === client.id) {
 				socket_list.delete(userid);
-				socket_to_user.delete(userid);
+				client.rooms.forEach((val, key) => {
+					this.ft_channel_leave(key, userid);
+				})
 			}
+		}
 		client.emit('room-refresh', this.ft_room_list());
 	}
 
@@ -89,10 +87,13 @@ export class ChatGateway
 			client.emit('room-create', payload);
 			return;
 		}
+		const userid: string | string[] = client.handshake.query.userid;
 		payload._pass = true;
 		client.join(payload._room_name);
-		channel_list.set(payload._room_name, this.ft_channel_room_create(payload, socket_to_user.get(client.id)));
-		this.ft_channel_auth_admin(payload._room_name, socket_to_user.get(client.id));
+		if (typeof userid === "string") {
+			channel_list.set(payload._room_name, this.ft_channel_room_create(payload, userid));
+			this.ft_channel_auth_admin(payload._room_name, userid);
+		}
 		client.emit('room-create', payload);
 		this.server.emit('room-refresh', this.ft_room_list());
 	}
@@ -108,7 +109,7 @@ export class ChatGateway
 		let room: ChatRoom = {
 			_name: payload._room_name,
 			_password: payload._room_password,
-			_user: new Map<string, ChatUser>(),
+			_user: new Map<string, Socket>(),
 			_auth_user: new Map<string, number>()
 		};
 		room._user.set(userid, socket_list.get(userid));
@@ -134,10 +135,13 @@ export class ChatGateway
 		@MessageBody() payload: ChatRoomDTO,
 	) {
 		console.log("\x1b[38;5;226m room-join \x1b[0m :", payload);
+		const userid: string | string[] = client.handshake.query.userid;
 		if (!this.server.adapter.rooms.has(payload._room_name))
 			return client.emit('room-join', {});
-		if (!this.ft_channel_join(payload, socket_to_user.get(client.id)))
-			return;
+		if (typeof userid === "string") {
+			if (!this.ft_channel_join(payload, userid))
+				return;
+		}
 		payload._pass = true;
 		client.join(payload._room_name);
 		client.emit('room-join', payload);
@@ -188,7 +192,7 @@ export class ChatGateway
 		return room_list;
 	}
 
-	ft_user_map_to_string(user_list: Map<string, ChatUser>): string[] {
+	ft_user_map_to_string(user_list: Map<string, Socket>): string[] {
 		let user: string[] = [];
 
 		user_list.forEach((val, key) => {
@@ -202,9 +206,8 @@ export class ChatGateway
 
 
 	ft_channel_leave(channel_name: string, userid: string) {
-		console.log("\x1b[38;5;199m ft_channel_leave \x1b[0m :", channel_name, " : ", userid );
-		if (channel_list.get(channel_name)._user.get(userid)) 
-		{
+		console.log("\x1b[38;5;021m; ft_channel_leave \x1b[0m :", channel_name, " : ", userid);
+		if (channel_list.get(channel_name)._user.get(userid)) {
 			this.ft_channel_auth_delete(channel_name, userid);
 			channel_list.get(channel_name)._user.delete(userid);
 			if (channel_list.get(channel_name)._user.size == 0)
@@ -223,7 +226,7 @@ export class ChatGateway
 	}
 
 	ft_channel_auth_set(channel_name: string, user_grantor: string, user_heritor: string) {
-		console.log("\x1b[38;5;021m ft_channel_auth_set \x1b[0m :", channel_name, " : ", user_grantor , " => ", user_heritor );
+		console.log("\x1b[38;5;021m ft_channel_auth_set \x1b[0m :", channel_name, " : ", user_grantor, " => ", user_heritor);
 		let channel = channel_list.get(channel_name);
 		if (channel._auth_user.get(user_grantor) >= 1) {
 			if (!channel._auth_user.get(user_heritor)
@@ -234,9 +237,9 @@ export class ChatGateway
 	}
 
 	ft_channel_auth_delete(channel_name: string, user_name: string) {
-		console.log("\x1b[38;5;199m ft_channel_auth_delete \x1b[0m :", channel_name, " : ", user_name );
+		console.log("\x1b[38;5;199m ft_channel_auth_delete \x1b[0m :", channel_name, " : ", user_name);
 		let channel = channel_list.get(channel_name);
-		let on : number = 0;
+		let on: number = 0;
 
 		if (channel._auth_user.get(user_name) == 2) {
 			if (channel._auth_user.size > 1) {
@@ -319,7 +322,7 @@ export class ChatGateway
 			return;
 		}
 		client.to(payload._room_name).emit('chat-msg-event', payload);
-		client.emit("chat-msg-event",payload._msg );
+		client.emit("chat-msg-event", payload._msg);
 	}
 
 	/* ================================================================================
@@ -337,11 +340,14 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatMsgDTO,
 	) {
+		const userid: string | string[] = client.handshake.query.userid;
 		console.log("\x1b[38;5;227m chat-exit-room \x1b[0m", payload._room_name);
 		client.leave(payload._room_name);
-		if (!this.server.adapter.rooms.has(payload._room_name)) {
-			this.ft_channel_leave(payload._room_name, socket_to_user.get(client.id));
-			this.server.emit('room-refresh', this.ft_room_list());
+		if (typeof userid === "string") {
+			if (!this.server.adapter.rooms.has(payload._room_name)) {
+				this.ft_channel_leave(payload._room_name, userid);
+				this.server.emit('room-refresh', this.ft_room_list());
+			}
 		}
 	}
 
@@ -365,16 +371,11 @@ export class ChatGateway
 		@MessageBody() payload: DmChatDTO,
 	) {
 		if (!socket_list.has(payload._to)) {
-			console.log(
-				'\x1b[38;5;196m',
-				'Error ::',
-				'\x1b[0m',
-				'socket is not enable',
-			);
+			console.log("\x1b[38;5;196m Error :: \x1b[0m socket is not enable");
 			client.emit('dm-chat', payload);
 			return;
 		}
-		socket_list.get(payload._to)._socket.emit('dm-chat', payload);
+		socket_list.get(payload._to).emit('dm-chat', payload);
 		// client.emit("chat-msg-event",payload._msg );
 	}
 }

@@ -13,7 +13,8 @@
 
 	onMount(async () => {
 		try {
-			await CreateSocket(socketStore);
+			if (socket === undefined)
+				await CreateSocket(socketStore);
 
 			/* ===== room-refresh ===== */
 			socket.on('room-refresh', (data) => {

@@ -7,14 +7,6 @@ import { User } from 'src/users/entities/user.entity';
 								room
    ================================================================================ */
 
-export class ChatUser {
-	@IsString()
-	_socket: Socket;
-
-	@IsString()
-	_channel: string[];
-
-}
 
 export class ChatRoom {
 	@IsString()
@@ -25,7 +17,7 @@ export class ChatRoom {
 	_password: string;
 
 	@IsObject()
-	_user: Map<string, ChatUser>;
+	_user: Map<string, Socket>;
 
 	@IsObject()
 	_auth_user: Map<string, number>;
