@@ -2,8 +2,8 @@ const backUrl : string = import.meta.env.VITE_API_URL;
 
 import { browser } from '$app/environment';
 import ioClient, { Socket } from 'socket.io-client';
-import { onMount } from 'svelte';
 import { writable, type Writable } from 'svelte/store';
+import type { DmChatIF, DmChatStoreIF } from '$lib/interface';
 
 export const ENDPOINT : string = backUrl + '/chat';
 export const DM_KEY : string = "dmdata"

@@ -53,12 +53,12 @@ interface PayLoadIF {
 /* ================================================================================
 								DM
    ================================================================================ */
-interface DmChatIF {
+export interface DmChatIF {
 	_msg: string = "";
 	_from: string = "";
 	_to: string = "";
 }
 
-interface DmChatStoreIF {
+export interface DmChatStoreIF {
 	[opponent: string]: DmChatIF[];
 }
