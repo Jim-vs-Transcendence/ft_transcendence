@@ -11,6 +11,7 @@ import {
 import { Namespace, Server, Socket } from 'socket.io';
 import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, PayLoadDTO, ChatRoom } from './dto/chat.dto';
 import { UsersService } from 'src/users/users.service';
+import { ConnectionClosedEvent } from 'typeorm';
 '../../'
 // let channel_list = new Map<string, ChatRoom>();
 let channel_list: Map<string, ChatRoom> = new Map<string, ChatRoom>();
@@ -38,10 +39,18 @@ export class ChatGateway
 		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
 		if (typeof userid === 'string') {
+			if (!socket_list.has(userid))
 			socket_list.set(userid, client);
-			client.join('defult');
-			client.leave(client.id);
+			else // for test in duplicate user
+			{
+				let num : number = 0;
+				while (socket_list.has(userid + "_" + num.toString()))
+				num++;
+				socket_list.set(userid + "_" + num.toString(), client);
+				client.handshake.query._userId = userid + "_" + num.toString();
+			}
 		}
+		socket_list.forEach((val, key)=>{console.log('\x1b[38;5;154m connlist: ', key, " : ", val + "\x1b[0m")});
 		client.emit('room-refresh', this.ft_room_list());
 	}
 
