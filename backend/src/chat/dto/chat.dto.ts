@@ -3,18 +3,18 @@ import exp from 'constants';
 import { Socket } from 'socket.io';
 import { User } from 'src/users/entities/user.entity';
 
-/////////////////
-
+/* ================================================================================
+								room
+   ================================================================================ */
 
 export class ChatUser {
 	@IsString()
 	_socket: Socket;
 
 	@IsString()
-	_channel: string [];
+	_channel: string[];
 
 }
-
 
 export class ChatRoom {
 	@IsString()
@@ -46,32 +46,38 @@ export class ChatRoomDTO {
 
 }
 
-/////////////////////
+
+/* ================================================================================
+								chat
+   ================================================================================ */
 
 export class ChatMsgDTO {
-  @IsString()
-  readonly _msg: string;
-
-  @IsOptional()
-  @IsObject()
-  readonly _room_info: ChatRoomDTO;
+	@IsString()
+	readonly _msg: string;
+	@IsString()
+	readonly _room_name: string;
 }
 
 export class PayLoadDTO {
-  @IsString()
-  readonly _room: string;
+	@IsString()
+	readonly _room: string;
 
-  @IsBoolean()
-  _check: boolean;
+	@IsBoolean()
+	_check: boolean;
 }
+
+/* ================================================================================
+								DM
+   ================================================================================ */
+
 
 export class DmChatDTO {
 	@IsString()
 	readonly _msg: string;
-  
+
 	@IsString()
 	readonly _from: string;
 
 	@IsString()
 	readonly _to: string;
-  }
+}

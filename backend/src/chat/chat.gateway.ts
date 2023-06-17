@@ -54,7 +54,7 @@ export class ChatGateway
 		if (typeof userid === 'string')
 			if (socket_list.get(userid)._socket.id === client.id) {
 				socket_list.get(userid)._channel.forEach((val) => {
-					console.log("channel : ", val); // 체널 나가기
+					console.log("channel : ", val);
 				})
 				socket_list.delete(userid);
 				socket_to_user.delete(userid);
@@ -92,6 +92,7 @@ export class ChatGateway
 		payload._pass = true;
 		client.join(payload._room_name);
 		channel_list.set(payload._room_name, this.ft_channel_room_create(payload, socket_to_user.get(client.id)));
+		this.ft_channel_auth_admin(payload._room_name, socket_to_user.get(client.id));
 		client.emit('room-create', payload);
 		this.server.emit('room-refresh', this.ft_room_list());
 	}
@@ -133,23 +134,23 @@ export class ChatGateway
 		@MessageBody() payload: ChatRoomDTO,
 	) {
 		console.log("\x1b[38;5;226m room-join \x1b[0m :", payload);
-		if (!this.server.adapter.rooms.has(payload._room_name)
-		) {
-			client.emit('room-join', {});
+		if (!this.server.adapter.rooms.has(payload._room_name))
+			return client.emit('room-join', {});
+		if (!this.ft_channel_join(payload, socket_to_user.get(client.id)))
 			return;
-		}
-		console.log("_password", channel_list.get(payload._room_name)._password, " ?? ",  payload);
-		if (channel_list.get(payload._room_name)._password != payload._room_password)
-		{
-			payload._pass = false;
-			client.emit('room-join', payload);
-			return;
-		}
-		client.join(payload._room_name);
 		payload._pass = true;
+		client.join(payload._room_name);
 		client.emit('room-join', payload);
 	}
 
+	ft_channel_join(payload: ChatRoomDTO, userid: string) {
+		if (channel_list.get(payload._room_name)._password != payload._room_password) {
+			payload._pass = false;
+			return 0;
+		}
+		channel_list.get(payload._room_name)._user.set(userid, socket_list.get(userid));
+		return 1;
+	}
 
 	/* ================================================================================
 									room refresh                                    
@@ -196,9 +197,76 @@ export class ChatGateway
 		return (user);
 	}
 	/* ================================================================================
-									room utile
+									room leave
 	   ================================================================================ */
 
+
+	ft_channel_leave(channel_name: string, userid: string) {
+		console.log("\x1b[38;5;199m ft_channel_leave \x1b[0m :", channel_name, " : ", userid );
+		if (channel_list.get(channel_name)._user.get(userid)) 
+		{
+			this.ft_channel_auth_delete(channel_name, userid);
+			channel_list.get(channel_name)._user.delete(userid);
+			if (channel_list.get(channel_name)._user.size == 0)
+				channel_list.delete(channel_name);
+		}
+
+	}
+
+	/* ================================================================================
+									room auth
+	   ================================================================================ */
+
+	ft_channel_auth_admin(channel_name: string, userid: string) {
+		console.log("\x1b[38;5;021m ft_channel_auth_admin \x1b[0m :", channel_name, " : ", userid);
+		channel_list.get(channel_name)._auth_user.set(userid, 2);
+	}
+
+	ft_channel_auth_set(channel_name: string, user_grantor: string, user_heritor: string) {
+		console.log("\x1b[38;5;021m ft_channel_auth_set \x1b[0m :", channel_name, " : ", user_grantor , " => ", user_heritor );
+		let channel = channel_list.get(channel_name);
+		if (channel._auth_user.get(user_grantor) >= 1) {
+			if (!channel._auth_user.get(user_heritor)
+				&& channel._auth_user.get(user_heritor) != 2) {
+				channel._auth_user.set(user_heritor, 1);
+			}
+		}
+	}
+
+	ft_channel_auth_delete(channel_name: string, user_name: string) {
+		console.log("\x1b[38;5;199m ft_channel_auth_delete \x1b[0m :", channel_name, " : ", user_name );
+		let channel = channel_list.get(channel_name);
+		let on : number = 0;
+
+		if (channel._auth_user.get(user_name) == 2) {
+			if (channel._auth_user.size > 1) {
+				channel._auth_user.forEach((val, key) => {
+					if (key != user_name && !on && ++on)
+						return channel._auth_user.set(key, 2);
+				});
+			}
+			else if (channel._user.size > 1) {
+				channel._user.forEach((val, key) => {
+					if (key != user_name && !on && ++on)
+						return channel._auth_user.set(key, 2);
+				});
+			}
+		}
+		channel._auth_user.delete(user_name);
+	}
+
+	/* ================================================================================
+									room auth
+	   ================================================================================ */
+
+	ft_channel_kick(channel_name: string, user_grantor: string, user_heritor: string) {
+		if (channel_list.get(channel_name)._auth_user.get(user_grantor) > 1) {
+			if (!channel_list.get(channel_name)._auth_user.has(user_heritor))
+				this.ft_channel_leave(channel_name, user_heritor);
+			if (channel_list.get(channel_name)._auth_user.get(user_grantor) > channel_list.get(channel_name)._auth_user.get(user_heritor))
+				this.ft_channel_leave(channel_name, user_heritor);
+		}
+	}
 
 
 	// ================================================================================ //
@@ -246,17 +314,12 @@ export class ChatGateway
 		@MessageBody() payload: ChatMsgDTO,
 	) {
 		console.log('chat-msg-event', payload);
-		if (!this.server.adapter.rooms.has(payload._room_info._room_name)) {
-			console.log(
-				'\x1b[38;5;196m',
-				'Error ::',
-				'\x1b[0m',
-				'chat-connect url is not enable',
-			);
+		if (!this.server.adapter.rooms.has(payload._room_name)) {
+			console.log("\x1b[38;5;196m Error :: \x1b[0m chat-connect url is not enable");
 			return;
 		}
-		client.to(payload._room_info._room_name).emit('chat-msg-event', payload);
-		// client.emit("chat-msg-event",payload._msg );
+		client.to(payload._room_name).emit('chat-msg-event', payload);
+		client.emit("chat-msg-event",payload._msg );
 	}
 
 	/* ================================================================================
@@ -274,16 +337,10 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatMsgDTO,
 	) {
-		client.leave(payload._room_info._room_name);
-		if (!this.server.adapter.rooms.has(payload._room_info._room_name)) {
-			console.log(
-				'\x1b[38;5;227m',
-				'delete channel',
-				'\x1b[38;5;46m',
-				payload._room_info._room_name,
-				'\x1b[0m',
-			);
-			channel_list.delete(payload._room_info._room_name);
+		console.log("\x1b[38;5;227m chat-exit-room \x1b[0m", payload._room_name);
+		client.leave(payload._room_name);
+		if (!this.server.adapter.rooms.has(payload._room_name)) {
+			this.ft_channel_leave(payload._room_name, socket_to_user.get(client.id));
 			this.server.emit('room-refresh', this.ft_room_list());
 		}
 	}
