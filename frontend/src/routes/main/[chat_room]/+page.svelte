@@ -11,7 +11,8 @@
 		_room_info: {
 			_room_name: '',
 			_room_password: '',
-			_room_users: []
+			_room_users: [],
+				_pass: false
 		}
 	};
 	let msg_list: string[] = [];

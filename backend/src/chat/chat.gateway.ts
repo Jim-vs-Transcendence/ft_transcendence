@@ -37,7 +37,7 @@ export class ChatGateway
 	// chat.gateway.ts
 	async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
 		const userid: string | string[] = client.handshake.query.userid;
-		console.log('\x1b[38;5;154m Connection: \x1b[38;0m', userid, " : " , client.id);
+		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
 		if (typeof userid === 'string') {
 			socket_list.set(userid, new ChatUser());
 			socket_list.get(userid)._socket = client;
@@ -49,7 +49,7 @@ export class ChatGateway
 	}
 
 	handleDisconnect(@ConnectedSocket() client: Socket) {
-		console.log('\x1b[38;5;196m Disconnect: \x1b[38;0m', socket_to_user.get(client.id), " : " , client.id);
+		console.log('\x1b[38;5;196m Disconnect: ', socket_to_user.get(client.id), " : ", client.id, "\x1b[0m");
 		const userid: string | string[] = client.handshake.query.userId;
 		if (typeof userid === 'string')
 			if (socket_list.get(userid)._socket.id === client.id) {
@@ -83,11 +83,13 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatRoomDTO,
 	) {
+		console.log('\x1b[38;5;226m room-create \x1b[0m : ', payload);
 		if (this.server.adapter.rooms.has(payload._room_name)) {
-			client.emit('room-create', {});
+			payload._pass = false;
+			client.emit('room-create', payload);
 			return;
 		}
-		console.log('\x1b[38;5;226m room-create \x1b[38;0m : ', payload);
+		payload._pass = true;
 		client.join(payload._room_name);
 		channel_list.set(payload._room_name, this.ft_channel_room_create(payload, socket_to_user.get(client.id)));
 		client.emit('room-create', payload);
@@ -102,11 +104,11 @@ export class ChatGateway
 	 * @returns 
 	 */
 	ft_channel_room_create(payload: ChatRoomDTO, userid: string): ChatRoom {
-		let room : ChatRoom = {
+		let room: ChatRoom = {
 			_name: payload._room_name,
-			_password : payload._room_password,
-			_user : new Map<string, ChatUser>(),
-			_auth_user : new Map<string, number>()
+			_password: payload._room_password,
+			_user: new Map<string, ChatUser>(),
+			_auth_user: new Map<string, number>()
 		};
 		room._user.set(userid, socket_list.get(userid));
 		room._auth_user.set(userid, chat_auth.OWNER);
@@ -130,16 +132,22 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatRoomDTO,
 	) {
-		if (
-			!this.server.adapter.rooms.has(payload._room_name) &&
-			channel_list.get(payload._room_name)._password != payload._room_password
+		console.log("\x1b[38;5;226m room-join \x1b[0m :", payload);
+		if (!this.server.adapter.rooms.has(payload._room_name)
 		) {
 			client.emit('room-join', {});
 			return;
 		}
+		console.log("_password", channel_list.get(payload._room_name)._password, " ?? ",  payload);
+		if (channel_list.get(payload._room_name)._password != payload._room_password)
+		{
+			payload._pass = false;
+			client.emit('room-join', payload);
+			return;
+		}
 		client.join(payload._room_name);
-		client.emit('room-join', channel_list.get(payload._room_name));
-		// !## 선택 다시 방의 목록을 새로고침하여 안의 유저들을 확인할것인가?
+		payload._pass = true;
+		client.emit('room-join', payload);
 	}
 
 
@@ -172,18 +180,17 @@ export class ChatGateway
 		channel_list.forEach((val, key) => {
 			let room: ChatRoomDTO = new ChatRoomDTO();
 			room._room_name = val._name;
-			room._room_password = val._password;
+			room._room_password = "";
 			room._room_users = this.ft_user_map_to_string(val._user);
 			room_list.push(room);
 		})
 		return room_list;
 	}
 
-	ft_user_map_to_string( user_list :Map<string, ChatUser>): string []
-	{
+	ft_user_map_to_string(user_list: Map<string, ChatUser>): string[] {
 		let user: string[] = [];
 
-		user_list.forEach( (val, key)=>{
+		user_list.forEach((val, key) => {
 			user.push(key);
 		});
 		return (user);

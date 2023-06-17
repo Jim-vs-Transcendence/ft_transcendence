@@ -12,6 +12,7 @@ interface ChatRoomIF {
 	_room_name: string = '';
 	_room_password: string = '';
 	_room_users: string [] = [];
+	_pass: boolean = false;
 }
 
 interface ChatMsgIF {

@@ -41,6 +41,8 @@ export class ChatRoomDTO {
 	@IsString()
 	_room_users: string[];
 
+	@IsBoolean()
+	_pass: boolean;
 
 }
 
