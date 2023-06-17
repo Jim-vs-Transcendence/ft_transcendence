@@ -35,7 +35,7 @@ export class ChatGateway
 
 	// chat.gateway.ts
 	async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
-		const userid: string | string[] = client.handshake.query._usreId;
+		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
 		if (typeof userid === 'string') {
 			socket_list.set(userid, client);
@@ -46,7 +46,7 @@ export class ChatGateway
 	}
 
 	handleDisconnect(@ConnectedSocket() client: Socket) {
-		const userid: string | string[] = client.handshake.query._usreId;
+		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;196m Disconnect: ', userid, " : ", client.id, "\x1b[0m");
 		if (typeof userid === 'string')
 		{
@@ -87,7 +87,7 @@ export class ChatGateway
 			client.emit('room-create', payload);
 			return;
 		}
-		const userid: string | string[] = client.handshake.query._usreId;
+		const userid: string | string[] = client.handshake.query._userId;
 		payload._pass = true;
 		client.join(payload._room_name);
 		if (typeof userid === "string") {
@@ -135,7 +135,7 @@ export class ChatGateway
 		@MessageBody() payload: ChatRoomDTO,
 	) {
 		console.log("\x1b[38;5;226m room-join \x1b[0m :", payload);
-		const userid: string | string[] = client.handshake.query._usreId;
+		const userid: string | string[] = client.handshake.query._userId;
 		if (!this.server.adapter.rooms.has(payload._room_name))
 			return client.emit('room-join', {});
 		if (typeof userid === "string") {
@@ -340,7 +340,7 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatMsgDTO,
 	) {
-		const userid: string | string[] = client.handshake.query._usreId;
+		const userid: string | string[] = client.handshake.query._userId;
 		console.log("\x1b[38;5;227m chat-exit-room \x1b[0m", payload._room_name);
 		client.leave(payload._room_name);
 		if (typeof userid === "string") {
