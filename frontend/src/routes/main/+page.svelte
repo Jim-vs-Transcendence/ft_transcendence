@@ -17,7 +17,8 @@
 			_password: '',
 			_room: {
 				_room_name: '',
-				_room_password: ''
+				_room_password: '',
+				_room_users: []
 			}
 		}
 	};
@@ -25,21 +26,28 @@
 		socket = _socket;
 	})
 
+	let io_chat:Socket;
+
+
 	onMount(async () => {
 		try {
 			await CreateSocket(socketStore);
-			socket.emit('room-refresh', 'page load chat list');
-	
-			socket.on('room-refresh', (data: ChatRoomIF[]) => {
+			io_chat = socket;
+			console.log("data");
+			/* ===== room-refresh ===== */
+			socket.on('room-refresh', (data) => {
 				rooms_list = [...data];
 			});
-		
+
+			socket.emit('room-refresh', 'page load chat list');
+			/* ===== room-create ===== */
 			socket.on('room-create', (data: ChatRoomIF) => {
 				console.log(data);
-				if (!data._room_name) console.log('생성 불가');
+				if (!data) console.log('생성 불가');
 				goto('/main/' + data._room_name);
 			});
 		
+			/* ===== room-join ===== */
 			socket.on('room-join', (data: ChatRoomIF) => {
 				if (!data._room_name) {
 					console.log('접속 불가');
@@ -50,16 +58,17 @@
 		} catch (error) {
 			console.log("socket loading error.");
 		}
-	})
+	});
 
 	onDestroy(unsubscribe);
 
+	
 	function CreateRoom() {
 		if (!room_name) {
 			alert('방이름을 입력하세요');
 			return;
 		}
-		let send_msg: ChatRoomIF = { _room_name: room_name, _room_password: room_password };
+		let send_msg: ChatRoomIF = { _room_name: room_name, _room_password: room_password, _room_users: [] };
 		socket.emit('room-create', send_msg);
 		room_name = '';
 		room_password = '';

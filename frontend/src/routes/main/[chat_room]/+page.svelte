@@ -3,14 +3,15 @@
 	import { socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
+	import { page } from '$app/stores';
 
-	export let data: PayLoadIF; // extern
 
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_room_info: {
 			_room_name: '',
-			_room_password: ''
+			_room_password: '',
+			_room_users: []
 		}
 	};
 	let msg_list: string[] = [];
@@ -36,7 +37,7 @@
 			msg_list = [...msg_list, data._msg];
 		});
 	
-		socket.emit('chat-connect', data);
+		socket.emit('chat-connect', {_room: $page.params["chat_room"], _check: true });
 	})
 
 	onDestroy(unsubscribe);

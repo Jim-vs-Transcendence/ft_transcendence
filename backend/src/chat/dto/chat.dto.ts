@@ -1,13 +1,50 @@
 import { IsBoolean, IsObject, IsOptional, IsString } from 'class-validator';
+import exp from 'constants';
+import { Socket } from 'socket.io';
+import { User } from 'src/users/entities/user.entity';
+
+/////////////////
+
+
+export class ChatUser {
+	@IsString()
+	_socket: Socket;
+
+	@IsString()
+	_channel: string [];
+
+}
+
+
+export class ChatRoom {
+	@IsString()
+	_name: string;
+
+	@IsOptional()
+	@IsString()
+	_password: string;
+
+	@IsObject()
+	_user: Map<string, ChatUser>;
+
+	@IsObject()
+	_auth_user: Map<string, number>;
+}
 
 export class ChatRoomDTO {
-  @IsString()
-  readonly _room_name: string;
+	@IsString()
+	_room_name: string;
 
-  @IsOptional()
-  @IsString()
-  readonly _room_password: string;
+	@IsString()
+	_room_password: string;
+
+	@IsString()
+	_room_users: string[];
+
+
 }
+
+/////////////////////
 
 export class ChatMsgDTO {
   @IsString()
@@ -20,7 +57,7 @@ export class ChatMsgDTO {
 
 export class PayLoadDTO {
   @IsString()
-  readonly _url: string;
+  readonly _room: string;
 
   @IsBoolean()
   _check: boolean;
