@@ -124,10 +124,8 @@
 				</div>
 				{/each}
 			</div>
-			
 		</AppShell>
 	</div>
-
 
 <Popup bind:property={popup_data} on:mousedown={ClosePopup}>
 	{#if popup_data._option._index == 1}

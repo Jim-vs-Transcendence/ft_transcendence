@@ -10,7 +10,7 @@
 
 	let data: PayLoadIF; // extern
 	// for profile
-	// export let friend: friendDTO;
+  // dummy data for test
 	const  chatUserList: ChatUserIF[] = [
 		{
 			_authority: 1,
@@ -62,9 +62,8 @@
 		},
 	];
 
-    // export let userInfo: UserDTO;
+  // export let userInfo: UserDTO;
 	// : ChatUserIF
-
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_room_info: {
@@ -79,20 +78,6 @@
 		}
 	};
 
-	/*
-		- 채팅방에 접속한 사용자를 의미
-			- 채팅방 접속자의 정보
-			- 채팅방 접속자 각자 권한
-		- owner를 넘겨줄때
-		- 채팅방에 아무도 없게될때 채팅방이 사라져야한다.
-
-
-		- 초기 설정을 위해 class 추천
-	*/
-	// let chat_room : ChatRoomInfo = {
-	// 	// 채팅방 사용자 목록
-		
-	// }
 
 	let msg_list: string[] = [];
 
@@ -177,7 +162,6 @@
 
 	let tabSet: number = 0;
 
-
 </script>
 
 <!-- <section class="w-full max-h-[400px] p-4 overflow-y-auto space-y-4">
@@ -189,7 +173,6 @@
 		{/if}
 	{/each}
 </section> -->
-
 
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 	<div class="bg-surface-500/30 p-10">
@@ -256,10 +239,7 @@
 			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
 		</div>
 		<!--  -->
-	
-	
 	</div>
 </div>
 					
-
 <!-- <div bind:this={elemChat} class="overflow-y-auto">(chat)</div> -->

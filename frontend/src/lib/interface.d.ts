@@ -20,7 +20,7 @@ interface ChatUserIF {
     _authority: Authority;
     _is_muted: boolean;
     _user_id: string;
-	_user_info: UserDTO; // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+  	_user_info: UserDTO; // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
 }
 
 interface ChatRoomIF {
