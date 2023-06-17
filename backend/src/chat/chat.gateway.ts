@@ -316,13 +316,18 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatMsgDTO,
 	) {
-		console.log('chat-msg-event', payload);
+		const userid: string | string[] = client.handshake.query._userId;
+		console.log("\x1b[38;5;226m chat-msg-event \x1b[0m :", payload);
 		if (!this.server.adapter.rooms.has(payload._room_name)) {
 			console.log("\x1b[38;5;196m Error :: \x1b[0m chat-connect url is not enable");
 			return;
 		}
 		client.to(payload._room_name).emit('chat-msg-event', payload);
-		client.emit("chat-msg-event", payload._msg);
+		if (typeof userid === "string")
+		{
+			payload._user_name = userid;
+			client.emit("chat-msg-event", payload);
+		}
 	}
 
 	/* ================================================================================

@@ -48,6 +48,8 @@ export class ChatMsgDTO {
 	readonly _msg: string;
 	@IsString()
 	readonly _room_name: string;
+	@IsString()
+	_user_name: string;
 }
 
 export class PayLoadDTO {

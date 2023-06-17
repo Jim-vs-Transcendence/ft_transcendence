@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { AppShell } from '@skeletonlabs/skeleton';
+	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
+	import { getApi, petchApi, postApi, delApi } from '../../service/api';
 	import { goto } from '$app/navigation';
 	import Popup from '$lib/popup.svelte';
 	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
@@ -136,21 +139,30 @@
 <!-- -------------------------------------------------------------------  -->
 <!-- -------------------------------------------------------------------  -->
 <!-- -------------------------------------------------------------------  -->
-<lu>
-	{#each rooms_list as room}
-		<li
-			id="room"
-			on:mousedown={() => {
-				JoinRoom(room);
-			}}
-			style="padding: 20px; color: #00a; background-color: #aa3; width: 50%; margin: auto; border: solid #455 11px;"
-		>
-			{room._room_name}
-		</li>
-	{/each}
-</lu>
 
-<button on:click={ft_popup_create}> CreateRoom </button>
+<!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
+<!-- background 투명하게 변경할 것 -->
+<div>
+
+	<div class="button-container">
+		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
+	</div>
+	<AppShell class="max-h-[80%]  overflow-auto">
+		<slot />
+		<!-- <lu> -->
+			<div class="grid max-h-[70%] max-w-[70%] overflow-auto">
+				
+				{#each rooms_list as room}
+				<div class="logo-item m-1 variant-filled-surface" id="room"
+				on:mousedown={() => { JoinRoom(room); }}>
+					{room._room_name}
+				</div>
+				{/each}
+			</div>
+			
+		</AppShell>
+	</div>
+
 <Popup bind:property={popup_data} on:mousedown={ClosePopup}>
 	{#if popup_data._option._index == 1}
 		<input type="text" on:keydown={ft_room_create_keydown} bind:value={room_name} />
@@ -163,4 +175,17 @@
 			<button on:click={ft_room_pass}> 확인</button>
 		</form>
 	{/if}
+	
 </Popup>
+
+<style>
+  .button-container {
+    display: flex;
+    justify-content: center;
+	/* margin: 1px; */
+  }
+
+  .centered-button {
+    margin:  4px;
+  }
+</style>
