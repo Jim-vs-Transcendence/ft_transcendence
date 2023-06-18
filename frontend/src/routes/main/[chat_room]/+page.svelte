@@ -4,34 +4,80 @@
 	import { io_chat } from '$lib/webSocketConnection_chat';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { each } from 'svelte/internal';
+	import ChatUserList from '../../../components/Chat/ChatUserList.svelte'
+	// import '$lib/interface.d'
+	import type { PayLoadIF, ChatUserIF } from '$lib/interface.d'
 
-	export let data: PayLoadIF; // extern
+	let data: PayLoadIF; // extern
+	// for profile
+  // dummy data for test
+	const  chatUserList: ChatUserIF[] = [
+		{
+			_authority: 1,
+			_is_muted: false,
+			_user_id: "jim",
+			_user_info: {
+				id: "jim",
+				nickname: "nickname",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+		},
+		{
+			_authority: 2,
+			_is_muted: false,
+			_user_id: "kyoulee",
+			_user_info: {
+				id: "kyoulee",
+				nickname: "nickname",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+		},
+		{
+			_authority: 3,
+			_is_muted: false,
+			_user_id: "yolee",
+			_user_info: {
+				id: "yolee",
+				nickname: "nickname",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+		},
+	];
 
+  // export let userInfo: UserDTO;
+	// : ChatUserIF
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_room_info: {
 			_room_name: '',
-			_room_password: ''
+			_room_password: '',
+			_participant_list: [],
+    		_banned_list: []
+			// _participant_list: 
 			// 소켓 통신을 위해 있다
 			// Data를 주고 받기 위한 구조체이다
 			// 따로 구조체를 만들어서 써야한다.
 		}
 	};
 
-	/*
-		- 채팅방에 접속한 사용자를 의미
-			- 채팅방 접속자의 정보
-			- 채팅방 접속자 각자 권한
-		- owner를 넘겨줄때
-		- 채팅방에 아무도 없게될때 채팅방이 사라져야한다.
-
-
-		- 초기 설정을 위해 class 추천
-	*/
-	let chat_room : ChatRoomInfo = {
-		// 채팅방 사용자 목록
-		
-	}
 
 	let msg_list: string[] = [];
 
@@ -128,18 +174,24 @@
 	{/each}
 </section> -->
 
-
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 	<div class="bg-surface-500/30 p-10">
 		<TabGroup>
-			<Tab bind:group={tabSet} name="tab1" value={0}>(label)</Tab>
-			<Tab bind:group={tabSet} name="tab2" value={1}>(label)</Tab>
+			<Tab bind:group={tabSet} name="tab1" value={0}> 채팅방 유저</Tab>
+			<!-- {#if } -->
+			<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
+			<!-- {/if} -->
 			<!-- Tab Panels --->
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
-					(tab panel 1 contents)
+					{#each chatUserList as chatUser}
+						<ChatUserList {chatUser}/>
+					{/each}
+					<!-- {friend} -->
+					<!-- <ChatUserList friend={friend} userInfo={userInfo} />
 				{:else if tabSet === 1}
-					(tab panel 2 contents)
+					(ban list)
+					{userInfo} -->
 				{/if}
 			</svelte:fragment>
 		</TabGroup>
@@ -187,10 +239,7 @@
 			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
 		</div>
 		<!--  -->
-	
-	
 	</div>
 </div>
 					
-
 <!-- <div bind:this={elemChat} class="overflow-y-auto">(chat)</div> -->

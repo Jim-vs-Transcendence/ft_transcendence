@@ -106,43 +106,26 @@
 
 <!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
 <!-- background 투명하게 변경할 것 -->
-<AppShell class="card p-4 max-h-[80%] overflow-auto space-y-4">
+<div>
+
 	<div class="button-container">
 		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
-		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Refresh</button>
 	</div>
-	  
-	<slot />
-	<!-- <lu> -->
-		{#each rooms_list as room}
-			<div class="logo-item grid place-content-center max-w-[70%] variant-filled-secondary" id="room"
-					on:click={() => {
-						JoinRoom(room);
-					}}>
-			<!-- <div class="logo-cloud  max-w-[65%] xl:grid-cols-2 logo-item variant-filled-secondary place-content-center" id="room"
+	<AppShell class="max-h-[80%]  overflow-auto">
+		<slot />
+		<!-- <lu> -->
+			<div class="grid max-h-[70%] max-w-[70%] overflow-auto">
+				{#each rooms_list as room}
+				<div class="logo-item m-1 variant-filled-surface" id="room"
 				on:click={() => {
 					JoinRoom(room);
-				}}> -->
-				{room._room_name}
+				}}>
+					{room._room_name}
+				</div>
+				{/each}
 			</div>
-		{/each}
-	<!-- </lu> -->
-	<!-- </div> -->
-	<!-- <div class="logo-cloud grid-cols-1 lg:!grid-cols-3 gap-1"> -->
-	<!-- 	<li
-			id="room"
-			on:click={() => {
-				JoinRoom(room);
-			}}
-			class="variant-filled-surface "
-		>
-			{room._room_name}
-		</li>
-	</div> -->
-	<!-- style="padding: 20px; color: #z00a; background-color: #aa3; width: 50%; margin: auto; border: solid #455 11px;"... -->
-
-</AppShell>
-
+		</AppShell>
+	</div>
 
 <Popup bind:property={popup_data} on:mousedown={ClosePopup}>
 	{#if popup_data._option._index == 1}
@@ -159,14 +142,14 @@
 	
 </Popup>
 
-
 <style>
   .button-container {
     display: flex;
     justify-content: center;
+	/* margin: 1px; */
   }
 
   .centered-button {
-    margin: 0 8px;
+    margin:  4px;
   }
 </style>

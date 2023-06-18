@@ -2,7 +2,6 @@
     export let profile_info: UserDTO;
 
     let profile_id : string = profile_info.id;
-
     import { getApi } from '../../service/api';
     import { onMount } from 'svelte';
     import '../../service/matchDTO';

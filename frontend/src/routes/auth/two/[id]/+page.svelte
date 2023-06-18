@@ -44,7 +44,7 @@
   <div class="card p-4">
     <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
       <input type="search" class={errorClass} placeholder="인증키" bind:value={authKey} />
-      <button class="variant-filled-secondary" on:click={handleSubmit(authKey)}>제출</button>
+      <button class="variant-filled-secondary" on:click={() =>{ handleSubmit(authKey) }}>제출</button>
     </div>
   </div>
 </div>
