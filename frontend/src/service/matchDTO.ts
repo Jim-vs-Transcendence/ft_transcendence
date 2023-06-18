@@ -4,4 +4,5 @@ interface MatchDTO {
     player2 : string,
     player1_score : string,
     player2_score : string,
+    winLose: boolean,
 }

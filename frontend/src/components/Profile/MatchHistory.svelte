@@ -2,26 +2,28 @@
     export let profile_info: UserDTO;
 
     let profile_id : string = profile_info.id;
- 
+
     import { getApi } from '../../service/api';
     import { onMount } from 'svelte';
     import '../../service/matchDTO';
 
     let matchHistory : MatchDTO[] = [];
-    let winLose: boolean[] = [];
-    
+
     onMount(async () => {
         matchHistory = await getApi({ path: 'match-history/' + profile_id });
         // if profile_id win -> true
-        winLose = matchHistory.map(function(history) {
+        matchHistory = matchHistory.map(function(history) {
             if (profile_id == history.player1
             && history.player1_score > history.player2_score) {
-                return true;
+                history.winLose = true;
+                return history;
             } else if (profile_id == history.player2
             && history.player2_score > history.player1_score) {
-                return true;
+                history.winLose = true;
+                return history;
             }
-            return false;
+            history.winLose = false;
+                return history;
         });
     })
 
@@ -43,9 +45,9 @@
 
 <div class="card">
     <header class="card-header text-center">싸운 흔적</header>
-    {#each matchHistory as history, i }
+    {#each matchHistory as history }
         <section class="p-4 text-center flex flex-col">
-            {#if winLose[i]}
+            {#if history.winLose }
                 <span>이김</span>
             {:else}
                 <span>JIM</span>
