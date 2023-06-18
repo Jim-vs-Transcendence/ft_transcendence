@@ -1,6 +1,5 @@
 <script lang="ts">
     import { AppBar } from '@skeletonlabs/skeleton';
-    import { LightSwitch } from '@skeletonlabs/skeleton';
     import { authToken } from '../../../service/store';
 	import { goto } from '$app/navigation';
 
@@ -19,7 +18,6 @@
     <div slot="lead" class="flex items-center space-x-6">
       <!-- 로그아웃, 다크모드 -->
       <button on:click={logout}>기록 밖으로</button>
-      <LightSwitch />
     </div>
     <h1 class="h1 text-center -mt-3">
       <!-- 메인 로고 -->

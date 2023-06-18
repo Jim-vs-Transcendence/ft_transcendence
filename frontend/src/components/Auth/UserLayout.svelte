@@ -13,7 +13,6 @@
   //css
   import { AppBar } from '@skeletonlabs/skeleton';
   import { Avatar } from '@skeletonlabs/skeleton';
-  import { LightSwitch } from '@skeletonlabs/skeleton';
   import { Drawer, drawerStore } from '@skeletonlabs/skeleton';
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
@@ -51,7 +50,6 @@ const openDrawer = () => {
   <div slot="lead" class="flex items-center space-x-6">
     <!-- 로그아웃, 다크모드 -->
     <button on:click={logout}>기록 밖으로</button>
-    <LightSwitch />
   </div>
   <h1 class="h1 text-center -mt-3">
     <!-- 메인 로고 -->
