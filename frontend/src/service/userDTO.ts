@@ -1,4 +1,11 @@
 // 왜 빨간줄이 뜨는가?
+enum UserStatus {
+    OFFLINE = 0,
+    ONLINE,
+    GAMING,
+    CHATING,
+}
+
 interface UserDTO {
     id: string;
     nickname: string;

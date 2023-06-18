@@ -13,6 +13,13 @@
         ACCEPTED = 'accepted',
     }
 
+    enum UserStatus {
+        OFFLINE = 0,
+        ONLINE,
+        GAMING,
+        CHATING,
+    }
+
     let isRefused = false;
 
     const goProfile = (name: string) => {
@@ -47,15 +54,27 @@
 </script>
 
 {#if !isRefused}
+    {#if friend.friendStatus !== FriendRequestStatus.BLOCKED}
     <div>
-    <Avatar 
-        src={friend.avatar} 
+    <Avatar
+        src={friend.avatar}
         on:click={() => goProfile(friend.id)}
-        width="w-7" 
-        rounded="rounded-full" 
+        width="w-7"
+        rounded="rounded-full"
     />
     <span class="flex-auto">
-        <dt>{friend.id}</dt>
+        <dt>
+            {friend.id}
+            {#if friend.status === UserStatus.OFFLINE}
+                &#9675;
+            {:else if friend.status === UserStatus.ONLINE}
+                &#128994;
+            {:else if friend.status === UserStatus.GAMING}
+                gaming &#128308;
+            {:else if friend.status === UserStatus.CHATING}
+                chating &#128308;
+            {/if}
+        </dt>
         {#if friend.friendStatus === FriendRequestStatus.PENDING}
             <dd>친구신청 수락?</dd>
             <button class="btn-icon" on:click={acceptFriend}>
@@ -64,10 +83,8 @@
             <button class="btn-icon" style="font-size: 19px" on:click={noFriend}>
                 &#10005;
             </button>
-        {:else}
-            <dd>대기중 아닌거</dd>
         {/if}
-
     </span>
     </div>
+    {/if}
 {/if}
