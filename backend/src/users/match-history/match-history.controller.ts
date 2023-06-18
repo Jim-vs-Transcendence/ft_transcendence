@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import MatchHistoryDTO from './dto/matchHistory.dto';
 import { MatchHistoryService } from './match-history.service';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -20,12 +20,5 @@ export class MatchHistoryController {
   @Get(':id')
   async findMatchHistory(@Param('id') id: string): Promise<MatchHistoryDTO[]> {
     return await this.matchHistoryService.findMatchHistory(id);
-  }
-
-  @Post('save')
-  async saveMatchHistory(
-    @Body() matchHistory: MatchHistoryDTO,
-  ): Promise<boolean> {
-    return await this.matchHistoryService.saveMatchHistory(matchHistory);
   }
 }
