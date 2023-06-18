@@ -24,6 +24,7 @@ interface popupIF {
 
 interface ChatMsgIF {
 	_msg: string;
+	_user_name: string;
 	_room_info: ChatRoomIF;
 }
 
