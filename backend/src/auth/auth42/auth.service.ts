@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { TokenService } from '../token/token.service';
-import { User } from 'src/users/entities/user.entity';
+import userDTO from 'src/users/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +10,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  async login({ req, res }) {
+  async login({ req, res }): Promise<void> {
     let user = await this.usersService.findOne(req.user.id);
 
     if (!user) user = await this.usersService.saveUser(req.user);
@@ -22,15 +22,13 @@ export class AuthService {
     //   sameSite: 'none',
     // });
 
-    user = await this.usersService.findOne(req.user.id);
-    user.user_status = 1;
-
+    user.user_status = 1; //online
     await this.usersService.updateUser(user.id, user);
 
     if (user.two_factor == true)
       res.redirect('http://localhost:5173/auth/two/' + user.id);
     else {
-      const token = await this.tokenService.createToken(req.user.id);
+      await this.tokenService.createToken(req.user.id);
       res.redirect('http://localhost:5173/auth/login/' + user.id);
     }
   }
@@ -40,7 +38,7 @@ export class AuthService {
 
     await this.tokenService.deleteToken((await userId).toString());
 
-    const user: User = await this.usersService.findOne(
+    const user: userDTO = await this.usersService.findOne(
       (await userId).toString(),
     );
     user.user_status = 0;

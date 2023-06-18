@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
 import { Friend } from '../entities/friend.entity';
 import { FriendRequestStatus } from '../entities/friend.entity';
 import { friendDTO } from './dto/friend.dto';
@@ -14,8 +13,6 @@ import { UsersService } from '../users.service';
 @Injectable()
 export class FriendsService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
     @InjectRepository(Friend)
     private friendRepository: Repository<Friend>,
     private readonly usersService: UsersService,
@@ -24,16 +21,15 @@ export class FriendsService {
   // Find a friend request
   async findFriend(user_to: string) {
     const friendEntities = await this.friendRepository.find({
-      where: { user_to: user_to,
+      where: {
+        user_to: user_to,
         // friend_status: In([FriendRequestStatus.PENDING, FriendRequestStatus.ACCEPTED]),
       },
     });
 
     const ret: friendDTO[] = await Promise.all(
       friendEntities.map(async (friend) => {
-        const userFrom = await this.usersRepository.findOne({
-          where: { id: friend.user_from },
-        });
+        const userFrom = await this.usersService.findOne(friend.user_from);
 
         if (!userFrom) {
           throw new NotFoundException(
@@ -115,7 +111,6 @@ export class FriendsService {
 
     // user_to accept
     request.friend_status = FriendRequestStatus.ACCEPTED;
-    const user = await this.usersRepository.findOne({ where: { id: user_to } });
     await this.friendRepository.save(request);
 
     // user_from create

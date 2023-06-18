@@ -1,16 +1,9 @@
-import {
-  Controller,
-  Get,
-  Headers,
-  Param,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { UsersService } from 'src/users/users.service';
-import { User } from 'src/users/entities/user.entity';
 import { TokenGuard } from './token.guard';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import userDTO from 'src/users/user.dto';
 
 @Controller('token')
 @ApiTags('토큰 API')
@@ -22,8 +15,6 @@ export class TokenController {
 
   // token이 유효할 때는 유저 정보를 반환해주고 유효하지 않은 토큰이 넘어오면 false
 
-  @Get()
-  @UseGuards(TokenGuard)
   @ApiOperation({
     summary: '토큰 유효성 검사 API',
     description: 'Header로 넘겨준 토큰의 유효성 검사를 해줍니다.',
@@ -32,19 +23,15 @@ export class TokenController {
     description:
       '토큰이 유효하다면 해당 토큰의 소유주의 id를 반환해주고 유효하지 않다면 false(boolean)을 반환해줍니다.',
   })
-  async verifyToken(
-    @Req() req: any,
-    // @Headers('authtoken') token: string,
-  ): Promise<boolean | User> {
-    // console.log(req.user);
-    // const user = await this.tokenService.verifyToken(token);
+  @Get()
+  @UseGuards(TokenGuard)
+  async verifyToken(@Req() req: any): Promise<boolean | userDTO> {
     if (!req.user) return false;
 
     // const test = req.cookies['authToken'];
     return await this.usersService.findOne(req.user);
   }
 
-  @Get(':id')
   @ApiOperation({
     summary: '토큰 획득 API',
     description: 'Parameter에 해당하는 유저의 토큰을 반환해줍니다.',
@@ -52,8 +39,8 @@ export class TokenController {
   @ApiResponse({
     description: 'Parameter에 해당하는 유저의 토큰을 반환해줍니다.',
   })
+  @Get(':id')
   async getToken(@Param('id') userId: string): Promise<string | undefined> {
-    const token = await this.tokenService.getToken(userId);
-    return token;
+    return await this.tokenService.getToken(userId);
   }
 }

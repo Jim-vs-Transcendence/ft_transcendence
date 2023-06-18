@@ -5,7 +5,10 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { each } from 'svelte/internal';
+	import ChatUserList from '../../../components/Chat/ChatUserList.svelte'
+	import type { PayLoadIF, ChatUserIF, ChatMsgIF } from '$lib/interface.d'
 
 	let socket: Socket;
 
@@ -36,7 +39,62 @@
 	   ================================================================================ */
 
 	let msg_list: ChatMsgIF[] = [];
+	let data: PayLoadIF; // extern
+	// for profile
+  // dummy data for test
+	const  chatUserList: ChatUserIF[] = [
+		{
+			_authority: 1,
+			_is_muted: false,
+			_user_id: "jim",
+			_user_info: {
+				id: "jim",
+				nickname: "nickname",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+		},
+		{
+			_authority: 2,
+			_is_muted: false,
+			_user_id: "kyoulee",
+			_user_info: {
+				id: "kyoulee",
+				nickname: "nickname",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+		},
+		{
+			_authority: 3,
+			_is_muted: false,
+			_user_id: "yolee",
+			_user_info: {
+				id: "yolee",
+				nickname: "nickname",
+				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
+				email: "email",
+				level: 0,
+				win: 0,
+				lose: 0,
+				two_factor: false,
+				user_status: 0,
+			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+		},
+	];
 
+  // export let userInfo: UserDTO;
+	// : ChatUserIF
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_user_name: '',
@@ -126,55 +184,55 @@
 
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 	<div class="bg-surface-500/30 p-10">
-		<!--
 		<TabGroup>
 			<Tab bind:group={tabSet} name="tab1" value={0}> 채팅방 유저</Tab>
-			<-- {#if } ->
+			<!-- {#if } -->
 			<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
-			<-- {/if} ->
-			<-- Tab Panels ->
+			<!-- {/if} -->
+			<!-- Tab Panels --->
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
 					{#each chatUserList as chatUser}
 						<ChatUserList {chatUser}/>
 					{/each}
-					<-- {friend} ->
-					<-- <ChatUserList friend={friend} userInfo={userInfo} />
+					<!-- {friend} -->
+					<!-- <ChatUserList friend={friend} userInfo={userInfo} />
 				{:else if tabSet === 1}
 					(ban list)
-					{userInfo} ->
+					{userInfo} -->
 				{/if}
 			</svelte:fragment>
 		</TabGroup>
-		-->
+			
 	</div>
 	<div class="bg-surface-500/30 p-4">
-		{#each msg_list as msg}
-			{#if msg._user_name}
-				<div class="grid grid-cols-[auto_1fr] gap-5">
-					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
-					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
-						<header class="flex justify-between items-center">
-							<p class="font-bold">{msg._user_name}</p>
-							<small class="opacity-50">{'bubble.timestamp'}</small>
-						</header>
-						<p class="font-bold">{msg._msg}</p>
-					</div>
-				</div>
-			{:else}
-				<div class="grid grid-cols-[1fr_auto] gap-2">
-					<div class="card p-4 rounded-tr-none space-y-2 {'bubble.color'}">
-						<header class="flex justify-between items-center">
-							<p class="font-bold">{'bubble.name'}</p>
-							<small class="opacity-50">{msg._user_name}</small>
-						</header>
-						<p class="font-bold">{msg._msg}</p>
-					</div>
-					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
-				</div>
-			{/if}
-		{/each}
-
+		<!--  -->
+		<div class="grid grid-cols-[auto_1fr] gap-5">
+			<Avatar src="https://i.pravatar.cc/?img={"bubble.avatar"}" width="w-12" />
+			<div class="card p-4 variant-soft rounded-tl-none space-y-2">
+				<header class="flex justify-between items-center">
+					<p class="font-bold">{"bubble.name"}</p>
+					<small class="opacity-50">{"bubble.timestamp"}</small>
+				</header>
+				{#each msg_list as msg}
+					<p class="font-bold"> {msg} </p>
+				{/each}
+			</div>
+		</div>
+	
+		<div class="grid grid-cols-[1fr_auto] gap-2">
+			<div class="card p-4 rounded-tr-none space-y-2 {"bubble.color"}">
+				<header class="flex justify-between items-center">
+					<p class="font-bold">{"bubble.name"}</p>
+					<small class="opacity-50">{"bubble.timestamp"}</small>
+				</header>
+				{#each msg_list as msg}
+					<p class="font-bold"> {msg} </p>
+				{/each}
+			</div>
+			<Avatar src="https://i.pravatar.cc/?img={"bubble.avatar"}" width="w-12" />
+		</div>
+	
 		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
 			<button class="input-group-shim">+</button>
 			<textarea
@@ -186,8 +244,7 @@
 				placeholder="Write a message..."
 				rows="1"
 			/>
-			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button
-			>
+			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
 		</div>
 	</div>
 </div>

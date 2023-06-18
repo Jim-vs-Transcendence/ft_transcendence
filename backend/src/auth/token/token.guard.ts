@@ -8,9 +8,10 @@ export class TokenGuard implements CanActivate {
     try {
       const req = await context.switchToHttp().getRequest();
       const token = await req.header('authtoken');
-      const user = await this.tokenService.verifyToken(token);
-      req.user = user;
-      return user;
+      const userId = await this.tokenService.verifyToken(token);
+
+      req.user = userId;
+      return userId;
     } catch (err) {
       return false;
     }

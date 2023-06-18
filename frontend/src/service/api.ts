@@ -1,13 +1,7 @@
 import axios from "axios";
 
-interface SendOptions {
-  method: string;
-  path: string;
-  data?: any;
-  headers?: any;
-}
 
-const send = async ({ method = '', path = '', data = {}, headers = {} }: SendOptions = {}) => {
+const send = async (method : string = '', path : string = '', data : any = {}, headers : any = {}) : Promise<any> => {
   const backUrl = import.meta.env.VITE_API_URL;
   const url = backUrl + '/' + path;
   const getToken = localStorage.getItem('authToken');
@@ -44,20 +38,20 @@ const postApiWithFile = async ({ path = '', file }: { path: string; file: File }
   const formData = new FormData();
   formData.append('image', file);
 
-  return send({ method: 'POST', path, data: formData });
+  return send('POST', path, formData );
 };
 
 const getApi = ({ path = '' }: { path: string }) => {
-  return send({ method: 'GET', path });
+  return send('GET', path );
 };
 const petchApi = ({ path = '', data = {} }: { path: string; data: any }) => {
-  return send({ method: 'PATCH', path, data });
+  return send('PATCH', path, data );
 };
 const postApi = ({ path = '', data = {} }: { path: string; data: any }) => {
-  return send({ method: 'POST', path, data });
+  return send('POST', path, data );
 };
 const delApi = ({ path = '', data = {} }: { path: string; data: any }) => {
-  return send({ method: 'DELETE', path, data });
+  return send('DELETE', path, data );
 };
 
 export { getApi, petchApi, postApi, delApi, postApiWithFile };

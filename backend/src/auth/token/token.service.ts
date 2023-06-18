@@ -1,25 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import { sign, verify } from 'jsonwebtoken';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { sign, verify, JsonWebTokenError } from 'jsonwebtoken';
 
 @Injectable()
 export class TokenService {
   private jwtMap: Map<string, string> = new Map();
 
-  async createToken(userId: string): Promise<string> {
-    if (await this.jwtMap.get(userId)) {
-      await this.deleteToken(userId);
-    }
+  constructor(private readonly configService: ConfigService) {}
 
-    const payload = { id: userId };
-    const token = await sign(payload, process.env.JWT_SECRET);
-    this.jwtMap.set(userId, token);
-    return token;
+  async createToken(userId: string): Promise<string> {
+    try {
+      if (await this.jwtMap.get(userId)) {
+        await this.deleteToken(userId);
+      }
+
+      const payload = { id: userId };
+      const token = await sign(
+        payload,
+        this.configService.get<string>('JWT_SECRET'),
+      );
+      await this.jwtMap.set(userId, token);
+      return token;
+    } catch (error) {
+      if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('Failed to create JWT token');
+      }
+    }
   }
 
   async verifyToken(token: string): Promise<boolean | string> {
     try {
-      const payload = await verify(token, process.env.JWT_SECRET);
-      if (token != this.jwtMap.get(payload['id'])) return false;
+      const payload = await verify(
+        token,
+        this.configService.get<string>('JWT_SECRET'),
+      );
+      if (token !== this.jwtMap.get(payload['id'])) return false;
       return payload['id'];
     } catch {
       return false;
