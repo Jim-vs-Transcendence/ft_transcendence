@@ -7,6 +7,7 @@
 	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
+	import type { ChatRoomIF, popupIF } from '$lib/interface';
 
 	let socket: Socket;
 

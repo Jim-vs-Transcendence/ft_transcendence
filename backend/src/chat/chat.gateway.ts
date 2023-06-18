@@ -9,9 +9,9 @@ import {
 	WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
-import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, PayLoadDTO, ChatRoom } from './dto/chat.dto';
-import { UsersService } from 'src/users/users.service';
 import { ConnectionClosedEvent } from 'typeorm';
+import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, PayLoadDTO, ChatRoom, ChatAuthDTO, ChatRefreshDTO, ChatUser } from './dto/chat.dto';
+import { UsersService } from 'src/users/users.service';
 '../../'
 // let channel_list = new Map<string, ChatRoom>();
 let channel_list: Map<string, ChatRoom> = new Map<string, ChatRoom>();
@@ -25,6 +25,9 @@ enum chat_auth {
 @WebSocketGateway({ namespace: '/chat', cors: true })
 export class ChatGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+
+	constructor(private readonly userService: UsersService) { }
+	
 	@WebSocketServer() server: Namespace;
 
 	afterInit(server: Server) {
@@ -38,6 +41,7 @@ export class ChatGateway
 	async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
 		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
+		let userdata = await this.userService.findOne(userid as string);
 		if (typeof userid === 'string') {
 			if (!socket_list.has(userid))
 			socket_list.set(userid, client);
@@ -48,22 +52,23 @@ export class ChatGateway
 				num++;
 				socket_list.set(userid + "_" + num.toString(), client);
 				client.handshake.query._userId = userid + "_" + num.toString();
+				client.handshake.query._avatar = userdata.avatar;
 			}
 		}
-		socket_list.forEach((val, key)=>{console.log('\x1b[38;5;154m connlist: ', key, " : ", val + "\x1b[0m")});
 		client.emit('room-refresh', this.ft_room_list());
 	}
 
+	
 	handleDisconnect(@ConnectedSocket() client: Socket) {
 		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;196m Disconnect: ', userid, " : ", client.id, "\x1b[0m");
 		if (typeof userid === 'string')
 		{
 			if (socket_list.get(userid).id === client.id) {
-				socket_list.delete(userid);
 				client.rooms.forEach((val, key) => {
 					this.ft_channel_leave(key, userid);
 				})
+				socket_list.delete(userid);
 			}
 		}
 		client.emit('room-refresh', this.ft_room_list());
@@ -119,7 +124,9 @@ export class ChatGateway
 			_name: payload._room_name,
 			_password: payload._room_password,
 			_user: new Map<string, Socket>(),
-			_auth_user: new Map<string, number>()
+			_auth_user: new Map<string, number>(),
+			_ban_user: [],
+			_mute_user: [],
 		};
 		room._user.set(userid, socket_list.get(userid));
 		room._auth_user.set(userid, chat_auth.OWNER);
@@ -155,6 +162,7 @@ export class ChatGateway
 		client.join(payload._room_name);
 		client.emit('room-join', payload);
 	}
+
 
 	ft_channel_join(payload: ChatRoomDTO, userid: string) {
 		if (channel_list.get(payload._room_name)._password != payload._room_password) {
@@ -217,7 +225,7 @@ export class ChatGateway
 	ft_channel_leave(channel_name: string, userid: string) {
 		console.log("\x1b[38;5;021m; ft_channel_leave \x1b[0m :", channel_name, " : ", userid);
 		if (channel_list.get(channel_name)._user.get(userid)) {
-			this.ft_channel_auth_delete(channel_name, userid);
+			this.ft_channel_auth_delete(channel_name, userid, userid);
 			channel_list.get(channel_name)._user.delete(userid);
 			if (channel_list.get(channel_name)._user.size == 0)
 				channel_list.delete(channel_name);
@@ -229,63 +237,214 @@ export class ChatGateway
 									room auth
 	   ================================================================================ */
 
-	ft_channel_auth_admin(channel_name: string, userid: string) {
-		console.log("\x1b[38;5;021m ft_channel_auth_admin \x1b[0m :", channel_name, " : ", userid);
-		channel_list.get(channel_name)._auth_user.set(userid, 2);
+	@SubscribeMessage("chat-set-admin")
+	ft_chat_set_admin(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: ChatAuthDTO,
+	) {
+		console.log("\x1b[38;5;226m chat-set-admin \x1b[0m :", payload);
+		payload._check = false;
+		if (payload._option === 2) {
+			if (this.ft_channel_auth_admin(payload._room, payload._user_grantor))
+				return console.log("false ft_channel_auth_admin");
+			payload._check = true;
+		}
+		else if (payload._option === 1) {
+			if (this.ft_channel_auth_set(payload._room, payload._user_grantor, payload._user_heritor))
+				return console.log("false ft_channel_auth_set");
+			payload._check = true;
+		}
+		else if (payload._option === 0) {
+			if (this.ft_channel_auth_delete(payload._room, payload._user_grantor, payload._user_heritor))
+				return console.log("false ft_channel_auth_delete");
+			payload._check = true;
+		}
+		if (payload._check === true)
+			this.server.to(payload._room).emit("chat-set-admin", payload);
 	}
 
-	ft_channel_auth_set(channel_name: string, user_grantor: string, user_heritor: string) {
+
+	ft_channel_auth_admin(channel_name: string, userid: string): number {
+		console.log("\x1b[38;5;021m ft_channel_auth_admin \x1b[0m :", channel_name, " : ", userid);
+		let channel: ChatRoom = channel_list.get(channel_name);
+		let check: boolean = true;
+		if (channel._auth_user.size) {
+			channel._auth_user.forEach((val, key) => {
+				if (val == 2)
+					check = false;
+			});
+		}
+		if (check)
+			channel._auth_user.set(userid, 2);
+		return (0);
+	}
+
+	ft_channel_auth_set(channel_name: string, user_grantor: string, user_heritor: string): number {
 		console.log("\x1b[38;5;021m ft_channel_auth_set \x1b[0m :", channel_name, " : ", user_grantor, " => ", user_heritor);
-		let channel = channel_list.get(channel_name);
+		let channel: ChatRoom = channel_list.get(channel_name);
 		if (channel._auth_user.get(user_grantor) >= 1) {
 			if (!channel._auth_user.get(user_heritor)
 				&& channel._auth_user.get(user_heritor) != 2) {
 				channel._auth_user.set(user_heritor, 1);
+				return (0);
 			}
 		}
+		return (1);
 	}
 
-	ft_channel_auth_delete(channel_name: string, user_name: string) {
-		console.log("\x1b[38;5;199m ft_channel_auth_delete \x1b[0m :", channel_name, " : ", user_name);
-		let channel = channel_list.get(channel_name);
-		let on: number = 0;
+	ft_channel_auth_delete(channel_name: string, user_grantor: string, user_heritor: string): number {
+		console.log("\x1b[38;5;199m ft_channel_auth_delete \x1b[0m :", channel_name, " : ", user_grantor, " => ", user_heritor);
+		let channel: ChatRoom = channel_list.get(channel_name);
+		let check: number = 0;
 
-		if (channel._auth_user.get(user_name) == 2) {
-			if (channel._auth_user.size > 1) {
-				channel._auth_user.forEach((val, key) => {
-					if (key != user_name && !on && ++on)
-						return channel._auth_user.set(key, 2);
-				});
+		if (user_grantor === user_heritor) {
+			if (!channel._auth_user.has(user_grantor))
+				return (1);
+			if (channel._auth_user.get(user_grantor) == 2) {
+				if (channel._auth_user.size > 1) {
+					channel._auth_user.forEach((val, key) => {
+						if (!check && key != user_grantor && ++check)
+							return channel._auth_user.set(key, 2);
+					});
+				}
+				else if (channel._user.size > 1) {
+					channel._user.forEach((val, key) => {
+						if (!check && key != user_grantor && ++check)
+							return channel._auth_user.set(key, 2);
+					});
+				}
 			}
-			else if (channel._user.size > 1) {
-				channel._user.forEach((val, key) => {
-					if (key != user_name && !on && ++on)
-						return channel._auth_user.set(key, 2);
-				});
-			}
+			channel._auth_user.delete(user_grantor);
+			return (0);
 		}
-		channel._auth_user.delete(user_name);
+		if (channel._auth_user.get(user_grantor) > channel._auth_user.get(user_heritor)) {
+			channel._auth_user.delete(user_heritor);
+			return (0);
+		}
+		return (1);
 	}
 
 	/* ================================================================================
-									room auth
+									room kick
 	   ================================================================================ */
 
 	ft_channel_kick(channel_name: string, user_grantor: string, user_heritor: string) {
-		if (channel_list.get(channel_name)._auth_user.get(user_grantor) > 1) {
-			if (!channel_list.get(channel_name)._auth_user.has(user_heritor))
+		let channel: ChatRoom = channel_list.get(channel_name);
+		if (channel._auth_user.get(user_grantor) > 1) {
+			if (!channel._auth_user.has(user_heritor))
 				this.ft_channel_leave(channel_name, user_heritor);
-			if (channel_list.get(channel_name)._auth_user.get(user_grantor) > channel_list.get(channel_name)._auth_user.get(user_heritor))
+			if (channel._auth_user.get(user_grantor) > channel._auth_user.get(user_heritor))
 				this.ft_channel_leave(channel_name, user_heritor);
 		}
 	}
 
+	/* ================================================================================
+									room mute
+	   ================================================================================ */
+	ft_channel_mute_self(channel_name: string, user: string) {
+		let channel: ChatRoom = channel_list.get(channel_name);
+		if (channel._user.has(user)
+			&& channel._mute_user.indexOf(user) == -1) {
+			channel._mute_user.push(user);
+			return (0);
+		}
+		return (1);
+	}
+	ft_channel_unmute_self(channel_name: string, user: string) {
+		let channel: ChatRoom = channel_list.get(channel_name);
+		if (channel._user.has(user)
+			&& channel._mute_user.indexOf(user) != -1) {
+			channel._mute_user.splice(channel._mute_user.indexOf(user), 1);
+			return (0);
+		}
+		return (1);
+	}
+
+	ft_channel_mute(channel_name: string, user_grantor: string, user_heritor: string) {
+		let channel: ChatRoom = channel_list.get(channel_name);
+		if (channel._auth_user.has(user_grantor)
+			&& channel._user.has(user_heritor)
+			&& channel._mute_user.indexOf(user_heritor) == -1) {
+			channel._mute_user.push(user_heritor);
+			return (0);
+		}
+		return (1)
+	}
+
+	ft_channel_unmute(channel_name: string, user_grantor: string, user_heritor: string) {
+		let channel: ChatRoom = channel_list.get(channel_name);
+		if (channel._auth_user.has(user_grantor)
+			&& channel._user.has(user_heritor)
+			&& channel._mute_user.indexOf(user_heritor) != -1) {
+			channel._mute_user.splice(channel._mute_user.indexOf(user_heritor), 1);
+			return (0);
+		}
+		return (1)
+	}
+
+	/* ================================================================================
+									room ban
+	   ================================================================================ */
+	ft_channel_ban(channel_name: string, user_grantor: string, user_heritor: string) {
+		let channel: ChatRoom = channel_list.get(channel_name);
+		if (channel._auth_user.has(user_grantor)) {
+			if (channel._auth_user.has(user_heritor) &&
+				channel._auth_user.get(user_grantor) > channel._auth_user.get(user_heritor)) {
+				// 능력밖 밴 금지
+				return (1);
+			}
+			if (channel._mute_user.indexOf(user_heritor) != -1)
+				return (2); // 이미 존제
+			channel._mute_user.push(user_heritor);
+			return (0);
+		}
+		return (1);
+	}
 
 	// ================================================================================ //
 	/* =                                                                              =
 									chat                                    
 	   =                                                                              = */
 	// ================================================================================ //
+
+	/* ================================================================================
+									chat refresh
+	   ================================================================================ */
+
+	/**
+	 * 
+	 * @param client 
+	 * @param payload 
+	 */
+	@SubscribeMessage('chat-refresh')
+	ft_chat_refresh(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: string,
+	) {
+		console.log("\x1b[38;5;226m chat-refresh \x1b[0m :", payload);
+		let chat_info : ChatRefreshDTO = new ChatRefreshDTO();
+		let channel = channel_list.get(payload);
+		chat_info._name = payload;
+		chat_info._ban = channel._ban_user;
+		channel._user.forEach((val, key) => {
+			let chat_user : ChatUser = new ChatUser();
+			chat_user._name = key;
+			chat_user._mute = false;
+			chat_user._auth = 0;
+			chat_user._avatar = "";
+			if (channel._mute_user
+				&& channel._mute_user.indexOf(key) != -1)
+				chat_user._mute = true;
+			if (channel._auth_user
+				&& channel._auth_user.has(key))
+				chat_user._auth = channel._auth_user.get(key);
+			chat_user._avatar = client.handshake.query._avatar as string;
+			chat_info._user.push(chat_user);
+			console.log(chat_user);
+		});
+		client.emit('chat-refresh', chat_info);
+	}
+
 
 	/* ================================================================================
 									chat connect
@@ -332,8 +491,8 @@ export class ChatGateway
 			return;
 		}
 		client.to(payload._room_name).emit('chat-msg-event', payload);
-		if (typeof userid === "string")
-		{
+		if (typeof userid === "string") {
+
 			payload._user_name = userid;
 			client.emit("chat-msg-event", payload);
 		}
@@ -356,13 +515,13 @@ export class ChatGateway
 	) {
 		const userid: string | string[] = client.handshake.query._userId;
 		console.log("\x1b[38;5;227m chat-exit-room \x1b[0m", payload._room_name);
-		client.leave(payload._room_name);
 		if (typeof userid === "string") {
-			if (!this.server.adapter.rooms.has(payload._room_name)) {
+			if (this.server.adapter.rooms.has(payload._room_name)) {
 				this.ft_channel_leave(payload._room_name, userid);
 				this.server.emit('room-refresh', this.ft_room_list());
 			}
 		}
+		client.leave(payload._room_name);
 	}
 
 	// ================================================================================ //
@@ -370,7 +529,6 @@ export class ChatGateway
 									dm                                    
 	   =                                                                              = */
 	// ================================================================================ //
-
 
 	/**
 	   * @name ft_dm_chat

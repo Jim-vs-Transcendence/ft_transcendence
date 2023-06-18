@@ -17,7 +17,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 		userId = localStorage.getItem("userid");
 	const socket : Socket = ioClient(ENDPOINT, { 
 		query: {
-			_userId : userId,
+			_userId : userId
 	}});
 	
 	socket.on("dm-chat", (data : DmChatIF) => {

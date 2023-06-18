@@ -1,5 +1,4 @@
-import '../service/userDTO.ts'
-
+import '../service/userDTO.js'
 
 /* ================================================================================
 								room
@@ -25,7 +24,7 @@ interface popupIF {
 interface ChatMsgIF {
 	_msg: string;
 	_user_name: string;
-	_room_info: ChatRoomIF;
+	_room_name: string;
 }
 
 interface PayLoadIF {
@@ -33,15 +32,44 @@ interface PayLoadIF {
 	_check: boolean;
 }
 
+
+/* ================================================================================
+								chat
+   ================================================================================ */
+
+
+///////////////////////////
+enum Authority {
+    OWNER,
+    ADMIN,
+    USER,
+}
+
+interface ChatUserIF {
+    _authority: Authority;
+    _is_muted: boolean;
+    _user_id: string;
+	_user_info: UserDTO; // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+}
+
+////////////////////////////
+
+interface ChatAuthDTO{
+	_room : string;
+	_option : number;
+	_user_grantor : string;
+	_user_heritor : string;
+	_check : boolean;
+}
 /* ================================================================================
 								DM
    ================================================================================ */
-export interface DmChatIF {
+interface DmChatIF {
 	_msg: string;
 	_from: string;
 	_to: string;
 }
 
-export interface DmChatStoreIF {
+interface DmChatStoreIF {
 	[opponent: string]: DmChatIF[];
 }
