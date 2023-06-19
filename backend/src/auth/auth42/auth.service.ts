@@ -34,14 +34,12 @@ export class AuthService {
   }
 
   async logout(token: string) {
-    const userId = this.tokenService.verifyToken(token);
+    const userId = await this.tokenService.verifyToken(token);
 
-    await this.tokenService.deleteToken((await userId).toString());
+    await this.tokenService.deleteToken(userId.toString());
 
-    const user: userDTO = await this.usersService.findOne(
-      (await userId).toString(),
-    );
+    const user: userDTO = await this.usersService.findOne(userId.toString());
     user.user_status = 0;
-    await this.usersService.updateUser((await userId).toString(), user);
+    await this.usersService.updateUser(userId.toString(), user);
   }
 }

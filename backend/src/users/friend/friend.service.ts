@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -82,6 +83,19 @@ export class FriendsService {
     user_from: string,
     user_to: string,
   ): Promise<boolean> {
+    // Check if user_from is blocked by user_to
+    const blocked = await this.friendRepository.findOne({
+      where: {
+        user_from: user_to,
+        user_to: user_from,
+        friend_status: FriendRequestStatus.BLOCKED,
+      },
+    });
+
+    if (blocked) {
+      throw new ForbiddenException('You are blocked by this user');
+    }
+
     const friendRequest = this.friendRepository.create({
       user_from,
       user_to,
@@ -150,7 +164,17 @@ export class FriendsService {
 
   // Block a user
   async blockUser(user_from: string, user_to: string): Promise<boolean> {
-    this.usersService.findOne(user_to);
+    const blocked = await this.friendRepository.findOne({
+      where: {
+        user_from: user_to,
+        user_to: user_from,
+        friend_status: FriendRequestStatus.BLOCKED,
+      },
+    });
+
+    if (blocked) {
+      throw new ForbiddenException('You are blocked by this user');
+    }
 
     const blockship = this.friendRepository.create({
       user_from: user_from,

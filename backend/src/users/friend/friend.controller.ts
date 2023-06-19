@@ -65,7 +65,6 @@ export class FriendsController {
     @Req() req: RequestWithUser,
     @Body() dto: SendFriendRequestDTO,
   ): Promise<boolean> {
-    console.log('request!');
     return this.friendsService.sendFriendRequest(req.user, dto.user_to);
   }
 
