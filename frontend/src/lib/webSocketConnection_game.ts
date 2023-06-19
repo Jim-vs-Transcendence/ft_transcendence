@@ -1,17 +1,22 @@
-const backUrl = import.meta.env.VITE_API_URL;
-import ioClient from 'socket.io-client';
+const backUrl : string = import.meta.env.VITE_API_URL;
+import ioClient, { Socket } from 'socket.io-client';
+import { writable, type Writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 let userId : string | null = null;
 
 const ENDPOINT = backUrl + '/game';
 
-if (browser)
-	userId = localStorage.getItem("userid");
+export const gameSocketStore : Writable<Socket> = writable();
 
-const socket = ioClient(ENDPOINT, { 
-	query: {
-		key: userId,
-}});
+export async function CreateGameSocket (socketStore : Writable<Socket>) {
 
-export const io_game = socket;
+	let userId : string | null = null;
+	if (browser)
+		userId = localStorage.getItem("userid");
+	const socket : Socket = ioClient(ENDPOINT, { 
+		query: {
+			_userId : userId,
+	}});
+	socketStore.set(socket);
+}

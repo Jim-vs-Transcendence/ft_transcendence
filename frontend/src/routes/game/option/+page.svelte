@@ -1,7 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { io_game } from '$lib/webSocketConnection_game';
 	import { gameClientOption } from '$lib/gameData';
+	import { CreateGameSocket, gameSocketStore } from '$lib/webSocketConnection_game';
+	import type { Socket } from 'socket.io-client';
+	import { onDestroy, onMount } from 'svelte';
+
+	let io_game: Socket;
+
+	const unsubscribe = gameSocketStore.subscribe((_socket: Socket) => {
+		io_game = _socket;
+	});
 
 	let cnt: number = 0;
 
@@ -85,7 +93,6 @@
 	}
 
 	import { Stepper, Step } from '@skeletonlabs/skeleton';
-	import { onMount } from 'svelte';
 	import { io } from 'socket.io-client';
 	let isColorSelect: boolean = false;
 
@@ -135,6 +142,8 @@
 			}
 		});
 	});
+
+	onDestroy(unsubscribe)
 </script>
 
 <div class="flex h-screen items-center justify-center">

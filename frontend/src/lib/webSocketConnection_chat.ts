@@ -1,6 +1,6 @@
 const backUrl : string = import.meta.env.BACK_URL;
 
-import { browser } from '/environment';
+import { browser } from '$app/environment';
 import ioClient from 'socket.io-client';
 const ENDPOINT = backUrl + '/chat';
 

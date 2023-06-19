@@ -2,9 +2,17 @@
 	import { onMount } from 'svelte';
 	import { afterUpdate } from 'svelte';
 	import { onDestroy } from 'svelte';
-	import { io_game } from '$lib/webSocketConnection_game';
+	import type { Socket } from 'socket.io-client';
+	import { CreateGameSocket, gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption } from '$lib/gameData';
 	import { goto } from '$app/navigation';
+
+	let io_game: Socket;
+
+	const unsubscribe = gameSocketStore.subscribe((_socket: Socket) => {
+		io_game = _socket;
+	});
+
 
 	let cnt: number = 0;
 
@@ -28,6 +36,16 @@
 
 	let leftScore: number;
 	let rightScore: number;
+
+	let	rdyFlag: boolean = false;
+
+	function resizeCanvas() {
+		if (window.innerWidth <= 1200 || window.innerHeight <= 600)
+		{
+			cnt = -10;
+			alert('👆👆👆👆👆👆 멈춰 👆👆👆👆👆👆👆👆👆');
+		}
+	}
 
 	function setEndGame(flag: boolean) {
 		if (flag) {
@@ -74,7 +92,14 @@
 		console.log(moveData);
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.beginPath();
-		context.arc(moveData.ballX, moveData.ballY, gameClientOption._ballRadius, 0, Math.PI * 2, false);
+		context.arc(
+			moveData.ballX,
+			moveData.ballY,
+			gameClientOption._ballRadius,
+			0,
+			Math.PI * 2,
+			false
+		);
 		context.fillStyle = 'white';
 		context.fill();
 		context.closePath();
@@ -100,7 +125,9 @@
 		if (event.key === 'Enter') {
 			cnt++;
 			console.log('enter press');
-			if (cnt === 1) {
+			if (cnt < 0) {
+			} else if (cnt === 1 && rdyFlag === false) {
+				rdyFlag = true;
 				io_game.emit('gameReady', gameClientOption._roomName);
 			}
 		} else if (event.key === 'ArrowDown') {
@@ -118,20 +145,19 @@
 
 		document.body.appendChild(canvas);
 
+		window.addEventListener('resize', resizeCanvas);
 		window.addEventListener('keydown', handleKeyPress);
 
 		io_game.emit('inGamePageArrived', gameClientOption._roomName);
 
 		io_game.on('gotoMain', (flag: boolean) => {
-			if (flag)
-				goto('/main');
-		})
+			if (flag) goto('/main');
+		});
 
 		io_game.on('gameDraw', (Player: any) => {
 			initPlayer(Player);
 			draw(Player.updateData.moveData);
 		});
-
 
 		io_game.on('restart', (flag: boolean) => {
 			if (flag) {
@@ -156,14 +182,17 @@
 		});
 	});
 
-	// onDestroy(() => {
-	// 	io_game.disconnect();
-	// 	document.body.removeChild(canvas);
-	// 	window.removeEventListener('keydown', handleKeyPress);
-	// });
+	onDestroy(() => {
+		io_game.disconnect();
+		document.body.removeChild(canvas);
+		window.removeEventListener('keydown', handleKeyPress);
+		unsubscribe();
+	});
 
 	// afterUpdate(() => {
 	// 	// Code to handle updates or re-renders, if needed
 	// });
 </script>
 
+<!-- <canvas id=“myCanvas” width={width} height={height}></canvas> -->
+<!-- 위와 같이 한다고 함 되는지는 모름 -->

@@ -1,6 +1,6 @@
 import { ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, MessageBody, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket, Namespace } from 'socket.io';
-import { GamePlayerData, GameUpdateData, GameMoveData, GameInvitePlayers, GamePlayerScoreData } from './dto/gameData.dto';
+import { GamePlayerData, GameUpdateData, GameMoveData, GamePlayerScoreData, GameInvitation } from './dto/gameData.dto';
 import { GameRoom, GameClientOption } from './data/playerData';
 import { GameService } from './game.service';
 /* 
@@ -28,6 +28,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	// key 값이 socketId, value가 소속된 roomName
 	public roomKey = new Map<string, string>();
 
+	private gameUsers = new Map<string, Socket>();
+
 	private players: GamePlayerData[];
 
 	constructor() {
@@ -40,7 +42,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleConnection(
 		@ConnectedSocket() client: Socket,
 	) {
-		// chat 쪽에서 알아서 해줄거임
+		const userid: string | string[] = client.handshake.query._userId;
+		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
+		if (typeof userid === 'string') {
+			if (!this.gameUsers.has(userid))
+				this.gameUsers.set(userid, client);
+		}
+		client.emit('gameSocketCreation',);
 	}
 
 	afterInit(server: Server) {
@@ -102,11 +110,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return room;
 	}
 
+	public findGameUserSocket(gameUser: string): Socket {
+		let userSocket: Socket = this.gameUsers.get(gameUser);
+		return userSocket;
+	}
+
 	@SubscribeMessage('pushMatchList')
 	pushPlayer(
 		@ConnectedSocket() client: Socket,
+		// @MessageBody() userId: string,
 	) {
 		console.log(client.id);
+		console.log('is in?');
 		let player: GamePlayerData = new GamePlayerData();
 		player.updateData = new GameUpdateData();
 		player.updateData.moveData = new GameMoveData();
@@ -130,21 +145,30 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
-	@SubscribeMessage('gameInvite')
-	invitePlayer(
+	@SubscribeMessage('sendGameInvite')
+	sendGameInvite(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() invitePlayers: GameInvitePlayers,
+		@MessageBody() opponentPlayer: string,
 	) {
-		console.log(client.id);
+		let userSocket = this.findGameUserSocket(opponentPlayer);
+		if (userSocket) {
+			userSocket.emit('you got invite', userSocket.handshake.query.id);
+		}
+		else {
+			console.log('no such user')
+		}
+	}
+
+	private handleInvitation(player1: Socket, player2: Socket) {
 		let left: GamePlayerData = new GamePlayerData();
 		left.updateData = new GameUpdateData();
 		left.updateData.moveData = new GameMoveData();
-		this.service.initPlayer(left, invitePlayers.left);
+		this.service.initPlayer(left, player1);
 
 		let right: GamePlayerData = new GamePlayerData();
 		right.updateData = new GameUpdateData();
 		right.updateData.moveData = new GameMoveData();
-		this.service.initPlayer(right, invitePlayers.right);
+		this.service.initPlayer(right, player2);
 
 		let room: GameRoom = new GameRoom();
 		room.leftPlayer = left;
@@ -154,10 +178,24 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
 		this.roomKey.set(room.rightPlayer.socketId, room.leftPlayer.socketId);
 
+		// roomName을 받으면 option창으로 redirect 되도록 채팅팀에 말할 것
 		this.server.to(room.leftPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 		this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 	}
 
+	@SubscribeMessage('inviteResponsse')
+	gameInviteResponse(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() gameInvitation: GameInvitation,
+	) {
+		let gameUser: Socket = this.findGameUserSocket(gameInvitation.opponentPlayer);
+		if (gameInvitation.acceptFlag) {
+			this.handleInvitation(client, gameUser);
+		}
+		else {
+			gameUser.emit('Invite Denied');
+		}
+	}
 
 	@SubscribeMessage('optionPageArrived')
 	handleOptionPageStart(
@@ -180,7 +218,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.service.optionReady(room, client.id);
 		}
 		else {
-			console.log('no room');
+			this.server.to(client.id).emit('gotoMain', true);
 		}
 	}
 

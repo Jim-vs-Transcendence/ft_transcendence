@@ -37,14 +37,14 @@ export class GamePlayerData {
 	ballSpeed: number;
 }
 
-export class GameInvitePlayers {
-	left: Socket;
-	right: Socket;
-}
-
 export class GamePlayerScoreData {
 	player1Id: string;
 	player2Id: string;
 	player1Score: number;
 	player2Score: number;
+}
+
+export class GameInvitation {
+	opponentPlayer: string;
+	acceptFlag: boolean;
 }
