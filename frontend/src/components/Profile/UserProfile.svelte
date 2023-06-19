@@ -4,6 +4,7 @@
     export let isFriend: boolean;
 
     $: isFriend;
+    $: friendStat;
 
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
@@ -14,7 +15,6 @@
     let isBlocked : boolean = false;
     $ : isBlocked;
 
-    // export let isFriend: boolean;
     let qr : any;
     let popQR : boolean = false;
 
@@ -22,7 +22,7 @@
     let friendInfo : friendDTO;
     let friendStat : string;
 
-    import { getApi, petchApi, postApi, delApi } from '../../service/api';
+    import { getApi, petchApi, postApi, delApi, postApiWithFile } from '../../service/api';
 
     // Two-factor toggle
     import { SlideToggle } from '@skeletonlabs/skeleton';
@@ -93,9 +93,11 @@
 
     //프로필 사진 업로드
     import { FileButton } from '@skeletonlabs/skeleton';
+	import FriendsList from './FriendsList.svelte';
     
     // 투팩터 초기 설정
     onMount(async () => {
+        profile_info = await getApi({ path: 'user/' + profile_info.id });
 		try{
 			if (isMyself === true)
             {
@@ -118,10 +120,47 @@
 		}
 	});  
 
+    // 아바타 업로드
+    let uploaded_pic: FileList;
+    $: profile_info.avatar;
+
+    async function uploadHandler(): Promise<void> {
+        try {
+            if (uploaded_pic && uploaded_pic.length > 0) {
+            const file = uploaded_pic[0];
+
+            if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+                alert('jpeg나 png만 지원합니다');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('당신 얼굴의 크기가 너무 큽니다. 5MB까지만 올릴 수 있습니다.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await postApiWithFile({
+                path: 'user/uploads',
+                file
+            });
+            profile_info = await getApi({ path: 'user/' + profile_info.id });
+            }
+        } catch (error) {
+            console.error('에러 발생:', error);
+        }
+    }
 
     // 닉네임 변경
     async function handleChangeNickname() {
-        const nickname : string = prompt('변경할 가짜 이름을 입력하세요');
+        const nickname : string = prompt_string();
+        function prompt_string () : string
+        {
+            let text : string | null = prompt('변경할 가짜 이름을 입력하세요');
+            if (text == null)
+                text = "";
+            return (text);
+        }
         if (nickname === "" ||nickname === profile_info.nickname) return;
         if (nickname.length > 20)
         {
@@ -145,9 +184,10 @@
         try {
             await postApi({ path: 'friends/requests' , data:{
                 "user_to" : profile_info.id
-            } });
+            } 
+        });
         } catch (error) {
-            alert("wer");
+            alert("친구신청 실패");
         }
     }
 
@@ -171,6 +211,7 @@
             }  
             });
             isBlocked = true;
+            friendStat = "blocked";
             } catch (error) {
                 alert("블럭 오류");
             }
@@ -183,6 +224,7 @@
             }  
             });
             isBlocked = false;
+            friendStat = " ";
             } catch (error) {
                 alert("블럭 해제 오류");
             }
@@ -191,12 +233,16 @@
 
 </script>
 
-<div class="card p-4 flex flex-col items-center">
+<div class="card flex flex-col items-center">
     <img src="{profile_info.avatar}" alt="인트라 프로필" class="w-48 h-48 rounded-full mb-4">
     <ul class="text-center">
       {#if isMyself}
         <div>
-            <FileButton name="files" />
+            <FileButton 
+                name="files"
+                bind:files={uploaded_pic}
+                on:change={uploadHandler}
+                >얼굴 개시</FileButton>
             <button on:click={handleChangeNickname}>가짜이름 변경</button>
         </div>
       {:else}
@@ -210,12 +256,10 @@
             {:else}
             <p>아무것도 아닌 사람</p>
          {/if}
-
         </div>
       {/if}
       <li class="text-lg font-bold">가짜이름 : {profile_info.nickname}</li>
       <li class="text-lg font-bold">인트라 ID: {profile_info.id}</li>
-    
     </ul>
 </div>
 
@@ -252,17 +296,13 @@
                 <button class="flex-1" on:click={deleteFriend}>무참히 절교</button>
             {:else}
                 <button class="flex-1" on:click={requestFriend}>동무 추가</button>
-                {#if isBlocked === false}
-                    <button class="flex-1" on:click={blockToggle}>검열</button>
-                {:else}
+                {#if friendStat === "blocked"}
                     <button class="flex-1" on:click={blockToggle}>검열 해제</button>
+                {:else}
+                    <button class="flex-1" on:click={blockToggle}>검열</button>
                 {/if}
             {/if}
             </div>
         </div>
     {/if}
 </div>
-
-<style>
-
-</style>

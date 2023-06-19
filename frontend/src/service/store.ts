@@ -21,10 +21,10 @@ function setAuth() {
 
 function setAuthToken() {
 
-    let token: string | null;
+    let token: string | null = "";
 
     if (browser) {
-        token = localStorage.getItem('authToken');
+        token = localStorage.getItem('authToken'); // null 잡는거 필요
     }
     const { set } = writable(token);
     const idStore = writable();

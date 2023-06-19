@@ -7,7 +7,9 @@
 			_index: 0,
 			_room: {
 				_room_name: "",
-				_room_password: ""
+				_room_password: "",
+				_room_users: [],
+				_pass: false
 			}
 		}
 	};

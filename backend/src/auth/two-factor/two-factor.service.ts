@@ -1,29 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { authenticator } from 'otplib';
-import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { toDataURL } from 'qrcode';
 import { TokenService } from '../token/token.service';
-import { Response } from 'express';
+import userDTO from 'src/users/user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TwoFactorService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly userService: UsersService,
     private readonly tokenServiece: TokenService,
   ) {}
 
-  async generateTwoFactorAuthenticationSecret(userId: string) {
+  async generateTwoFactorSecret(userId: string) {
     const secret = authenticator.generateSecret();
 
-    const user: User = await this.userService.findOne(userId);
+    const user: userDTO = await this.userService.findOne(userId);
 
     user.two_factor_secret = secret;
     await this.userService.updateUser(userId, user);
 
     const otpauthUrl = await authenticator.keyuri(
       userId,
-      process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME,
+      this.configService.get<string>('TWO_FACTOR_AUTHENTICATION_APP_NAME'),
       secret,
     );
 
@@ -37,33 +38,20 @@ export class TwoFactorService {
     return await toDataURL(otpauthUrl);
   }
 
-  async isTwoFactorAuthenticationCodeValid(
-    userId: string,
-    twoFactorAuthenticationCode: string,
-  ) {
-    const user: User = await this.userService.findOne(userId);
+  async isTwoFactorCodeValid(userId: string, twoFactorCode: string) {
+    const user: userDTO = await this.userService.findOne(userId);
     return authenticator.verify({
-      token: twoFactorAuthenticationCode,
+      token: twoFactorCode,
       secret: user.two_factor_secret,
     });
   }
 
-  async twoFactorLogin(id: string, twoFactorAuthenticationCode: string) {
-    const isCodeValidated = await this.isTwoFactorAuthenticationCodeValid(
-      id,
-      twoFactorAuthenticationCode,
-    );
+  async twoFactorLogin(id: string, twoFactorCode: string) {
+    const isCodeValidated = await this.isTwoFactorCodeValid(id, twoFactorCode);
 
     if (isCodeValidated == true) await this.tokenServiece.createToken(id);
 
     return isCodeValidated;
-    // if (isCodeValidated == false) res.send('false');
-    // else {
-    //   await this.tokenServiece.createToken(id);
-    //   res.redirect('http://localhost:5173/auth/login/' + id);
-    // res.location('http://localhost:5173/auth/login/' + id);
-    // res.send('true');
-    // }
   }
 
   // async deleteSecret(userId: string) : Promise<boolean> {

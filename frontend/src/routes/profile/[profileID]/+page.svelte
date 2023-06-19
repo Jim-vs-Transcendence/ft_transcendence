@@ -2,7 +2,7 @@
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
 	import { getApi } from '../../../service/api';
-	import { auth } from '../../../service/store';
+	import { auth, authToken } from '../../../service/store';
 	import { goto } from '$app/navigation';
 
 	const profileID = $page.params.profileID;
@@ -29,7 +29,12 @@
 	let profile_path : string;
 	let friendList : friendDTO[];
 
+
+	function handleBeforeUnload() {
+		authToken.logout();
+  	}
 	onMount(async () => {
+
 		try{
 			//1. token기반 
 			userInfo = await auth.isLogin();
@@ -49,13 +54,18 @@
                 console.log(friendList);
 				const found = friendList.find((friend) => friend.id.includes(profileID));
 				if (found) {
-					isFriend = true;
+					if (found.friendStatus === 'accepted')
+						isFriend = true;
 				}
 				else {
 					isFriend = false;
 				}
 			}
 			isLoading = false;
+			window.addEventListener('beforeunload', handleBeforeUnload);
+			return () => {
+				window.removeEventListener('beforeunload', handleBeforeUnload);
+			};
 		}
 		catch(error){
 			alert('오류 : 프로필을 출력할 수 없습니다1');
@@ -67,7 +77,7 @@
 {#if isLoading === true}
 	<LoadingMessage />
 {:else}
-<div class="flex h-screen justify-center items-center">
+<div class="flex items-center">
 	  <div class="flex-1">
 		<UserProfile {profile_info} {isMyself} {isFriend} />
 	  </div>

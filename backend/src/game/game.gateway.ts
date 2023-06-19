@@ -1,7 +1,12 @@
 import { ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, MessageBody, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket, Namespace } from 'socket.io';
+<<<<<<< HEAD
 import { GameInitData, GameUpdateData, MoveData } from './dto/gameData.dto';
 import { Room, GameRoom } from './data/playerData'
+=======
+import { gameDataDto } from './gameDto/gameData.dto';
+import { Room } from './data/playerData'
+>>>>>>> 045c0a6502635c2d25f0642d86671f877cc9d979
 import { GameService } from './game.service';
 /* 
  * service : gateway에서 호출되어 게임 내부 로직 변경 (현재 게이트웨이에 있는 private 함수들)
@@ -20,6 +25,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@WebSocketServer() server: Namespace;
 
 	private service: GameService;
+<<<<<<< HEAD
 	public rooms = new Map<string, Room>();
 	public roomKey = new Map<string, string>();
 	private players: GameInitData[];
@@ -27,6 +33,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	constructor() {
 		this.service = new GameService(this);
 		this.rooms;
+=======
+	public rooms: Room[];
+	private players: gameDataDto[];
+
+	constructor() {
+		this.service = new GameService(this);
+		this.rooms = [];
+>>>>>>> 045c0a6502635c2d25f0642d86671f877cc9d979
 		this.players = [];
 	}
 	// Canvas Info
@@ -40,6 +54,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	handleDisconnect(client: Socket) {
+<<<<<<< HEAD
 		let destroyedRoom: string = this.roomKey.get(client.id);
 		let room: Room = this.rooms.get(destroyedRoom);
 		if (room.leftPlayer.socketId === client.id) {
@@ -122,6 +137,54 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			console.log('no room');
 		}
 	}
+=======
+		console.log('game disconnect');
+		//console.log('disconnect');
+		console.log(client.id);
+	}
+
+
+	public findRoom(roomName: string): Room {
+		let room: Room = this.rooms.find((room: Room) =>
+			room.roomName === roomName);
+		return room;
+	}
+
+	@SubscribeMessage('connect')
+	handleConnection(
+		@ConnectedSocket() client: Socket
+	) {
+
+		this.server.to(client.id).emit('handShaking', true);
+	}
+
+	@SubscribeMessage('handShaking')
+	pushPlayer(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() flag: boolean,
+	) {
+		if (flag) {
+			let player: gameDataDto = new gameDataDto();
+			this.service.initPlayer(player, client.id);
+			console.log(player);
+			this.server.to(client.id).emit('connected', player);
+			this.players.push(player);
+			if (this.players.length >= 2) {
+				console.log(this.players.length);
+				let room: Room = new Room();
+				room.leftPlayer = this.players.shift();
+				room.rightPlayer = this.players.shift();
+				room.roomName = room.leftPlayer.socketId;
+				room.leftPlayer.roomName = room.roomName;
+				room.rightPlayer.roomName = room.roomName;
+				this.rooms.push(room);
+				this.server.to(room.leftPlayer.socketId).emit('roomName', room.roomName);
+				this.server.to(room.rightPlayer.socketId).emit('roomName', room.roomName);
+			}
+		}
+	}
+
+>>>>>>> 045c0a6502635c2d25f0642d86671f877cc9d979
 
 	// Enter Key pressed : game ready
 	@SubscribeMessage('gameReady')
@@ -129,6 +192,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 		@MessageBody() roomName: string,
 	) {
+<<<<<<< HEAD
+=======
+		console.log(roomName);
+>>>>>>> 045c0a6502635c2d25f0642d86671f877cc9d979
 		let room = this.findRoom(roomName);
 		if (room) {
 			this.service.getReady(room, client.id);
@@ -164,6 +231,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.service.paddleUp(room, client.id);
 		}
 	}
+<<<<<<< HEAD
 }
 
 // 	@SubscribeMessage('gameRestart')
@@ -189,3 +257,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 // 		}
 // 	}
 // }
+=======
+
+
+	@SubscribeMessage('leftTest')
+	waitTester(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() roomName: string,
+	) {
+		console.log(roomName);
+		let room = this.findRoom(roomName);
+		if (room) {
+			console.log(room.endTimer);
+			clearTimeout(room.endTimer);
+		}
+	}
+}
+>>>>>>> 045c0a6502635c2d25f0642d86671f877cc9d979

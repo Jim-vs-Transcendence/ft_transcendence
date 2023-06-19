@@ -15,13 +15,13 @@
 	let msg_list: string[] = [];
 
 	function ft_error_goback() {
-		goto('/chat');
+		goto('/main');
 	}
 
 	io_chat.on('chat-connect', (data: PayLoadIF) => {
 		if (!data._check) console.log('PayLoad false');
 		chat_data._room_info._room_name = data._url;
-		// or popup 잘못된 접근입니다 확인 => goto (/chat);
+		// or popup 잘못된 접근입니다 확인 => goto (/main);
 	});
 
 	io_chat.on('chat-msg-event', (data: ChatMsgIF) => {
@@ -43,7 +43,7 @@
 
 	function ft_exit_chat_room() {
 		io_chat.emit('chat-exit-room', chat_data);
-		goto('/chat');
+		goto('/main');
 	}
 </script>
 

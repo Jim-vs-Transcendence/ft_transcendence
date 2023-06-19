@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
-import { Friend } from './friend.entity';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -9,7 +8,7 @@ export class User {
   id: string;
 
   @Column()
-  @ApiProperty({ description: '인트라 닉네임' })
+  @ApiProperty({ description: '유저 닉네임' })
   nickname: string;
 
   @Column()
@@ -17,7 +16,7 @@ export class User {
   email: string;
 
   @Column()
-  @ApiProperty({ description: '인트라 이미지 주소' })
+  @ApiProperty({ description: '이미지 주소' })
   avatar: string;
 
   @Column()

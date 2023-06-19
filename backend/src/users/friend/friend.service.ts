@@ -1,11 +1,11 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
 import { Friend } from '../entities/friend.entity';
 import { FriendRequestStatus } from '../entities/friend.entity';
 import { friendDTO } from './dto/friend.dto';
@@ -14,8 +14,6 @@ import { UsersService } from '../users.service';
 @Injectable()
 export class FriendsService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
     @InjectRepository(Friend)
     private friendRepository: Repository<Friend>,
     private readonly usersService: UsersService,
@@ -24,14 +22,15 @@ export class FriendsService {
   // Find a friend request
   async findFriend(user_to: string) {
     const friendEntities = await this.friendRepository.find({
-      where: { user_to: user_to },
+      where: {
+        user_to: user_to,
+        // friend_status: In([FriendRequestStatus.PENDING, FriendRequestStatus.ACCEPTED]),
+      },
     });
 
     const ret: friendDTO[] = await Promise.all(
       friendEntities.map(async (friend) => {
-        const userFrom = await this.usersRepository.findOne({
-          where: { id: friend.user_from },
-        });
+        const userFrom = await this.usersService.findOne(friend.user_from);
 
         if (!userFrom) {
           throw new NotFoundException(
@@ -84,6 +83,19 @@ export class FriendsService {
     user_from: string,
     user_to: string,
   ): Promise<boolean> {
+    // Check if user_from is blocked by user_to
+    const blocked = await this.friendRepository.findOne({
+      where: {
+        user_from: user_to,
+        user_to: user_from,
+        friend_status: FriendRequestStatus.BLOCKED,
+      },
+    });
+
+    if (blocked) {
+      throw new ForbiddenException('You are blocked by this user');
+    }
+
     const friendRequest = this.friendRepository.create({
       user_from,
       user_to,
@@ -113,7 +125,6 @@ export class FriendsService {
 
     // user_to accept
     request.friend_status = FriendRequestStatus.ACCEPTED;
-    const user = await this.usersRepository.findOne({ where: { id: user_to } });
     await this.friendRepository.save(request);
 
     // user_from create
@@ -153,7 +164,17 @@ export class FriendsService {
 
   // Block a user
   async blockUser(user_from: string, user_to: string): Promise<boolean> {
-    this.usersService.findOne(user_to);
+    const blocked = await this.friendRepository.findOne({
+      where: {
+        user_from: user_to,
+        user_to: user_from,
+        friend_status: FriendRequestStatus.BLOCKED,
+      },
+    });
+
+    if (blocked) {
+      throw new ForbiddenException('You are blocked by this user');
+    }
 
     const blockship = this.friendRepository.create({
       user_from: user_from,

@@ -1,24 +1,75 @@
+import '../service/userDTO.js'
+
+/* ================================================================================
+								room
+   ================================================================================ */
+
+interface ChatRoomIF {
+	_room_name: string;
+	_room_password: string;
+	_room_users: string[];
+	_pass: boolean;
+}
+
 interface popupIF {
-	_active: boolean = false;
-	_message: string = '';
+	_active: boolean;
+	_message: string;
 	_option: {
-		_password: string = '';
-		_index: number = 0;
-		_room: ChatRoomIF = { _room_name: '', _room_password: '' };
+		_password: string;
+		_index: number;
+		_room: ChatRoomIF;
 	};
 }
 
-interface ChatRoomIF {
-	_room_name: string = '';
-	_room_password: string = '';
-}
-
 interface ChatMsgIF {
-	_msg: string = '';
-	_room_info: ChatRoomIF;
+	_msg: string;
+	_user_name: string;
+	_room_name: string;
 }
 
 interface PayLoadIF {
-	_url: string = '';
-	_check: boolean = false;
+	_url: string;
+	_check: boolean;
+}
+
+
+/* ================================================================================
+								chat
+   ================================================================================ */
+
+
+///////////////////////////
+enum Authority {
+    OWNER,
+    ADMIN,
+    USER,
+}
+
+interface ChatUserIF {
+    _authority: Authority;
+    _is_muted: boolean;
+    _user_id: string;
+	_user_info: UserDTO; // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
+}
+
+////////////////////////////
+
+interface ChatAuthDTO{
+	_room : string;
+	_option : number;
+	_user_grantor : string;
+	_user_heritor : string;
+	_check : boolean;
+}
+/* ================================================================================
+								DM
+   ================================================================================ */
+interface DmChatIF {
+	_msg: string;
+	_from: string;
+	_to: string;
+}
+
+interface DmChatStoreIF {
+	[opponent: string]: DmChatIF[];
 }
