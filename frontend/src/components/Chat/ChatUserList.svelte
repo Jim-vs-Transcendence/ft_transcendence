@@ -7,6 +7,7 @@
 	import { goto } from '$app/navigation';
     import { getApi, postApi, delApi } from '../../service/api';
     import type { ChatUserIF }  from '$lib/interface';
+	import ChatUserOptions from './ChatUserOptions.svelte';
     
     export let chatUser: ChatUserIF;
     $: chatUser;
@@ -66,6 +67,7 @@
     
     </ul>
 
+{#if !isRefused}
 <dl class="list-dl">
     <li>
         <span> </span>
@@ -73,22 +75,23 @@
     </li>
     <!-- ... -->
     <div class="cursor-pointer">
-        {#if !isRefused}
             <div class="flex-auto" >
                     <span>
-                        <dt use:popup={popupFeatured}> <Avatar src={chatUser._user_info.avatar} width="w-7" rounded="rounded-full" />  {chatUser._user_info.id} | {chatUser._user_info.nickname}  </dt>
+                        <dt use:popup={popupFeatured}>
+							<Avatar src={chatUser._user_info.avatar} width="w-7" rounded="rounded-full" />
+							{chatUser._user_info.id} | {chatUser._user_info.nickname}
+						</dt>
                     </span>
                     <span class="badge p-0">👑</span>
-                    <!-- <span class="badge p-0">🗡️</span>
-                    <span class="badge p-0">🔇</span> -->
+                    <span class="badge p-0">🗡️</span>
+                    <span class="badge p-0">🔇</span>
             </div>
-        {/if}
-        
-
-    </div>
-    <!-- ... -->
-</dl>
-
+		</div>
+		<!-- ... -->
+	</dl>
+	<ChatUserOptions {chatUser}/>
+{/if}
+	
 
 <!-- <div>
     <button class="btn variant-filled" >Show Popup</button>

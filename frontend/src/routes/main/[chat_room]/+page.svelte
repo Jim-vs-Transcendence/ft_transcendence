@@ -219,7 +219,7 @@
 				{#if tabSet === 0}
 					{#each chatUserList as chatUser}
 						<ChatUserList {chatUser}/>
-						<ChatUserOptions {chatUser}/>
+						<!-- <ChatUserOptions {chatUser}/> -->
 						<!-- <div class="card p-4 column-count-1" data-popup={chatUser._user_info.id}>
 							<div><p class="cursor-point" on:click={ () => { fn() }}>profile</p></div>
 							<div><p class="cursor-pointer" on:click={ () => { fn() }}>invite game {chatUser._user_info.id}</p></div>
