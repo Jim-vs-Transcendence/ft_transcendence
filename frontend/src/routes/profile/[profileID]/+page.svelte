@@ -68,7 +68,7 @@
 {#if isLoading === true}
 	<LoadingMessage />
 {:else}
-<div class="flex h-screen items-center">
+<div class="flex items-center">
 	  <div class="flex-1">
 		<UserProfile {profile_info} {isMyself} {isFriend} />
 	  </div>

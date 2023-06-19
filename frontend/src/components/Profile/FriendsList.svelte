@@ -64,7 +64,7 @@
     />
     <span class="flex-auto">
         <dt>
-            {friend.id}
+            {friend.id + " | " + friend.nickname}
             {#if friend.status === UserStatus.OFFLINE}
                 &#9675;
             {:else if friend.status === UserStatus.ONLINE}

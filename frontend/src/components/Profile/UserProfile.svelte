@@ -233,7 +233,7 @@
 
 </script>
 
-<div class="card p-4 flex flex-col items-center">
+<div class="card flex flex-col items-center">
     <img src="{profile_info.avatar}" alt="인트라 프로필" class="w-48 h-48 rounded-full mb-4">
     <ul class="text-center">
       {#if isMyself}
@@ -256,12 +256,10 @@
             {:else}
             <p>아무것도 아닌 사람</p>
          {/if}
-
         </div>
       {/if}
       <li class="text-lg font-bold">가짜이름 : {profile_info.nickname}</li>
       <li class="text-lg font-bold">인트라 ID: {profile_info.id}</li>
-    
     </ul>
 </div>
 
@@ -308,7 +306,3 @@
         </div>
     {/if}
 </div>
-
-<style>
-
-</style>

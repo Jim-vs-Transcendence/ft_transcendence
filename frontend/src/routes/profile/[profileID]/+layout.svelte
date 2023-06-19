@@ -8,13 +8,12 @@
     };
 
     const goback = () => {
-        goto('../');
+        history.back();
     };
 
 </script>
 
 <AppBar slot="headline" class="h-16">
-
     <div slot="lead" class="flex items-center space-x-6">
       <!-- 로그아웃, 다크모드 -->
       <button on:click={logout}>기록 밖으로</button>

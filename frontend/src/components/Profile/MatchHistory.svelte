@@ -25,21 +25,6 @@
                 return history;
         });
     })
-
-
-    import { spring } from 'svelte/motion'
-    let coords_r = spring({ x: Math.random() * 10000, y: Math.random() * 10000 },{
-        stiffness: 0.1,
-        damping: 0.6
-    });
-    let coords_g = spring({ x: Math.random() * 10000, y: Math.random() * 10000 },{
-        stiffness: 0.1,
-        damping: 0.3
-    });
-    let coords_b = spring({ x: Math.random() * 10000, y: Math.random() * 10000 },{
-        stiffness: 0.05,
-        damping: 0.2
-    });
  </script>
 
 <div class="card">
