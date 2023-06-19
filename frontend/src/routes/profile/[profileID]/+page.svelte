@@ -49,7 +49,8 @@
                 console.log(friendList);
 				const found = friendList.find((friend) => friend.id.includes(profileID));
 				if (found) {
-					isFriend = true;
+					if (found.friendStatus === 'accepted')
+						isFriend = true;
 				}
 				else {
 					isFriend = false;

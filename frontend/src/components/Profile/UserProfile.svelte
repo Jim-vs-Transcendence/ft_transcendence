@@ -93,6 +93,7 @@
 
     //프로필 사진 업로드
     import { FileButton } from '@skeletonlabs/skeleton';
+	import FriendsList from './FriendsList.svelte';
     
     // 투팩터 초기 설정
     onMount(async () => {
@@ -183,9 +184,10 @@
         try {
             await postApi({ path: 'friends/requests' , data:{
                 "user_to" : profile_info.id
-            } });
+            } 
+        });
         } catch (error) {
-            alert("wer");
+            alert("친구신청 실패");
         }
     }
 
