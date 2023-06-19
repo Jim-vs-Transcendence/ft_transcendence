@@ -154,7 +154,7 @@
 			<div class="grid max-h-[70%] max-w-[70%] overflow-auto">
 				
 				{#each rooms_list as room}
-				<div class="logo-item m-1 variant-filled-surface" id="room"
+				<div class="logo-item m-1 variant-filled-surface cursor-pointer" id="room"
 				on:mousedown={() => { JoinRoom(room); }}>
 					{room._room_name}
 				</div>

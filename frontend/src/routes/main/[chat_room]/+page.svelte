@@ -7,6 +7,12 @@
 	import { page } from '$app/stores';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
 	import type { ChatAuthDTO, ChatMsgIF, ChatUserIF, PayLoadIF } from '$lib/interface';
+	import { popup } from '@skeletonlabs/skeleton';
+	import type { PopupSettings } from '@skeletonlabs/skeleton';
+	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+	import { storePopup } from '@skeletonlabs/skeleton';
+	
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	let socket: Socket;
 	let userid: string
@@ -136,7 +142,7 @@
 			_user_id: "jim",
 			_user_info: {
 				id: "jim",
-				nickname: "nickname",
+				nickname: "nickname jim",
 				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
 				email: "email",
 				level: 0,
@@ -152,7 +158,7 @@
 			_user_id: "kyoulee",
 			_user_info: {
 				id: "kyoulee",
-				nickname: "nickname",
+				nickname: "nickname kyoulee",
 				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
 				email: "email",
 				level: 0,
@@ -168,7 +174,7 @@
 			_user_id: "yolee",
 			_user_info: {
 				id: "yolee",
-				nickname: "nickname",
+				nickname: "nickname yolee",
 				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
 				email: "email",
 				level: 0,
@@ -179,6 +185,15 @@
 			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
 		},
 	];
+
+	const popupFeatured: PopupSettings = {
+		// Represents the type of event that opens/closed the popup
+		event: 'click',
+		// Matches the data-popup value on your popup element
+		target: 'popupFeatured',
+		// Defines which side of your trigger the popup will appear
+		placement: 'bottom',
+	};
 
 </script>
 
@@ -251,12 +266,22 @@
 				placeholder="Write a message..."
 				rows="1"
 			/>
-			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button
-			>
+			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
 		</div>
 	</div>
 	<div>
 		<button type="button" on:click={ () => { ft_exit_chat_room()}}   >  뒤로가기 </button>
+		<!-- <div>
+			<button class="btn variant-filled" use:popup={popupFeatured}>Show Popup</button>
+			<div class="card p-4 w-72 shadow-xl" data-popup="popupFeatured">
+				<div><p>Demo Content0</p></div>
+				<div><p>Demo Content1</p></div>
+				<div><p>Demo Content2</p></div>
+				<div><p>Demo Content3</p></div>
+				<div><p>Demo Content4</p></div>
+				<div class="arrow bg-surface-100-800-token" />
+			</div>
+		</div> -->
 	</div>
 </div>
 
