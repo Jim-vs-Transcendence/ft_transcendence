@@ -4,20 +4,8 @@
 	import { onDestroy } from 'svelte';
 	import type { Socket } from 'socket.io-client';
 	import { CreateGameSocket, gameSocketStore } from '$lib/webSocketConnection_game';
-
-<<<<<<< HEAD
 	import { goto } from '$app/navigation';
 	import { gameClientOption } from '$lib/gameData';
-=======
-	const backUrl = import.meta.env.VITE_API_URL;
-
-	import ioClient from 'socket.io-client';
-	const ENDPOINT = backUrl + '/game';
-
-	// const ENDPOINT = 'http://175.117.47.114:1414/game';
-
-	const io_game = ioClient(ENDPOINT);
->>>>>>> 045c0a6502635c2d25f0642d86671f877cc9d979
 
 
 	let io_game: Socket;

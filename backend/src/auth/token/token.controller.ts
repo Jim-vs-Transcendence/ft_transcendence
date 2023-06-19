@@ -23,18 +23,9 @@ export class TokenController {
     description:
       '토큰이 유효하다면 해당 토큰의 소유주의 id를 반환해주고 유효하지 않다면 false(boolean)을 반환해줍니다.',
   })
-<<<<<<< HEAD
-  async verifyToken(
-    @Req() req: any,
-    // @Headers('authtoken') token: string,
-  ): Promise<boolean | User> {
-    // console.log(req.user);
-    // const user = await this.tokenService.verifyToken(token);
-=======
   @Get()
   @UseGuards(TokenGuard)
   async verifyToken(@Req() req: any): Promise<boolean | userDTO> {
->>>>>>> 045c0a6502635c2d25f0642d86671f877cc9d979
     if (!req.user) return false;
 
     // const test = req.cookies['authToken'];

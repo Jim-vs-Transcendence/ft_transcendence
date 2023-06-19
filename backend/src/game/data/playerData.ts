@@ -1,4 +1,3 @@
-import exp from "constants";
 import { GamePlayerData } from "../dto/gameData.dto";
 
 export class GameRoom {

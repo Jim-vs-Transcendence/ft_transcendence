@@ -1,23 +1,6 @@
 const backUrl : string = import.meta.env.VITE_API_URL;
 
 import { browser } from '$app/environment';
-<<<<<<< HEAD
-import ioClient from 'socket.io-client';
-const ENDPOINT = backUrl + '/chat';
-
-let userId : string | null = null;
-
-//const ENDPOINT = 'http://localhost:3000/chat';
-
-if (browser)
-	userId = localStorage.getItem("userid");
-
-const socket = ioClient(ENDPOINT, { 
-	query: {
-		userId: userId,
-}});
-
-=======
 import ioClient, { Socket } from 'socket.io-client';
 import { writable, type Writable } from 'svelte/store';
 import type { DmChatIF, DmChatStoreIF } from '$lib/interface';
@@ -28,7 +11,6 @@ export const socketStore : Writable<Socket> = writable();
 //const ENDPOINT = 'http://localhost:3000/chat';
 
 export async function CreateSocket (socketStore : Writable<Socket>) {
->>>>>>> 045c0a6502635c2d25f0642d86671f877cc9d979
 
 	let userId : string | null = null;
 	if (browser)
