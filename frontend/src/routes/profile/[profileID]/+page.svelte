@@ -36,13 +36,13 @@
 	onMount(async () => {
 
 		try{
-			//1. token기반 
+			//1. token기반
 			userInfo = await auth.isLogin();
 			//2. target user profile / isMyself가 false라면,
 			profile_path = 'user/' + profileID;
 			profile_info = await getApi({ path: profile_path });
 			console.log(profile_info);
-			
+
 			//만약 본인 프로필에 들어갔다면
 			if (userInfo.id === profileID) {
 				isMyself = true;
@@ -77,7 +77,7 @@
 {#if isLoading === true}
 	<LoadingMessage />
 {:else}
-<div class="flex items-center">
+<div class="flex align-top">
 	  <div class="flex-1">
 		<UserProfile {profile_info} {isMyself} {isFriend} />
 	  </div>
@@ -89,6 +89,6 @@
 
 
 
-<style>  
+<style>
 
 </style>

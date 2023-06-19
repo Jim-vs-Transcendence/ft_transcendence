@@ -78,10 +78,11 @@
             const response = await postApi({
                 path: 'two-factor/init_authentication/' + profile_info.id,
                 data: {
-                    "twoFactorAuthenticationCode": input
+                    "twoFactorCode": input
                     }
                     }
                 );
+                console.log(response);
                 if (response === true) {
                     two_factor_toggle();
                     popQR = false;
@@ -94,7 +95,7 @@
     //프로필 사진 업로드
     import { FileButton } from '@skeletonlabs/skeleton';
 	import FriendsList from './FriendsList.svelte';
-    
+
     // 투팩터 초기 설정
     onMount(async () => {
         profile_info = await getApi({ path: 'user/' + profile_info.id });
@@ -118,7 +119,7 @@
 			alert('오류 : 프로필을 출력할 수 없습니다3');
 			goto('/main');
 		}
-	});  
+	});
 
     // 아바타 업로드
     let uploaded_pic: FileList;
@@ -164,7 +165,7 @@
         if (nickname === "" ||nickname === profile_info.nickname) return;
         if (nickname.length > 20)
         {
-            alert("Fork you r nickname : too long");            
+            alert("Fork you r nickname : too long");
             return;
         }
         try {
@@ -184,7 +185,7 @@
         try {
             await postApi({ path: 'friends/requests' , data:{
                 "user_to" : profile_info.id
-            } 
+            }
         });
         } catch (error) {
             alert("친구신청 실패");
@@ -205,10 +206,10 @@
     //검열
     async function blockToggle() {
         if (isBlocked === false)
-        {        
+        {
             try {
             await postApi({ path: 'friends/blocks/' + profile_info.id , data:{
-            }  
+            }
             });
             isBlocked = true;
             friendStat = "blocked";
@@ -221,7 +222,7 @@
             try {
             await delApi({ path: 'friends/' + profile_info.id , data:{
                 "user_to" : profile_info.id
-            }  
+            }
             });
             isBlocked = false;
             friendStat = " ";
@@ -233,12 +234,14 @@
 
 </script>
 
+<!-- <div class="card flex flex-col items-center"> -->
 <div class="card flex flex-col items-center">
+    <header class="card-header"></header>
     <img src="{profile_info.avatar}" alt="인트라 프로필" class="w-48 h-48 rounded-full mb-4">
     <ul class="text-center">
       {#if isMyself}
         <div>
-            <FileButton 
+            <FileButton
                 name="files"
                 bind:files={uploaded_pic}
                 on:change={uploadHandler}
@@ -261,10 +264,11 @@
       <li class="text-lg font-bold">가짜이름 : {profile_info.nickname}</li>
       <li class="text-lg font-bold">인트라 ID: {profile_info.id}</li>
     </ul>
+    <footer class="card-footer"></footer>
 </div>
 
 <!-- two-factor 혹은 친구 -->
-<div class="grid">	
+<div class="grid">
     {#if isMyself === true}
             {#if popQR === true}
                 <div class="fixed inset-0 flex items-center justify-center z-50">
@@ -275,7 +279,7 @@
                             <button type="button" class="btn variant-ghost" on:click={close_qr}>
                                 닫기
                             </button>
-                        </div>  
+                        </div>
                     </div>
                 </div>
             {/if}
