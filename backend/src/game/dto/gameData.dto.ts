@@ -1,4 +1,6 @@
-export class MoveData {
+import { Socket } from 'socket.io';
+
+export class GameMoveData {
 	ballX: number;
 	ballY: number;
 	ballMoveX: boolean;
@@ -11,12 +13,13 @@ export class MoveData {
 export class GameUpdateData {
 	leftScore: number;
 	rightScore: number;
-	moveData: MoveData;
+	moveData: GameMoveData;
 }
 
-export class GameInitData {
+export class GamePlayerData {
 	socketId: string;
-	playerName: string;
+	userId: string;
+	isInGame: boolean;
 
 	canvasWidth: number;
 	canvasHeight: number;
@@ -32,4 +35,16 @@ export class GameInitData {
 	updateData: GameUpdateData;
 	ballRadius: number;
 	ballSpeed: number;
+}
+
+export class GamePlayerScoreData {
+	player1Id: string;
+	player2Id: string;
+	player1Score: number;
+	player2Score: number;
+}
+
+export class GameInvitation {
+	opponentPlayer: string;
+	acceptFlag: boolean;
 }
