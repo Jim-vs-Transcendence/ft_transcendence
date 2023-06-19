@@ -25,6 +25,14 @@ const goProfile = (name: string) => {
   goto('profile/' + name)
 };
 
+const goHome = () => {
+        goto('/main');
+    }
+
+const goGame = () => {
+    goto('/game');
+}
+
 const openDrawer = () => {
   drawerStore.open();
 };
@@ -53,7 +61,11 @@ const openDrawer = () => {
   </div>
   <h1 class="h1 text-center -mt-3">
     <!-- 메인 로고 -->
-    <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">Jim vs Transcendence</span>
+    <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">
+      <button on:click={goHome}>Jim&nbsp;</button>
+      <button on:click={goGame}>vs</button>
+      <button on:click={goHome}>&nbsp;Transcendence</button>
+    </span>
   </h1>
   <div slot="trail" class="flex items-center space-x-6">
     <!-- 아바타, 친구목록 -->

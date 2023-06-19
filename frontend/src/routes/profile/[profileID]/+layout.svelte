@@ -11,6 +11,14 @@
         history.back();
     };
 
+    const goHome = () => {
+        goto('/main');
+    }
+
+    const goGame = () => {
+        goto('/game');
+    }
+
 </script>
 
 <AppBar slot="headline" class="h-16">
@@ -20,10 +28,14 @@
     </div>
     <h1 class="h1 text-center -mt-3">
       <!-- 메인 로고 -->
-      <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">Jim vs Transcendence</span>  
+      <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">
+        <button on:click={goHome}>Jim&nbsp;</button>
+        <button on:click={goGame}>vs</button>
+        <button on:click={goHome}>&nbsp;Transcendence</button>
+      </span>
     </h1>
     <div slot="trail" class="flex items-center space-x-6">
-        <button type="button" class="btn-icon btn variant-filled" on:click={goback}>뒤로</button>
+        <button type="button" class="btn-icon btn variant-filled width-8" on:click={goback}>뒤로</button>
     </div>
   </AppBar>
 
