@@ -5,12 +5,13 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
 	import type { ChatAuthDTO, ChatMsgIF, ChatUserIF, PayLoadIF } from '$lib/interface';
 	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
+	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
+	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -218,6 +219,16 @@
 				{#if tabSet === 0}
 					{#each chatUserList as chatUser}
 						<ChatUserList {chatUser}/>
+						<ChatUserOptions {chatUser}/>
+						<!-- <div class="card p-4 column-count-1" data-popup={chatUser._user_info.id}>
+							<div><p class="cursor-point" on:click={ () => { fn() }}>profile</p></div>
+							<div><p class="cursor-pointer" on:click={ () => { fn() }}>invite game {chatUser._user_info.id}</p></div>
+							<div><p class="cursor-pointer" on:click={ () => { fn() }}>mute</p></div>
+							<div><p class="cursor-pointer" on:click={ () => { fn() }}>kick</p></div>
+							<div><p class="cursor-pointer" on:click={ () => { fn() }}>ban</p></div>
+							<div><p class="cursor-pointer" on:click={ () => { fn() }}>appoint</p></div>
+							<div class="arrow bg-surface-100-800-token" />
+						</div> -->
 					{/each}
 						<!-- {friend}
 						<ChatUserList friend={friend} userInfo={userInfo} /> -->
