@@ -35,10 +35,14 @@ export class ChatGateway
 		this.server.server.engine.opts.pingTimeout = 20000;
 		this.server.server.engine.opts.pingInterval = 20000;
 		this.server.server.engine.opts.upgradeTimeout = 20000;
+		this.server.adapter.on("delete-room", (room : string) => {
+			channel_list.delete(room);
+		})
 	}
 
 	// chat.gateway.ts
 	async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
+		this.server.adapter.rooms
 		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
 		let userdata = await this.userService.findOne(userid as string);
@@ -63,17 +67,9 @@ export class ChatGateway
 		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;196m Disconnect: ', userid, " : ", client.id, "\x1b[0m");
 		if (typeof userid === 'string')
-		{
-			if (socket_list.get(userid).id === client.id) {
-				client.rooms.forEach((val, key) => {
-					this.ft_channel_leave(key, userid);
-				})
 				socket_list.delete(userid);
-			}
-		}
 		client.emit('room-refresh', this.ft_room_list());
 	}
-
 	// ================================================================================ //
 	/* =                                                                              =
 									room                                     
@@ -82,7 +78,7 @@ export class ChatGateway
 	/* ================================================================================
 									room create
 	   ================================================================================ */
-
+	
 	/**
 	 * @name ft_room_create
 	 * @param client
@@ -227,10 +223,7 @@ export class ChatGateway
 		if (channel_list.get(channel_name)._user.get(userid)) {
 			this.ft_channel_auth_delete(channel_name, userid, userid);
 			channel_list.get(channel_name)._user.delete(userid);
-			if (channel_list.get(channel_name)._user.size == 0)
-				channel_list.delete(channel_name);
 		}
-
 	}
 
 	/* ================================================================================

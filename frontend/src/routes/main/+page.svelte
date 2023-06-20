@@ -28,7 +28,8 @@
 
 			/* ===== room-create ===== */
 			socket.on('room-create', (data: ChatRoomIF) => {
-				if (!data._pass) return alert(data._room_name + '중복된 이름입니다');
+				if (!data._pass)
+					return alert(data._room_name + '중복된 이름입니다');
 				goto('/main/' + data._room_name);
 			});
 
