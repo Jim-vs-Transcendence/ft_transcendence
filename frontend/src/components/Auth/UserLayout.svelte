@@ -3,11 +3,13 @@
   import { authToken } from '../../service/store';
   import '../../service/userDTO';
   import '../../service/friendDTO';
+  import type { ChatUserIF }  from '$lib/interface';
 
   export let userInfo: UserDTO ;
   export let friendList: friendDTO[];
+  export let chatUserList: ChatUserIF[];
 
-  //friendsList 컴포넌트
+  //friendsList component
   import FriendsList from '../Profile/FriendsList.svelte';
 
   //css
@@ -16,9 +18,12 @@
   import { Drawer, drawerStore } from '@skeletonlabs/skeleton';
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
-
+  
   // tab
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
+
+  //DM component
+  import ChatUserOptions from '../Chat/ChatUserOptions.svelte';
 
 const logout = () => {
   authToken.logout()
@@ -66,10 +71,14 @@ let tabSet: number = 0;
           {#each friendList as friend}
             <FriendsList friend={friend} userInfo={userInfo} />
           {/each}
-      </dl>
+        </dl>
       {/each}
     {:else if tabSet === 1}
-      <!-- (tab panel 2 contents) -->
+      <dl class="list-dl">
+        {#each chatUserList as chatUser}
+          <DmList chatUser={chatUser}/>
+        {/each}
+      </dl>
     {/if}
   </svelte:fragment>
 </TabGroup>
