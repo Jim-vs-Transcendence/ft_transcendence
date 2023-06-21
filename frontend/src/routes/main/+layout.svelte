@@ -22,15 +22,15 @@
             userInfo = await auth.isLogin();
             if (!userInfo) {
                 goto('/');
-                throw("잘못된 접근");
+                throw("wrong 접근");
             }
 
             friendList = await getApi({ path: 'friends' });
             isLoading = false;
-            window.addEventListener('beforeunload', handleBeforeUnload);
-			return () => {
-				window.removeEventListener('beforeunload', handleBeforeUnload);
-			};
+            // window.addEventListener('beforeunload', handleBeforeUnload);
+			// return () => {
+			// 	window.removeEventListener('beforeunload', handleBeforeUnload);
+			// };
         }
         catch(error) {
             alert("잘못된 접근");

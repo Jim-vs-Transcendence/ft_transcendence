@@ -3,15 +3,15 @@
 	import { afterUpdate } from 'svelte';
 	import { onDestroy } from 'svelte';
 	import type { Socket } from 'socket.io-client';
-	import { CreateGameSocket, gameSocketStore } from '$lib/webSocketConnection_game';
+	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption } from '$lib/gameData';
 	import { goto } from '$app/navigation';
 
 	let io_game: Socket;
 
-	const unsubscribe = gameSocketStore.subscribe((_socket: Socket) => {
-		io_game = _socket;
-	});
+	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
+		io_game = _gameSocket;
+	})
 
 
 	let cnt: number = 0;
@@ -140,6 +140,10 @@
 	}
 
 	onMount(() => {
+		if (io_game === undefined) {
+			goto('/main');
+		}
+
 		canvas = document.createElement('canvas');
 		context = canvas.getContext('2d');
 
@@ -186,7 +190,7 @@
 		io_game.disconnect();
 		document.body.removeChild(canvas);
 		window.removeEventListener('keydown', handleKeyPress);
-		unsubscribe();
+		unsubscribeGame();
 	});
 
 	// afterUpdate(() => {
