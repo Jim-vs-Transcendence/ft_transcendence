@@ -15,7 +15,7 @@
   import { Avatar } from '@skeletonlabs/skeleton';
   import { Drawer, drawerStore } from '@skeletonlabs/skeleton';
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
-	import { onMount } from 'svelte';
+  import { onMount } from 'svelte';
 
   // tab
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
@@ -86,9 +86,9 @@ let tabSet: number = 0;
   <h1 class="h1 text-center -mt-3">
     <!-- 메인 로고 -->
     <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">
-      <button on:click={goHome}>Jim&nbsp;</button>
-      <button on:click={goGame}>vs</button>
-      <button on:click={goHome}>&nbsp;Transcendence</button>
+      <span on:click={goHome}>Jim </span>
+      <span on:click={goGame}>vs</span>
+      <span on:click={goHome}>Transcendence</span>
     </span>
   </h1>
   <div slot="trail" class="flex items-center space-x-6">
