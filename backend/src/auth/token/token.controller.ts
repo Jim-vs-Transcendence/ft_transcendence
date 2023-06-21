@@ -29,7 +29,12 @@ export class TokenController {
     if (!req.user) return false;
 
     // const test = req.cookies['authToken'];
-    return await this.usersService.findOne(req.user);
+    const user = await this.usersService.findOne(req.user);
+    if (user.user_status === 0) {
+      user.user_status = 1;
+      this.usersService.updateUser(req.user, user);
+    }
+    return user;
   }
 
   @ApiOperation({

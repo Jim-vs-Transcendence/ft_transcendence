@@ -24,6 +24,7 @@
       }
       catch(error) {
           isLoading = false;
+		  console.log(localStorage.getItem('authToken'));
           console.log("user no login");
       }
     }

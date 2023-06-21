@@ -6,7 +6,7 @@
     import LoadingMessage from "../../components/Auth/LoadingMessage.svelte";
     import "../../service/userDTO";
     import "../../service/friendDTO"
-    import { getApi } from "../../service/api";
+    import { getApi, petchApi } from "../../service/api";
 
     let userInfo : UserDTO;
     let isLoading : boolean = true;
@@ -14,9 +14,15 @@
     // 친구 불러오기 위함
     let friendList: friendDTO[] = [];
 
-	function handleBeforeUnload() {
-		authToken.logout();
-  	}
+	async function handleBeforeUnload() {
+	        await petchApi({
+	            path: 'user/status/' + userInfo.id,
+	            data: {
+					"user_status": 0,
+				}
+        	});
+	}
+	
     onMount(async () => {
         try {
             userInfo = await auth.isLogin();
@@ -27,10 +33,10 @@
 
             friendList = await getApi({ path: 'friends' });
             isLoading = false;
-            // window.addEventListener('beforeunload', handleBeforeUnload);
-			// return () => {
-			// 	window.removeEventListener('beforeunload', handleBeforeUnload);
-			// };
+            window.addEventListener('beforeunload', handleBeforeUnload);
+			return () => {
+				window.removeEventListener('beforeunload', handleBeforeUnload);
+			};
         }
         catch(error) {
             alert("잘못된 접근");

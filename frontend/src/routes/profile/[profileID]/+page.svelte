@@ -29,10 +29,17 @@
 	let profile_path : string;
 	let friendList : friendDTO[];
 
+	import { petchApi } from '../../../service/api';
 
-	function handleBeforeUnload() {
-		authToken.logout();
-  	}
+	async function handleBeforeUnload() {
+	        await petchApi({
+	            path: 'user/status/' + userInfo.id,
+	            data: {
+					"user_status": 0,
+				}
+        	});
+	}
+
 	onMount(async () => {
 
 		try{
