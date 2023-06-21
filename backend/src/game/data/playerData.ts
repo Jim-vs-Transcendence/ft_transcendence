@@ -4,6 +4,7 @@ export class GameRoom {
     endTimer: any;
     dataFrame: any;
 
+    gameType: boolean;
     leftPlayer: GamePlayerData;
     rightPlayer: GamePlayerData;
 

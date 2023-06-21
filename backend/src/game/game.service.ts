@@ -81,10 +81,12 @@ export class GameService {
 	// 서비스로 가는데, 지우는 건 gateway가 해줘야 됨
 	public endGame(room: GameRoom) {
 		// 재시작 여부 판단 로직 추가
+		console.log('endGame', room);
+		this.myGameGateway.server.to(room.leftPlayer.socketId).emit('gotoMain', true);
+		this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gotoMain', true);
 		this.myGameGateway.roomKey.delete(room.leftPlayer.socketId);
 		this.myGameGateway.roomKey.delete(room.rightPlayer.socketId);
 		this.myGameGateway.rooms.delete(room.leftPlayer.socketId);
-		// goto()? 모름
 		console.log('wait success');
 	}
 
@@ -118,11 +120,10 @@ export class GameService {
 			room.isEnd = true;
 			room.leftReady = false;
 			room.rightReady = false;
-			// 전적 갱신
-
 
 			// 시간초가 지나면 메인 페이지 이동, 시간초 보다 restart가 빠르면 재시작
-			room.endTimer = setTimeout(this.endGame, 10000, room);
+			// room.endTimer = setTimeout(this.endGame, 10000, room);
+			room.endTimer = setTimeout(() => this.endGame(room), 10000);
 
 			
 			if (room.leftPlayer.updateData.leftScore >= endScore) {
@@ -135,11 +136,13 @@ export class GameService {
 				this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gameEnd', true);
 			}
 			const gamePlayerScoreData: GamePlayerScoreData = new GamePlayerScoreData();
-			gamePlayerScoreData.player1Id = room.leftPlayer.userId;
-			gamePlayerScoreData.player1Score = room.leftPlayer.updateData.leftScore;
-			gamePlayerScoreData.player2Id = room.rightPlayer.userId;
-			gamePlayerScoreData.player2Score = room.rightPlayer.updateData.rightScore;
+			gamePlayerScoreData.player1 = room.leftPlayer.userId;
+			gamePlayerScoreData.player1_score = room.leftPlayer.gameScore;
+			gamePlayerScoreData.player2 = room.rightPlayer.userId;
+			gamePlayerScoreData.player2_score = room.rightPlayer.gameScore;
+			gamePlayerScoreData.game_type = room.gameType;
 			// user 쪽에서 DB에 POST하는 로직 추가
+			// this.myGameGateway.matchHistoryService.createMatchHistory(gamePlayerScoreData);
 		}
 
 		this.resetPlayer(room.leftPlayer.updateData.moveData);
