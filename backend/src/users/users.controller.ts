@@ -69,8 +69,24 @@ export class UsersController {
     @Param('id') id: string,
     @Body() user: userDTO,
   ): Promise<boolean> {
-    console.log('Patch!');
     return this.usersService.updateUser(id, user);
+  }
+
+  @ApiOperation({
+    summary: '유저 Status 업데이트 API',
+    description:
+      '첫번째 인자인 id와 일치하는 유저의 데이터를 Body의 Status로 업데이트 합니다.',
+  })
+  @ApiCreatedResponse({
+    description: '성공 실패 여부를 boolean값으로 반환해줍니다.',
+    type: Boolean,
+  })
+  @Patch('status/:id')
+  async updateUserStatus(
+    @Param('id') id: string,
+    @Body() user: userDTO,
+  ): Promise<boolean> {
+    return this.usersService.updateUserStatus(id, user.user_status);
   }
 
   @ApiOperation({
