@@ -37,6 +37,14 @@ export class ChatGateway
 		this.server.server.engine.opts.upgradeTimeout = 20000;
 		this.server.adapter.on("delete-room", (room : string) => {
 			channel_list.delete(room);
+			this.server.emit('room-refresh', this.ft_room_list());
+		})
+		this.server.adapter.on("leave-room", (room : string, id : string) => {
+			const client : Socket = this.server.sockets.get(id);
+			const userid : string | String[] = client.handshake.query._userId;
+			if (typeof userid === "string")
+				this.ft_channel_leave(room, userid);
+			this.server.emit('room-refresh', this.ft_room_list());
 		})
 	}
 
@@ -220,9 +228,13 @@ export class ChatGateway
 
 	ft_channel_leave(channel_name: string, userid: string) {
 		console.log("\x1b[38;5;021m; ft_channel_leave \x1b[0m :", channel_name, " : ", userid);
-		if (channel_list.get(channel_name)._user.get(userid)) {
-			this.ft_channel_auth_delete(channel_name, userid, userid);
-			channel_list.get(channel_name)._user.delete(userid);
+		const room = channel_list.get(channel_name);
+		if (room !== undefined)
+		{
+			if (room._user.get(userid)) {
+				this.ft_channel_auth_delete(channel_name, userid, userid);
+				channel_list.get(channel_name)._user.delete(userid);
+			}
 		}
 	}
 
@@ -485,7 +497,6 @@ export class ChatGateway
 		}
 		client.to(payload._room_name).emit('chat-msg-event', payload);
 		if (typeof userid === "string") {
-
 			payload._user_name = userid;
 			client.emit("chat-msg-event", payload);
 		}
@@ -506,14 +517,6 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatMsgDTO,
 	) {
-		const userid: string | string[] = client.handshake.query._userId;
-		console.log("\x1b[38;5;227m chat-exit-room \x1b[0m", payload._room_name);
-		if (typeof userid === "string") {
-			if (this.server.adapter.rooms.has(payload._room_name)) {
-				this.ft_channel_leave(payload._room_name, userid);
-				this.server.emit('room-refresh', this.ft_room_list());
-			}
-		}
 		client.leave(payload._room_name);
 	}
 

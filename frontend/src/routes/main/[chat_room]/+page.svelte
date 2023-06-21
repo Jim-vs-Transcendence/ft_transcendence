@@ -24,6 +24,8 @@
 	});
 
 	onMount(() => {
+		if (socket === undefined)
+			goto("/main");
 		userid = socket.io.engine.transport.query["_userId"];
 		/* ===== chat-connect ===== */
 		socket.on('chat-connect', (data: PayLoadIF) => {
@@ -54,7 +56,10 @@
 		});
 	});
 
-	onDestroy(unsubscribe);
+	onDestroy(() => {
+		unsubscribe();
+		socket.emit('chat-exit-room', chat_data);
+	});
 
 	/* ================================================================================
 									chat msg
@@ -81,7 +86,6 @@
 	}
 
 	function ft_exit_chat_room() {
-		socket.emit('chat-exit-room', chat_data);
 		goto('/main');
 	}
 
