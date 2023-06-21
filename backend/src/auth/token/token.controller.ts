@@ -35,8 +35,6 @@ export class TokenController {
       this.usersService.updateUser(req.user, user);
     }
     return user;
-    // this.usersService.updateUserStatus(req.user, 1);
-    // return await this.usersService.findOne(req.user);
   }
 
   @ApiOperation({
