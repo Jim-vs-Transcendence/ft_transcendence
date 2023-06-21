@@ -1,14 +1,22 @@
 <script lang="ts">
+    import { popup } from '@skeletonlabs/skeleton';
+    import type { PopupSettings } from '@skeletonlabs/skeleton';
+    import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+    import { storePopup } from '@skeletonlabs/skeleton';
+    import { Avatar } from '@skeletonlabs/skeleton';
+	import { goto } from '$app/navigation';
+    import { getApi, postApi, delApi } from '../../service/api';
+    import type { ChatUserIF }  from '$lib/interface';
+	import ChatUserOptions from './ChatUserOptions.svelte';
+    
+    export let chatUser: ChatUserIF;
+    $: chatUser;
+    storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
     // import { ChatUserIF } from '$lib/interface.d'
     // export let chatUser: chatUserDTO;
     // export let userInfo: UserDTO;
     // $: chatUser;
-    export let chatUser: ChatUserIF;
-    $: chatUser;
 
-    import { Avatar } from '@skeletonlabs/skeleton';
-	import { goto } from '$app/navigation';
-    import { getApi, postApi, delApi } from '../../service/api';
 
     enum chatUserRequestStatus {
         BLOCKED = 'blocked',
@@ -39,28 +47,52 @@
         });
         isRefused = true;
     }
+
+    const popupFeatured: PopupSettings = {
+		// Represents the type of event that opens/closed the popup
+		event: 'click',
+		// Matches the data-popup value on your popup element
+		target: chatUser._user_info.id,
+		// Defines which side of your trigger the popup will appear
+		placement: 'bottom',
+	};
+
+    function fn() {
+
+    }
+
 </script>
 
 <ul class="list">
     
     </ul>
 
+{#if !isRefused}
 <dl class="list-dl">
     <li>
         <span> </span>
         <span class="flex-auto"> </span>
     </li>
     <!-- ... -->
-    <div>
-        {#if !isRefused}
-            <span class="flex-auto">
-                <dt> <Avatar src={chatUser._user_info.avatar} on:click={() => goProfile(chatUser._user_info.id)} width="w-7" rounded="rounded-full" />  {chatUser._user_info.id} | {chatUser._user_info.nickname}  </dt>
-            </span>
-            <span class="badge p-0">👑</span>
-            <!-- <span class="badge p-0">🗡️</span>
-            <span class="badge p-0">🔇</span> -->
-        {/if}
-    </div>
-    <!-- ... -->
-</dl>
-    
+    <div class="cursor-pointer">
+            <div class="flex-auto" >
+                    <span>
+                        <dt use:popup={popupFeatured}>
+							<Avatar src={chatUser._user_info.avatar} width="w-7" rounded="rounded-full" />
+							{chatUser._user_info.id} | {chatUser._user_info.nickname}
+						</dt>
+                    </span>
+                    <span class="badge p-0">👑</span>
+                    <span class="badge p-0">🗡️</span>
+                    <span class="badge p-0">🔇</span>
+            </div>
+		</div>
+		<!-- ... -->
+	</dl>
+	<ChatUserOptions {chatUser}/>
+{/if}
+	
+
+<!-- <div>
+    <button class="btn variant-filled" >Show Popup</button>
+</div> -->

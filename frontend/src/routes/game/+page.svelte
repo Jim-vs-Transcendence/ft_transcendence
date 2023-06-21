@@ -6,11 +6,11 @@
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { goto } from '$app/navigation';
 	import { gameClientOption } from '$lib/gameData';
+	import Img from '$lib/tmp.png'
 
 
 	let io_game: Socket;
 
-	let src = '$lib/tmp.png'
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
@@ -46,6 +46,6 @@
 			data-sveltekit-preload-data="hover"
 			on:click={main}>게임 포기</button
 		> -->
-		<img src="lib/tmp.png" alt="tmp"/>
+		<img src={Img} alt="back to main" on:click={main}/>
 	</div>
 </div>

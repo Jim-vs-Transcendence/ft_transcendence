@@ -17,6 +17,9 @@
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 
+  // tab
+  import { TabGroup, Tab } from '@skeletonlabs/skeleton';
+
 const logout = () => {
   authToken.logout()
 };
@@ -37,6 +40,7 @@ const openDrawer = () => {
   drawerStore.open();
 };
 
+let tabSet: number = 0;
 </script>
 
 <!-- UserLayout.svelte -->
@@ -46,10 +50,30 @@ const openDrawer = () => {
 >
 
 <!-- 친구 목록 : 옆으로 뜨는거 수정해야함 -->
-<dl class="list-dl">
+<!-- <dl class="list-dl">
     {#each friendList as friend}
       <FriendsList friend={friend} userInfo={userInfo} />
     {/each}
+</dl> -->
+<TabGroup>
+  <Tab bind:group={tabSet} name="tab1" value={0}>(동무목록)</Tab>
+  <Tab bind:group={tabSet} name="tab2" value={1}>(DM)</Tab>
+  <!-- Tab Panels --->
+  <svelte:fragment slot="panel">
+    {#if tabSet === 0}
+      {#each friendList as friend}
+        <dl class="list-dl">
+          {#each friendList as friend}
+            <FriendsList friend={friend} userInfo={userInfo} />
+          {/each}
+      </dl>
+      {/each}
+    {:else if tabSet === 1}
+      <!-- (tab panel 2 contents) -->
+    {/if}
+  </svelte:fragment>
+</TabGroup>
+    
 </Drawer>
 
 <!-- 상단바 -->

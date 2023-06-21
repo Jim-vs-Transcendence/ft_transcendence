@@ -17,6 +17,8 @@
 	let cnt: number = 0;
 
 	let canvas: HTMLCanvasElement;
+	let	width: number;
+	let height: number;
 	let context: any;
 
 	// Paddle
@@ -38,6 +40,8 @@
 	let rightScore: number;
 
 	let	rdyFlag: boolean = false;
+
+	let	status: number = 0;
 
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600)
@@ -67,6 +71,8 @@
 		console.log(Player);
 		canvas.width = Player.canvasWidth;
 		canvas.height = Player.canvasHeight;
+		width = canvas.width;
+		height = canvas.height
 		canvas.style.backgroundColor = Player.canvasColor;
 
 		gameClientOption._ballRadius = Player.ballRadius;
@@ -128,6 +134,7 @@
 			if (cnt < 0) {
 			} else if (cnt === 1 && rdyFlag === false) {
 				rdyFlag = true;
+				status = 1;
 				io_game.emit('gameReady', gameClientOption._roomName);
 			}
 		} else if (event.key === 'ArrowDown') {
@@ -181,7 +188,7 @@
 		});
 
 		io_game.on('gameEnd', (flag: boolean) => {
-			console.log('end game:', flag ? 'true' : 'false');
+			status = 2;
 			setEndGame(flag);
 		});
 	});
@@ -198,5 +205,67 @@
 	// });
 </script>
 
-<!-- <canvas id=“myCanvas” width={width} height={height}></canvas> -->
-<!-- 위와 같이 한다고 함 되는지는 모름 -->
+
+<div>
+	<div class="canvas-container">
+		<div class="canvas-wrapper">
+			<canvas bind:this={canvas} {width} {height} />
+		</div>
+	</div>
+	<div class="button-container">
+		{#if status === 0}
+			준비하려면 Enter 누르세요
+		{:else if status === 1}
+			<div>
+				player1
+			</div>
+			<div>
+				player2
+			</div>
+		{:else if status === 2}
+			<button
+				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
+				data-sveltekit-preload-data="hover"
+			>
+				retry
+			</button>
+	
+			<button
+				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
+				data-sveltekit-preload-data="hover"
+			>
+				retry
+			</button>
+		{/if}
+	</div>
+</div>
+
+
+	
+<style>
+	.container {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
+
+	.button-container {
+		display: flex;
+		justify-content: center;
+		align-content: center;
+		gap: 10rem;
+	}
+
+	.canvas-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100vh; /* 화면 높이에 맞게 캔버스 컨테이너의 높이를 설정 */
+	}
+
+	.canvas-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+</style>

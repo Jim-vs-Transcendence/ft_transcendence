@@ -8,6 +8,9 @@
   "scripts": {
     "back": "cd backend; npm run start:dev",
     "front": "cd frontend; npm run dev",
-	"ready": "cd backend; npm install; cd .. ; cd frontend; npm install;"
+    "ready": "cd backend; npm install; cd .. ; cd frontend; npm install;"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.4.1"
   }
 }
