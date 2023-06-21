@@ -162,7 +162,7 @@
 	<div class="button-container">
 		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
 	</div>
-	<AppShell class="max-h-[80%]  overflow-auto">
+	<AppShell class="max-h-[80%] overflow-auto">
 		<slot />
 		<!-- <lu> -->
 			<div class="grid max-h-[70%] max-w-[70%] overflow-auto">

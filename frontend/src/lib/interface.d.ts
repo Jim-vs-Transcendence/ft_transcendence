@@ -70,6 +70,11 @@ interface DmChatIF {
 	_to: string;
 }
 
+interface DmUserInfoIF {
+	_avatar: string;
+	_dmChatStore: DmChatIF[];
+}
+
 interface DmChatStoreIF {
-	[opponent: string]: DmChatIF[];
+	[opponent: string]: DmUserInfoIF;
 }
