@@ -6,7 +6,7 @@
     import LoadingMessage from "../../components/Auth/LoadingMessage.svelte";
     import "../../service/userDTO";
     import "../../service/friendDTO"
-    import { getApi, postApi } from "../../service/api";
+    import { getApi, petchApi } from "../../service/api";
 
     let userInfo : UserDTO;
     let isLoading : boolean = true;
@@ -15,13 +15,14 @@
     let friendList: friendDTO[] = [];
 
 	async function handleBeforeUnload() {
-	        await postApi({
+	        await petchApi({
 	            path: 'user/status/' + userInfo.id,
 	            data: {
 					"user_status": 0,
 				}
         	});
-		}
+	}
+	
     onMount(async () => {
         try {
             userInfo = await auth.isLogin();
