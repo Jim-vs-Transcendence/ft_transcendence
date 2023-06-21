@@ -29,6 +29,12 @@ export class UsersService {
     return true;
   }
 
+  async updateUserStatus(id: string, userStatus: number): Promise<boolean> {
+    const user = this.userRepository.create({ user_status: userStatus });
+    await this.userRepository.update(id, user);
+    return true;
+  }
+
   async saveUser(user: userDTO): Promise<userDTO> {
     return await this.userRepository.save(user);
   }

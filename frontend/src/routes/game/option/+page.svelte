@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { gameClientOption } from '$lib/gameData';
-	import { CreateGameSocket, gameSocketStore } from '$lib/webSocketConnection_game';
+	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 
 	let io_game: Socket;
 
-	const unsubscribe = gameSocketStore.subscribe((_socket: Socket) => {
-		io_game = _socket;
-	});
+	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
+		io_game = _gameSocket;
+	})
+
 
 	let cnt: number = 0;
 
@@ -128,6 +129,10 @@
 	
 	
 	onMount(() => {
+		if (io_game === undefined) {
+			goto('/main');
+		}
+		
 		io_game.emit('optionPageArrived', );
 		
 		io_game.on('gotoMain', (flag: boolean) => {
@@ -143,7 +148,7 @@
 		});
 	});
 
-	onDestroy(unsubscribe)
+	onDestroy(unsubscribeGame)
 </script>
 
 <div class="flex h-screen items-center justify-center">

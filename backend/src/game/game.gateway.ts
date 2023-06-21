@@ -62,7 +62,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const curPlayer: GamePlayerData = this.players.find(data => data.socketId === client.id);
 		if (curPlayer) {
 			const playerIndex: number = this.players.indexOf(curPlayer);
-			this.players.slice(playerIndex);
+			this.players.splice(playerIndex, 1);
 		}
 		else {
 			const destroyedRoom: string = this.roomKey.get(client.id);
@@ -145,6 +145,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
+	@SubscribeMessage('queueOut')
+	clientQueueOut(
+		@ConnectedSocket() client: Socket,
+	) {
+		const curPlayer: GamePlayerData = this.players.find(data => data.socketId === client.id);
+		if (curPlayer) {
+			const playerIndex: number = this.players.indexOf(curPlayer);
+			this.players.splice(playerIndex, 1);
+		}
+	}
+
+
 	@SubscribeMessage('sendGameInvite')
 	sendGameInvite(
 		@ConnectedSocket() client: Socket,
@@ -214,7 +226,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {
 		let room = this.findRoom(gameClientOption._roomName);
 		if (room) {
-			this.service.setOption(room, gameClientOption);
+			if (client.id === room.leftPlayer.socketId) {
+				this.service.setOption(room, gameClientOption);
+			}
 			this.service.optionReady(room, client.id);
 		}
 		else {

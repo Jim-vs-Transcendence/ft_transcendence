@@ -8,17 +8,28 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import type { ChatRoomIF, popupIF } from '$lib/interface';
+	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
+
 
 	let socket: Socket;
+
+	let gameSocket: Socket;
 
 	const unsubscribe = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
 	});
 
+	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
+		gameSocket = _gameSocket;
+	})
+
 	onMount(async () => {
 		try {
 			if (socket === undefined)
 				await CreateSocket(socketStore);
+
+			if (gameSocket === undefined)
+				await CreateGameSocket(gameSocketStore);
 
 			/* ===== room-refresh ===== */
 			socket.on('room-refresh', (data) => {
@@ -44,7 +55,10 @@
 		}
 	});
 
-	onDestroy(unsubscribe);
+	onDestroy(() => {
+		unsubscribe();
+		unsubscribeGame();
+	});
 
 	/* ================================================================================
 									room list

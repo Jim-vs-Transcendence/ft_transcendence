@@ -20,6 +20,8 @@
 	let canvas: HTMLCanvasElement;
 	let ctx: CanvasRenderingContext2D;
 
+	let status: number = 2;
+
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600)
 		{
@@ -41,26 +43,30 @@
 
 </script>
 
-<div class="canvas-container">
-	<div class="canvas-wrapper">
-		<canvas bind:this={canvas} {width} {height} />
-	
+<div>
+	<div class="canvas-container">
+		<div class="canvas-wrapper">
+			<canvas bind:this={canvas} {width} {height} />
+		
+		</div>
 	</div>
-</div>
-<div class="button-container">
-		<button
+	{#if status === 2}
+		<div class="button-container">
+			<button
 			class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
 			data-sveltekit-preload-data="hover"
-		>
+			>
 			retry
-		</button>
-
-		<button
+			</button>
+			
+			<button
 			class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
 			data-sveltekit-preload-data="hover"
-		>
+			>
 			retry
 		</button>
+	</div>
+	{/if}
 </div>
 
 
