@@ -2,24 +2,25 @@
 	import { onMount } from 'svelte';
 	import { afterUpdate } from 'svelte';
 	import { onDestroy } from 'svelte';
-	import type { Socket } from 'socket.io-client';
+	import { io, type Socket } from 'socket.io-client';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption } from '$lib/gameData';
+	import { auth } from '../../../service/store';
+	import { petchApi } from '../../../service/api';
 	import { goto } from '$app/navigation';
 
 	let io_game: Socket;
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
-	})
-
+	});
 
 	let cnt: number = 0;
 
 	let canvas: HTMLCanvasElement;
-	let	width: number;
+	let width: number;
 	let height: number;
-	let context: any;
+	let context: CanvasRenderingContext2D;
 
 	// Paddle
 	let leftPaddleX: number;
@@ -39,13 +40,14 @@
 	let leftScore: number;
 	let rightScore: number;
 
-	let	rdyFlag: boolean = false;
+	let rdyFlag: boolean = false;
 
-	let	status: number = 0;
+	let status: number = 0;
+
+
 
 	function resizeCanvas() {
-		if (window.innerWidth <= 1200 || window.innerHeight <= 600)
-		{
+		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
 			cnt = -10;
 			alert('👆👆👆👆👆👆 멈춰 👆👆👆👆👆👆👆👆👆');
 		}
@@ -72,7 +74,7 @@
 		canvas.width = Player.canvasWidth;
 		canvas.height = Player.canvasHeight;
 		width = canvas.width;
-		height = canvas.height
+		height = canvas.height;
 		canvas.style.backgroundColor = Player.canvasColor;
 
 		gameClientOption._ballRadius = Player.ballRadius;
@@ -146,14 +148,48 @@
 		}
 	}
 
-	onMount(() => {
+	const handlePopstate = (event: any) => {
+		console.log('Back button clicked');
+		io_game.emit('gameQuit', );
+		goto('/main');
+	};
+
+	let userInfo: UserDTO;
+
+	async function handleBeforeUnload() {
+		await petchApi({
+			path: 'user/status/' + userInfo.id,
+			data: {
+				user_status: 0
+			}
+		});
+	}
+
+	function retryGame() {
+		io_game.emit('gameRestart', gameClientOption._roomName);
+	}
+
+	onMount(async () => {
+		try {
+			//1. token기반
+			userInfo = await auth.isLogin();
+		} catch (error) {
+			alert('오류 : 프로필을 출력할 수 없습니다1');
+			goto('/main');
+		}
+
 		if (io_game === undefined) {
 			goto('/main');
 		}
 
-		canvas = document.createElement('canvas');
-		context = canvas.getContext('2d');
+		const state = { page: 'home' };
+		const url = `/main`;
+		window.history.pushState(state, '', url);
 
+		window.addEventListener('popstate', handlePopstate);
+
+		canvas = document.createElement('canvas');
+		context = canvas.getContext('2d')!;
 		document.body.appendChild(canvas);
 
 		window.addEventListener('resize', resizeCanvas);
@@ -162,7 +198,8 @@
 		io_game.emit('inGamePageArrived', gameClientOption._roomName);
 
 		io_game.on('gotoMain', (flag: boolean) => {
-			if (flag) goto('/main');
+			if (flag)
+				goto('/main');
 		});
 
 		io_game.on('gameDraw', (Player: any) => {
@@ -191,11 +228,18 @@
 			status = 2;
 			setEndGame(flag);
 		});
+
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
 	});
 
 	onDestroy(() => {
-		io_game.disconnect();
+		// io_game.disconnect();
 		document.body.removeChild(canvas);
+		window.removeEventListener('popstate', handlePopstate);
+		window.removeEventListener('resize', resizeCanvas);
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();
 	});
@@ -204,7 +248,6 @@
 	// 	// Code to handle updates or re-renders, if needed
 	// });
 </script>
-
 
 <div>
 	<div class="canvas-container">
@@ -216,23 +259,20 @@
 		{#if status === 0}
 			준비하려면 Enter 누르세요
 		{:else if status === 1}
-			<div>
-				player1
-			</div>
-			<div>
-				player2
-			</div>
+			<div>player1</div>
+			<div>player2</div>
 		{:else if status === 2}
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
 				data-sveltekit-preload-data="hover"
-			>
+				>
 				retry
 			</button>
-	
+			
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
 				data-sveltekit-preload-data="hover"
+				on:click={retryGame}
 			>
 				retry
 			</button>
@@ -240,8 +280,6 @@
 	</div>
 </div>
 
-
-	
 <style>
 	.container {
 		display: flex;

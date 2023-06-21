@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { auth } from '../../../service/store';
+	import { petchApi } from '../../../service/api';
 	import { gameClientOption } from '$lib/gameData';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import type { Socket } from 'socket.io-client';
@@ -126,9 +128,27 @@
 		// ballSizeEmit();
 	}
 
+	async function handleBeforeUnload() {
+		await petchApi({
+			path: 'user/status/' + userInfo.id,
+			data: {
+				"user_status": 0,
+			}
+		});
+	}
 	
-	
-	onMount(() => {
+	let userInfo : UserDTO;
+
+	onMount(async() => {
+		try{
+			//1. token기반
+			userInfo = await auth.isLogin();
+		}
+		catch(error){
+			alert('오류 : 프로필을 출력할 수 없습니다1');
+			goto('/main');
+		}
+
 		if (io_game === undefined) {
 			goto('/main');
 		}
@@ -146,6 +166,11 @@
 				goto('/game/inGame');
 			}
 		});
+
+		window.addEventListener('beforeunload', handleBeforeUnload);
+			return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
 	});
 
 	onDestroy(unsubscribeGame)

@@ -38,10 +38,11 @@ export class GamePlayerData {
 }
 
 export class GamePlayerScoreData {
-	player1Id: string;
-	player2Id: string;
-	player1Score: number;
-	player2Score: number;
+	player1: string;
+	player2: string;
+	player1_score: number;
+	player2_score: number;
+	game_type: boolean;
 }
 
 export class GameInvitation {
