@@ -6,12 +6,12 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import type { ChatAuthDTO, ChatMsgIF, ChatUserIF, PayLoadIF } from '$lib/interface';
-	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
-	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
+	// import { popup } from '@skeletonlabs/skeleton';
+	// import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -219,16 +219,6 @@
 				{#if tabSet === 0}
 					{#each chatUserList as chatUser}
 						<ChatUserList {chatUser}/>
-						<!-- <ChatUserOptions {chatUser}/> -->
-						<!-- <div class="card p-4 column-count-1" data-popup={chatUser._user_info.id}>
-							<div><p class="cursor-point" on:click={ () => { fn() }}>profile</p></div>
-							<div><p class="cursor-pointer" on:click={ () => { fn() }}>invite game {chatUser._user_info.id}</p></div>
-							<div><p class="cursor-pointer" on:click={ () => { fn() }}>mute</p></div>
-							<div><p class="cursor-pointer" on:click={ () => { fn() }}>kick</p></div>
-							<div><p class="cursor-pointer" on:click={ () => { fn() }}>ban</p></div>
-							<div><p class="cursor-pointer" on:click={ () => { fn() }}>appoint</p></div>
-							<div class="arrow bg-surface-100-800-token" />
-						</div> -->
 					{/each}
 						<!-- {friend}
 						<ChatUserList friend={friend} userInfo={userInfo} /> -->
@@ -282,19 +272,7 @@
 	</div>
 	<div>
 		<button type="button" on:click={ () => { ft_exit_chat_room()}}   >  뒤로가기 </button>
-		<!-- <div>
-			<button class="btn variant-filled" use:popup={popupFeatured}>Show Popup</button>
-			<div class="card p-4 w-72 shadow-xl" data-popup="popupFeatured">
-				<div><p>Demo Content0</p></div>
-				<div><p>Demo Content1</p></div>
-				<div><p>Demo Content2</p></div>
-				<div><p>Demo Content3</p></div>
-				<div><p>Demo Content4</p></div>
-				<div class="arrow bg-surface-100-800-token" />
-			</div>
-		</div> -->
 	</div>
 </div>
-
 
 <!-- <div bind:this={elemChat} class="overflow-y-auto">(chat)</div> -->
