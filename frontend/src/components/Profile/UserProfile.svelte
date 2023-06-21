@@ -183,10 +183,19 @@
     // 친구 추가
     async function requestFriend() {
         try {
-            await postApi({ path: 'friends/requests' , data:{
-                "user_to" : profile_info.id
-            }
-        });
+			if (friendStat = "pending")
+			{
+				alert("이미 친구신청 했습니다. 어쩌면 저 사람은 당신과 친구가 되고 싶지 않을 수 있습니다.");
+			}
+			else
+			{
+				await postApi({ path: 'friends/requests' , data:{
+							"user_to" : profile_info.id
+	        	    	}
+	    	    	}
+				);
+				friendStat = "pending";
+			}
         } catch (error) {
             alert("친구신청 실패");
         }
