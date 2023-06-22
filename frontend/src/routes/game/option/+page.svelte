@@ -11,8 +11,7 @@
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
-	})
-
+	});
 
 	let cnt: number = 0;
 
@@ -128,33 +127,45 @@
 		// ballSizeEmit();
 	}
 
+	const handlePopstate = (event: any) => {
+		console.log('Back button clicked');
+		io_game.emit('gameQuit');
+		goto('/main');
+	};
+
 	async function handleBeforeUnload() {
 		await petchApi({
 			path: 'user/status/' + userInfo.id,
 			data: {
-				"user_status": 0,
+				user_status: 0
 			}
 		});
 	}
-	
-	let userInfo : UserDTO;
 
-	onMount(async() => {
-		try{
+	let userInfo: UserDTO;
+	// 옵션 페이지에서만 작동 안 함. 왜
+	onMount(async () => {
+		if (io_game === undefined) {
+			console.log('user refresh');
+			goto('/main');
+		}
+
+		try {
 			//1. token기반
 			userInfo = await auth.isLogin();
-		}
-		catch(error){
+		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
 			goto('/main');
 		}
 
-		if (io_game === undefined) {
-			goto('/main');
-		}
-		
-		io_game.emit('optionPageArrived', );
-		
+		const state = { page: 'home' };
+		const url = `/main`;
+		window.history.pushState(state, '', url);
+
+		window.addEventListener('popstate', handlePopstate);
+
+		io_game.emit('optionPageArrived');
+
 		io_game.on('gotoMain', (flag: boolean) => {
 			if (flag) {
 				goto('/main');
@@ -168,12 +179,12 @@
 		});
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
-			return () => {
+		return () => {
 			window.removeEventListener('beforeunload', handleBeforeUnload);
 		};
 	});
 
-	onDestroy(unsubscribeGame)
+	onDestroy(unsubscribeGame);
 </script>
 
 <div class="flex h-screen items-center justify-center">

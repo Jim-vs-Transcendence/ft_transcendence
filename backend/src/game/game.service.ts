@@ -81,7 +81,6 @@ export class GameService {
 	// 서비스로 가는데, 지우는 건 gateway가 해줘야 됨
 	public endGame(room: GameRoom) {
 		// 재시작 여부 판단 로직 추가
-		console.log('endGame', room);
 		this.myGameGateway.server.to(room.leftPlayer.socketId).emit('gotoMain', true);
 		this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gotoMain', true);
 		this.myGameGateway.roomKey.delete(room.leftPlayer.socketId);
@@ -209,7 +208,6 @@ export class GameService {
 					room.rightPlayer.updateData.moveData.ballMoveX = false;
 				}
 			}
-			console.log(room.leftPlayer);
 			this.myGameGateway.server.to(room.leftPlayer.socketId).emit('ballMove', room.leftPlayer.updateData.moveData);
 			this.myGameGateway.server.to(room.rightPlayer.socketId).emit('ballMove', room.rightPlayer.updateData.moveData);
 		}

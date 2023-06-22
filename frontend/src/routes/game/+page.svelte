@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { afterUpdate } from 'svelte';
-	import { onDestroy } from 'svelte';
 	import type { Socket } from 'socket.io-client';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { goto } from '$app/navigation';
@@ -19,6 +18,12 @@
 	const main = async () => {
 		io_game.emit('queueOut', );
 		await goto('/main');
+	};
+
+	const handlePopstate = (event: any) => {
+		console.log('Back button clicked');
+		io_game.emit('queueOut', );
+		goto('/main');
 	};
 
 	async function handleBeforeUnload() {
@@ -45,6 +50,12 @@
 		if (io_game === undefined) {
 			goto('/main');
 		}
+
+		const state = { page: 'home' };
+		const url = `/main`;
+		window.history.pushState(state, '', url);
+
+		window.addEventListener('popstate', handlePopstate);
 
 		io_game.emit('pushMatchList', );
 
