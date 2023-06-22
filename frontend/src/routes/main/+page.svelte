@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { AppShell } from '@skeletonlabs/skeleton';
+	import { AppShell, Modal, type ModalComponent, type ModalSettings } from '@skeletonlabs/skeleton';
 	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
 	import { getApi, petchApi, postApi, delApi } from '../../service/api';
 	import { goto } from '$app/navigation';
-	import Popup from '../../components/Chat/ChatRoomCreateModal.svelte';
+	import RoomCreatePopup from '../../components/Chat/ChatRoomCreateModal.svelte';
 	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
@@ -75,29 +75,8 @@
 	/* ================================================================================
 									room create
 	   ================================================================================ */
-
-	let room_name: string = '';
-	let room_password: string = '';
-	
-	function CreateRoom() {
-		if (!room_name) {
-			alert('방이름을 입력하세요');
-			return;
-		}
-		let send_msg: ChatRoomJoinIF = {
-			_room_name: room_name,
-			_room_password: room_password,
-			_pass: false
-		};
-		socket.emit('room-create', send_msg);
-		room_name = '';
-		room_password = '';
-		popup_data._active = false;
-	}
-
-	function ft_room_create_keydown(e: KeyboardEvent) {
-		if (e.keyCode != 13) return;
-		CreateRoom();
+	function CreateRoom(room_join_data : ChatRoomJoinIF) {
+		socket.emit('room-create', room_join_data);
 	}
 
 	/* ================================================================================
@@ -109,6 +88,7 @@
 		room_select._pass = false;
 		socket.emit('room-join', room_select);
 	}
+	
 	function join_pop_password(room_select: ChatRoomJoinIF) {
 		if (!popup_data._option._password)
 			popup_data._message = '비밀번호 입력';
@@ -130,35 +110,43 @@
 	}
 
 	/* ================================================================================
-									room pop
+									room modal
 	   ================================================================================ */
 
-	let popup_data: CreateRoomPopupIF = {
-		_active: false,
-		_message: '',
-		_option: {
-			_index: 0,
-			_password: '',
-			_room: {
-				_name: '',
-				_password: '',
-				_users: [],
-				_pass: false
-			}
-		}
-	};
+	function ft_room_join_modal_trigger() {
+		const modalComponent: ModalComponent = {
+			// Pass a reference to your custom component
+			ref: RoomCreatePopup,
+			// Add the component properties as key/value pairs
+			props: { background: 'bg-red-500' },
+			// Provide a template literal for the default component slot
+			slot: '<p>Skeleton</p>'
+		};
+		const modal: ModalSettings = {
+			type: 'component',
+			// Pass the component directly:
+			component: modalComponent,
+			response: (r: Object) => { console.log(r);}
+		};
+		modalStore.trigger(modal);
+	}
 
-	let ClosePopup = (event: any) => {
-		popup_data._active = false;
-		room_name = '';
-		room_password = '';
-		join_password = '';
-	};
-
-	function ft_popup_create() {
-		popup_data._active = true;
-		popup_data._message = '방 생성';
-		popup_data._option._index = 1;
+	function ft_room_create_modal_trigger() {
+		const modalComponent: ModalComponent = {
+			// Pass a reference to your custom component
+			ref: RoomCreatePopup,
+			// Add the component properties as key/value pairs
+			props: { background: 'bg-red-500' },
+			// Provide a template literal for the default component slot
+			slot: '<p>Skeleton</p>'
+		};
+		const modal: ModalSettings = {
+			type: 'component',
+			// Pass the component directly:
+			component: modalComponent,
+			response: (r: Object) => { console.log(r);}
+		};
+		modalStore.trigger(modal);
 	}
 </script>
 
@@ -170,36 +158,23 @@
 <!-- background 투명하게 변경할 것 -->
 <div>
 	<div class="button-container">
-		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
+		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_room_create_modal_trigger}>방 만들기</button>
 	</div>
 	<AppShell class="max-h-[80%]  overflow-auto">
 		<slot />
 		<!-- <lu> -->
 			<div class="grid max-h-[70%] max-w-[70%] overflow-auto">
-				
 				{#each rooms_list as room}
-				<div class="logo-item m-1 variant-filled-surface cursor-pointer" id="room"
-				on:mousedown={() => { JoinRoom(room); }}>
-					{room._name}
-				</div>
+					<div class="logo-item m-1 variant-filled-surface cursor-pointer" id="room" on:mousedown={() => { JoinRoom(room); }}>
+						{room._room_name}
+					</div>
 				{/each}
 			</div>
 		</AppShell>
 	</div>
 
-<Popup bind:property={popup_data} on:mousedown={ClosePopup}>
-	{#if popup_data._option._index == 1}
-		<input type="text" on:keydown={ft_room_create_keydown} bind:value={room_name} />
-		<input type="password" on:keydown={ft_room_create_keydown} bind:value={room_password} />
-		<button on:click={CreateRoom}>방만들기</button>
-	{/if}
-	{#if popup_data._option._index == 2}
-		<form>
-			<input type="password" on:keydown={ft_room_join_keydown} bind:value={join_password} />
-			<button on:click={ft_room_pass}> 확인</button>
-		</form>
-	{/if}
-</Popup>
+
+<Modal/>
 
 <style>
   .button-container {

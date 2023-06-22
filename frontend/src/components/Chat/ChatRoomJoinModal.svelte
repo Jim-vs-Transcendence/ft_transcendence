@@ -39,10 +39,6 @@
 		<!-- Enable for debugging: -->
 		<form class="modal-form {cForm}">
 			<label class="label">
-				<span>대화방 이름</span>
-				<input class="input" type="text" bind:value={roomData._room_name} placeholder="대화방 이름" />
-			</label>
-			<label class="label">
 				<span>대화방 비밀번호</span>
 				<input class="input" type="tel" bind:value={roomData._room_password} placeholder="대화방 비밀번호" />
 			</label>
