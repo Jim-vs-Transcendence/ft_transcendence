@@ -5,7 +5,7 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import type { ChatAuthDTO, ChatMsgIF, ChatUserIF, RoomCheckIF } from '$lib/interface';
+	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, ChatUserIF, RoomCheckIF } from '$lib/interface';
 	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
@@ -17,7 +17,7 @@
 
 	let socket: Socket;
 	let userid: string
-	let room : ChatRoomInfo;
+	let room : ChatRoomIF;
 
 	const unsubscribe = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
@@ -41,8 +41,14 @@
 		socket.emit("chat-refresh", $page.params['chat_room']);
 
 		/* ===== chat-refresh ===== */
-		socket.on('chat-refresh', (data: ChatRoomInfo) => {
-			room = data;
+		socket.on('chat-refresh', (data: ChatRoomIF | string) => {
+			if (typeof data === 'object')
+				room = data;
+			else
+			{
+				console.log("chat refresh error");
+				socket.emit("chat-refresh", $page.params['chat_room']);
+			}
 		})
 
 		/* ===== chat-msg-even ===== */

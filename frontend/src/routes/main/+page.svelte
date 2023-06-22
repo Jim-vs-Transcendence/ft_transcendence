@@ -3,16 +3,16 @@
 	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
 	import { getApi, petchApi, postApi, delApi } from '../../service/api';
 	import { goto } from '$app/navigation';
-	import Popup from '$lib/popup.svelte';
+	import Popup from '../../components/Chat/ChatRoomCreateModal.svelte';
 	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
-	import type { ChatRoomIF, popupIF } from '$lib/interface';
+	import type { ChatRoomIF, ChatRoomJoinIF, CreateRoomPopupIF } from '$lib/interface';
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
+	import { modalStore } from '@skeletonlabs/skeleton';
 
 
 	let socket: Socket;
-
 	let gameSocket: Socket;
 
 	const unsubscribe = socketStore.subscribe((_socket: Socket) => {
@@ -38,18 +38,18 @@
 			socket.emit('room-refresh', 'page load chat list');
 
 			/* ===== room-create ===== */
-			socket.on('room-create', (data: ChatRoomIF) => {
+			socket.on('room-create', (data: ChatRoomJoinIF) => {
 				if (!data._pass)
 					return alert(data._room_name + '중복된 이름입니다');
 				goto('/main/' + data._room_name);
 			});
 
 			/* ===== room-join ===== */
-			socket.on('room-join', (data: ChatRoomIF) => {
+			socket.on('room-join', (data: ChatRoomJoinIF) => {
 				if (!data._room_name)
 					return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
 				if (!data._pass) return join_pop_password(data);
-				goto('/main/' + data._room_name);
+					goto('/main/' + data._room_name);
 			});
 		} catch (error) {
 			console.log('socket loading error.');
@@ -57,6 +57,12 @@
 	});
 
 	onDestroy(() => {
+		/* ===== room-refresh ===== */
+		socket.off('room-refresh');
+		/* ===== room-create ===== */
+		socket.off('room-create');
+		/* ===== room-join ===== */
+		socket.off('room-join');
 		unsubscribe();
 		unsubscribeGame();
 	});
@@ -64,7 +70,7 @@
 	/* ================================================================================
 									room list
 	   ================================================================================ */
-	let rooms_list: ChatRoomIF[] = [];
+	let rooms_list: ChatRoomJoinIF[] = [];
 
 	/* ================================================================================
 									room create
@@ -72,15 +78,15 @@
 
 	let room_name: string = '';
 	let room_password: string = '';
+	
 	function CreateRoom() {
 		if (!room_name) {
 			alert('방이름을 입력하세요');
 			return;
 		}
-		let send_msg: ChatRoomIF = {
+		let send_msg: ChatRoomJoinIF = {
 			_room_name: room_name,
 			_room_password: room_password,
-			_room_users: [],
 			_pass: false
 		};
 		socket.emit('room-create', send_msg);
@@ -99,13 +105,15 @@
 	   ================================================================================ */
 
 	let join_password: string = '';
-	function JoinRoom(room_select: ChatRoomIF) {
+	function JoinRoom(room_select: ChatRoomJoinIF) {
 		room_select._pass = false;
 		socket.emit('room-join', room_select);
 	}
-	function join_pop_password(room_select: ChatRoomIF) {
-		if (!popup_data._option._password) popup_data._message = '비밀번호 입력';
-		else popup_data._message = '비밀번호 틀렷습니다';
+	function join_pop_password(room_select: ChatRoomJoinIF) {
+		if (!popup_data._option._password)
+			popup_data._message = '비밀번호 입력';
+		else
+			popup_data._message = '비밀번호가 틀렸습니다';
 		popup_data._option._room = room_select;
 		popup_data._option._index = 2;
 		popup_data._active = true;
@@ -125,26 +133,28 @@
 									room pop
 	   ================================================================================ */
 
-	let popup_data: popupIF = {
+	let popup_data: CreateRoomPopupIF = {
 		_active: false,
 		_message: '',
 		_option: {
 			_index: 0,
 			_password: '',
 			_room: {
-				_room_name: '',
-				_room_password: '',
-				_room_users: [],
+				_name: '',
+				_password: '',
+				_users: [],
 				_pass: false
 			}
 		}
 	};
+
 	let ClosePopup = (event: any) => {
 		popup_data._active = false;
 		room_name = '';
 		room_password = '';
 		join_password = '';
 	};
+
 	function ft_popup_create() {
 		popup_data._active = true;
 		popup_data._message = '방 생성';
@@ -159,7 +169,6 @@
 <!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
 <!-- background 투명하게 변경할 것 -->
 <div>
-
 	<div class="button-container">
 		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
 	</div>
@@ -171,7 +180,7 @@
 				{#each rooms_list as room}
 				<div class="logo-item m-1 variant-filled-surface cursor-pointer" id="room"
 				on:mousedown={() => { JoinRoom(room); }}>
-					{room._room_name}
+					{room._name}
 				</div>
 				{/each}
 			</div>
@@ -190,7 +199,6 @@
 			<button on:click={ft_room_pass}> 확인</button>
 		</form>
 	{/if}
-	
 </Popup>
 
 <style>

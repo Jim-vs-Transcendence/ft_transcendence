@@ -4,7 +4,7 @@ import { Socket } from 'socket.io';
 import userDTO from 'src/users/user.dto';
 
 /* ================================================================================
-								room
+								chat room join interface
    ================================================================================ */
 
 export class ChatRoomDTO {
@@ -16,7 +16,7 @@ export class ChatRoomDTO {
 	_password: string;
 
 	@IsObject()
-	_user: Map<string, userDTO>;
+	_users: Map<string, userDTO>;
 
 	@IsObject()
 	_auth_user: Map<string, number>;
@@ -41,35 +41,26 @@ export class ChatRoomJoinDTO {
 
 
 /* ================================================================================
-								chat
+								In chat room
    ================================================================================ */
-
-export class ChatRefreshDTO {
-	@IsString()
-	_name : string = "";
-
-	@IsString()
-	_ban : string [] = [];
-
-	@IsObject()
-	_user : ChatUser [] = [];
-}
-
-export class ChatMsgDTO {
-	@IsString()
-	readonly _msg: string;
-	@IsString()
-	readonly _room_name: string;
-	@IsString()
-	_user_name: string;
-}
-
+   
 export class RoomCheckDTO {
 	@IsString()
 	readonly _room: string;
 
 	@IsBoolean()
 	_check: boolean;
+}
+
+export class ChatMsgDTO {
+	@IsString()
+	readonly _msg: string;
+
+	@IsString()
+	readonly _room_name: string;
+
+	@IsString()
+	_user_name: string;
 }
 
 export class ChatAuthDTO {

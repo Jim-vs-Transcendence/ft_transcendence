@@ -1,14 +1,15 @@
 <script lang="ts">
-	export let property :popupIF = {
+	import type { CreateRoomPopupIF } from "$lib/interface";
+	export let property : CreateRoomPopupIF = {
 		_active: false, 
 		_message: "", 
 		_option: { 
 			_password: "", 
 			_index: 0,
 			_room: {
-				_room_name: "",
-				_room_password: "",
-				_room_users: [],
+				_name: "",
+				_password: "",
+				_users: new Map<string>,
 				_pass: false
 			}
 		}

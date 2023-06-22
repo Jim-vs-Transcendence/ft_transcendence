@@ -5,13 +5,21 @@ import '../service/userDTO.js'
    ================================================================================ */
 
 interface ChatRoomIF {
+	_name: string;
+	_password: string;
+	_users: Map<string, userDTO>;
+	_auth_user: Map<string, number>;
+	_mute_user: string[];
+	_ban_user: string[];
+}
+
+interface ChatRoomJoinIF {
 	_room_name: string;
 	_room_password: string;
-	_room_users: string[];
 	_pass: boolean;
 }
 
-interface popupIF {
+interface CreateRoomPopupIF {
 	_active: boolean;
 	_message: string;
 	_option: {
