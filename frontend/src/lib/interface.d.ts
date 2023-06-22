@@ -27,7 +27,7 @@ interface ChatMsgIF {
 	_room_name: string;
 }
 
-interface PayLoadIF {
+interface RoomCheckIF {
 	_url: string;
 	_check: boolean;
 }

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
 import { ConnectionClosedEvent } from 'typeorm';
-import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, PayLoadDTO, ChatRoom, ChatAuthDTO, ChatRefreshDTO, ChatUser } from './dto/chat.dto';
+import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, PayLoadDTO, ChatRoom, ChatAuthDTO, ChatRefreshDTO, ChatUser, RoomCheckDTO } from './dto/chat.dto';
 import { UsersService } from 'src/users/users.service';
 '../../'
 // let channel_list = new Map<string, ChatRoom>();
@@ -464,7 +464,7 @@ export class ChatGateway
 	@SubscribeMessage('chat-connect')
 	ft_chat_connect(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() payload: PayLoadDTO,
+		@MessageBody() payload: RoomCheckDTO,
 	) {
 		if (!this.server.adapter.rooms.has(payload._room)) {
 			// console.log("\x1b[38;5;196m Error :: \x1b[0m chat-connect url is not enable");

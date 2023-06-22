@@ -1,12 +1,13 @@
 
 import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { Socket } from 'socket.io';
+import userDTO from 'src/users/user.dto';
 
 /* ================================================================================
 								room
    ================================================================================ */
 
-export class ChatRoom {
+export class ChatRoomDTO {
 	@IsString()
 	_name: string;
 
@@ -15,7 +16,7 @@ export class ChatRoom {
 	_password: string;
 
 	@IsObject()
-	_user: Map<string, Socket>;
+	_user: Map<string, userDTO>;
 
 	@IsObject()
 	_auth_user: Map<string, number>;
@@ -27,39 +28,21 @@ export class ChatRoom {
 	_ban_user: string[];
 }
 
-export class ChatRoomDTO {
+export class ChatRoomJoinDTO {
 	@IsString()
 	_room_name: string;
 
 	@IsString()
 	_room_password: string;
 
-	@IsString()
-	_room_users: string[];
-
 	@IsBoolean()
 	_pass: boolean;
-
 }
 
 
 /* ================================================================================
 								chat
    ================================================================================ */
-
-export class ChatUser {
-	@IsString()
-	_name : string = "";
-
-	@IsString()
-	_avatar : string = "";
-
-	@IsNumber()
-	_auth : number = 0;
-
-	@IsBoolean()
-	_mute : boolean = false;
-}
 
 export class ChatRefreshDTO {
 	@IsString()
@@ -81,7 +64,7 @@ export class ChatMsgDTO {
 	_user_name: string;
 }
 
-export class PayLoadDTO {
+export class RoomCheckDTO {
 	@IsString()
 	readonly _room: string;
 

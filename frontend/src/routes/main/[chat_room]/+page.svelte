@@ -5,7 +5,7 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import type { ChatAuthDTO, ChatMsgIF, ChatUserIF, PayLoadIF } from '$lib/interface';
+	import type { ChatAuthDTO, ChatMsgIF, ChatUserIF, RoomCheckIF } from '$lib/interface';
 	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
@@ -28,10 +28,11 @@
 			goto("/main");
 		userid = socket.io.engine.transport.query["_userId"];
 		/* ===== chat-connect ===== */
-		socket.on('chat-connect', (data: PayLoadIF) => {
-			if (!data._check) console.log('PayLoad false');
-			// or popup 잘못된 접근입니다 확인 => goto (/main);
-			
+		socket.on('chat-connect', (data: RoomCheckIF) => {
+			if (!data._check) {
+				alert("잘못된 접근입니다");
+				goto("/main");
+			}
 		});
 		chat_data._room_name = $page.params['chat_room'];
 		
