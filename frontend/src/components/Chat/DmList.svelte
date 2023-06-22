@@ -58,7 +58,7 @@
         width="w-7"
         rounded="rounded-full"
         />
-        <!-- on:click={() => goProfile(userInfo.id)} -->
+        on:click={() => goProfile(userInfo.id)}
     <span class="flex-auto">
         <dt>
             {userInfo.id}

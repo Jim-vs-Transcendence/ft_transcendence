@@ -69,7 +69,7 @@ let tabSet: number = 0;
         <header class="card-footer  top-0 w-full">
           <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
             <input type="search" placeholder="Search..." />
-            <button class="variant-filled-surface">Add</button>
+            <button type="button" class="variant-filled-surface">Add</button>
           </div>
         </header>
         <main>
