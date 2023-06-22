@@ -69,7 +69,7 @@ let tabSet: number = 0;
       {/each}
     {:else if tabSet === 1}
       <div>
-        <div class="">
+        <div class="overflow-y-scroll">
           <dl class="list-dl">
             <!-- {#each chatUserList as chatUser} -->
             {#each [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9] as num}
@@ -81,7 +81,6 @@ let tabSet: number = 0;
         </div>
         <div>
           <footer class="card-footer fixed bottom-0 w-full">(footer)</footer>
-
         </div>
       </div>
     
