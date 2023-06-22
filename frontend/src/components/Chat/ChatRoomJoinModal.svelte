@@ -17,14 +17,9 @@
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onRoomDataSubmit(): void {
-		if (!roomData._room_name) {
-			alert('방이름을 입력하세요');
-		}
-		else {
-			if ($modalStore[0].response)
-				$modalStore[0].response(roomData);
-			modalStore.close();
-		}
+		if ($modalStore[0].response)
+			$modalStore[0].response(roomData);
+		modalStore.close();
 	}
 
 	// Base Classes

@@ -47,7 +47,6 @@ export class ChatGateway
 			const userid : string | String[] = client.handshake.query._userId;
 			if (typeof userid === "string")
 				this.ft_channel_leave(room, userid);
-			this.server.emit('room-refresh', this.ft_room_list());
 		})
 	}
 
@@ -217,7 +216,10 @@ export class ChatGateway
 		channel_list.forEach((val, key) => {
 			let room: ChatRoomJoinDTO = new ChatRoomJoinDTO();
 			room._room_name = val._name;
-			room._room_password = "";
+			if (val._password)
+				room._is_passworded = true;
+			else
+				room._is_passworded = false;
 			room._pass = false;
 			room_list.push(room);
 		})

@@ -48,7 +48,8 @@
 			socket.on('room-join', (data: ChatRoomJoinIF) => {
 				if (!data._room_name)
 					return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
-				if (!data._pass) return join_pop_password(data);
+				if (!data._pass) 
+					return ft_room_join_modal_trigger();
 					goto('/main/' + data._room_name);
 			});
 		} catch (error) {
@@ -144,7 +145,7 @@
 			type: 'component',
 			// Pass the component directly:
 			component: modalComponent,
-			response: (r: Object) => { console.log(r);}
+			response: (r: ChatRoomJoinIF) => { console.log(r); }
 		};
 		modalStore.trigger(modal);
 	}
