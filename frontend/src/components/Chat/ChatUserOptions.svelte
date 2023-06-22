@@ -1,8 +1,5 @@
 <script lang="ts">
     import type { ChatUserIF }  from '$lib/interface';
-    import type { PopupSettings } from '@skeletonlabs/skeleton';
-    // import { popup } from '@skeletonlabs/skeleton';
-    // import { storePopup } from '@skeletonlabs/skeleton';
     
     export let chatUser: ChatUserIF;
     $: chatUser; // 어떤 차이가 있는지 확인 필요

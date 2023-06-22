@@ -23,7 +23,7 @@
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
   //DM component
-  import DmList from '../Chat/DmList.svelte';
+  import DmUser from '../Chat/DmUser.svelte';
 
   // Autocomplete
   import { Autocomplete } from '@skeletonlabs/skeleton';
@@ -80,22 +80,20 @@ let tabSet: number = 0;
               <!-- <AppShell>...</AppShell> -->
               <!-- {#each chatUserList as chatUser} -->
               {#each [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9] as num}
-                <DmList />
+                <DmUser />
               {/each}
-              <!-- <DmList chatUser={chatUser}/> -->
+              <!-- <DmUser chatUser={chatUser}/> -->
               <!-- {/each} -->
             </dl>
           </div>
         </main>
       </div>
     {:else if tabSet === 1}
-      {#each friendList as friend}
         <dl class="list-dl">
           {#each friendList as friend}
             <FriendsList friend={friend} userInfo={userInfo} />
           {/each}
         </dl>
-      {/each}
     {/if}
   </svelte:fragment>
 </TabGroup>

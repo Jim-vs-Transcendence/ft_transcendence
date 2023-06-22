@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { DmChatStoreIF } from '$lib/interface';
+    import DmUserPopup from './DmUserPopup.svelte';
 
     // export let DmChatStore: DmChatStoreIF;
     // export let userInfo: UserDTO; // 실제로 api요청해서 데이터 가져올때 필요 
@@ -28,6 +29,10 @@
     // import { storePopup } from '@skeletonlabs/skeleton';
     // import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 
+    // DM chat popup
+    import { popup } from '@skeletonlabs/skeleton';
+    import type { PopupSettings } from '@skeletonlabs/skeleton';
+
     // storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
     /*
         - dummy data 
@@ -45,6 +50,15 @@
         user_status: 0,
     };
 
+    const dmPopupFeatured: PopupSettings = {
+		// Represents the type of event that opens/closed the popup
+		event: 'click',
+		// Matches the data-popup value on your popup element
+		target: userInfo.id,
+		// Defines which side of your trigger the popup will appear
+		placement: 'bottom',
+	};
+
     function dmWindow() {
 
     }
@@ -52,16 +66,21 @@
 
 </script>
 
-<div class="cursor-pointer hover:variant-glass-surface" on:click={dmWindow} >
+<div class="cursor-pointer hover:variant-glass-surface" use:popup={dmPopupFeatured} >
     <Avatar
         src={userInfo.avatar}
         width="w-7"
         rounded="rounded-full"
         />
-        on:click={() => goProfile(userInfo.id)}
+        <!-- on:click={() => goProfile(userInfo.id)} -->
     <span class="flex-auto">
         <dt>
             {userInfo.id}
         </dt>
     </span>
 </div>
+<!-- tmp -->
+<DmUserPopup dmUserInfo={userInfo}/>
+<!-- To be -->
+<!-- dmUserDmChatStore -->
+<!-- <DmUserPopup dmUserInfo={}/> -->
