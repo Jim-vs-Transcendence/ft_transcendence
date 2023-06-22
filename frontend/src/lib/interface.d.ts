@@ -16,6 +16,7 @@ interface ChatRoomIF {
 interface ChatRoomJoinIF {
 	_room_name: string;
 	_room_password: string;
+	_is_passworded: boolean;
 	_pass: boolean;
 }
 
