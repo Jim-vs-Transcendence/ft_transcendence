@@ -188,9 +188,7 @@
 
 		window.addEventListener('popstate', handlePopstate);
 
-		canvas = document.createElement('canvas');
 		context = canvas.getContext('2d')!;
-		document.body.appendChild(canvas);
 
 		window.addEventListener('resize', resizeCanvas);
 		window.addEventListener('keydown', handleKeyPress);
@@ -249,12 +247,10 @@
 	// });
 </script>
 
-<div>
-	<div class="canvas-container">
-		<div class="canvas-wrapper">
-			<canvas bind:this={canvas} {width} {height} />
-		</div>
-	</div>
+<div class="flex flex-col justify-center items-center h-screen bg-gray-200">
+    <div class="relative flex items-center justify-center w-full">
+        <canvas bind:this={canvas} {width} {height}></canvas>
+    </div>
 	<div class="button-container">
 		{#if status === 0}
 			준비하려면 Enter 누르세요
