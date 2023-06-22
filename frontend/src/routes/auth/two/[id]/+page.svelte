@@ -10,15 +10,14 @@
   let authKey : string;
   let errorClass = "";
 
-  async function handleSubmit(input: string): Promise<void> {    
+  async function handleSubmit(input: string): Promise<void> {
     try {
-        response = await postApi({ path: 'two-factor/authentication/' + id, data: 
+        response = await postApi({ path: 'two-factor/authentication/' + id, data:
           {
             "twoFactorCode": input
           }
         }
       );
-    //  나중에 백에서 처리하게 변경
     if (response === true)
     {
       goto(`../login/${id}`);
@@ -50,7 +49,7 @@
         stiffness: 0.05,
         damping: 0.2
     });
-  
+
 </script>
 
 <div class="wrapper" on:mousemove="{e => {
