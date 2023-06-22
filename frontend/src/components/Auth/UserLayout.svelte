@@ -75,6 +75,9 @@ let tabSet: number = 0;
         <main>
           <div class="overflow-y-scroll">
             <dl class="list-dl">
+              <!-- this things for DM chat window -->
+              <!-- <Drawer /> -->
+              <!-- <AppShell>...</AppShell> -->
               <!-- {#each chatUserList as chatUser} -->
               {#each [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9] as num}
                 <DmList />

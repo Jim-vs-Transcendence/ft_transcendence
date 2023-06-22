@@ -33,22 +33,26 @@
         - dummy data 
     */
     const userInfo: UserDTO =
-		{
-            id: "jim",
-            nickname: "nickname jim",
-            avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
-            email: "email",
-            level: 0,
-            win: 0,
-            lose: 0,
-            two_factor: false,
-            user_status: 0,
-		};
+    {
+        id: "jim",
+        nickname: "nickname jim",
+        avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
+        email: "email",
+        level: 0,
+        win: 0,
+        lose: 0,
+        two_factor: false,
+        user_status: 0,
+    };
+
+    function dmWindow() {
+
+    }
 
 
 </script>
 
-<div>
+<div class="cursor-pointer hover:variant-glass-surface" on:click={dmWindow} >
     <Avatar
         src={userInfo.avatar}
         width="w-7"

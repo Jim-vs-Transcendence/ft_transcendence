@@ -157,25 +157,38 @@
 
 <!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
 <!-- background 투명하게 변경할 것 -->
-<div>
 
-	<div class="button-container">
+<!-- <div class="button-container">
 		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
 	</div>
-	<AppShell class="max-h-[80%] overflow-auto">
+	<AppShell class="">
 		<slot />
-		<!-- <lu> -->
-			<div class="grid max-h-[70%] max-w-[70%] overflow-auto">
-				
-				{#each rooms_list as room}
-				<div class="logo-item m-1 variant-filled-surface cursor-pointer" id="room"
-				on:mousedown={() => { JoinRoom(room); }}>
-					{room._room_name}
-				</div>
-				{/each}
+		<div class="grid max-h-[70%] max-w-[70%] overflow-auto">
+			
+			{#each rooms_list as room}
+			<div class="logo-item m-1 variant-filled-surface cursor-pointer" id="room"
+			on:mousedown={() => { JoinRoom(room); }}>
+				{room._room_name}
 			</div>
-		</AppShell>
-	</div>
+			{/each}
+		</div>
+	</AppShell> -->
+	<!-- <div> -->
+<!-- <div> -->
+
+<!-- <AppShell class=""> -->
+<div class="button-container">
+	<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
+</div>
+<div class="max-h-[80%] grid grid-cols-5 gap-3 overflow-auto">
+	{#each rooms_list as room}
+		<div class="col-start-2 col-span-3 logo-item m-1 variant-filled-surface cursor-pointer" id="room"
+			on:mousedown={() => { JoinRoom(room); }}>
+				{room._room_name} 🔒︎
+		</div>
+	{/each}
+</div>
+<!-- </AppShell> -->
 
 <Popup bind:property={popup_data} on:mousedown={ClosePopup}>
 	{#if popup_data._option._index == 1}
