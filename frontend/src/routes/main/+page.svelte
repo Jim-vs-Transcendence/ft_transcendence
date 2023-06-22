@@ -3,13 +3,15 @@
 	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
 	import { getApi, petchApi, postApi, delApi } from '../../service/api';
 	import { goto } from '$app/navigation';
-	import RoomCreatePopup from '../../components/Chat/ChatRoomCreateModal.svelte';
+	import RoomCreateModal from '../../components/Chat/ChatRoomCreateModal.svelte';
+	import RoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
 	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import type { ChatRoomIF, ChatRoomJoinIF, CreateRoomPopupIF } from '$lib/interface';
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
 	import { modalStore } from '@skeletonlabs/skeleton';
+	import ChatRoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
 
 
 	let socket: Socket;
@@ -39,18 +41,18 @@
 
 			/* ===== room-create ===== */
 			socket.on('room-create', (data: ChatRoomJoinIF) => {
-				if (!data._pass)
-					return alert(data._room_name + '중복된 이름입니다');
 				goto('/main/' + data._room_name);
 			});
 
 			/* ===== room-join ===== */
 			socket.on('room-join', (data: ChatRoomJoinIF) => {
+				console.log('check trigger');
 				if (!data._room_name)
 					return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
 				if (!data._pass) 
-					return ft_room_join_modal_trigger();
-					goto('/main/' + data._room_name);
+					return alert("비밀번호가 일치하지 않습니다.");
+				modalStore.close();
+				goto('/main/' + data._room_name);
 			});
 		} catch (error) {
 			console.log('socket loading error.');
@@ -84,40 +86,22 @@
 									room join
 	   ================================================================================ */
 
-	let join_password: string = '';
 	function JoinRoom(room_select: ChatRoomJoinIF) {
 		room_select._pass = false;
-		socket.emit('room-join', room_select);
-	}
-	
-	function join_pop_password(room_select: ChatRoomJoinIF) {
-		if (!popup_data._option._password)
-			popup_data._message = '비밀번호 입력';
+		if (room_select._is_passworded)
+			ft_room_join_modal_trigger(room_select);
 		else
-			popup_data._message = '비밀번호가 틀렸습니다';
-		popup_data._option._room = room_select;
-		popup_data._option._index = 2;
-		popup_data._active = true;
-	}
-	function ft_room_pass() {
-		popup_data._option._room._room_password = join_password;
-		popup_data._option._password = join_password;
-		socket.emit('room-join', popup_data._option._room);
-	}
-
-	function ft_room_join_keydown(e: KeyboardEvent) {
-		if (e.keyCode != 13) return;
-		ft_room_pass();
+			socket.emit('room-join', room_select);
 	}
 
 	/* ================================================================================
 									room modal
 	   ================================================================================ */
 
-	function ft_room_join_modal_trigger() {
+	function ft_room_join_modal_trigger(room_select: ChatRoomJoinIF) {
 		const modalComponent: ModalComponent = {
 			// Pass a reference to your custom component
-			ref: RoomCreatePopup,
+			ref: RoomJoinModal,
 			// Add the component properties as key/value pairs
 			props: { background: 'bg-red-500' },
 			// Provide a template literal for the default component slot
@@ -127,7 +111,10 @@
 			type: 'component',
 			// Pass the component directly:
 			component: modalComponent,
-			response: (r: Object) => { console.log(r);}
+			response: (_passwd : string) => { 
+				room_select._room_password = _passwd;
+				socket.emit('room-join', room_select);
+			}
 		};
 		modalStore.trigger(modal);
 	}
@@ -135,7 +122,7 @@
 	function ft_room_create_modal_trigger() {
 		const modalComponent: ModalComponent = {
 			// Pass a reference to your custom component
-			ref: RoomCreatePopup,
+			ref: RoomCreateModal,
 			// Add the component properties as key/value pairs
 			props: { background: 'bg-red-500' },
 			// Provide a template literal for the default component slot
@@ -145,7 +132,7 @@
 			type: 'component',
 			// Pass the component directly:
 			component: modalComponent,
-			response: (r: ChatRoomJoinIF) => { console.log(r); }
+			response: CreateRoom
 		};
 		modalStore.trigger(modal);
 	}

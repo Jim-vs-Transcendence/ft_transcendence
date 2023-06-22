@@ -9,17 +9,12 @@
 	import { modalStore } from '@skeletonlabs/skeleton';
 
 	// Form Data
-	const roomData : ChatRoomJoinIF= {
-		_room_name: '',
-		_room_password: '',
-		_pass: false,
-	};
+	let room_passwd : string;
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onRoomDataSubmit(): void {
 		if ($modalStore[0].response)
-			$modalStore[0].response(roomData);
-		modalStore.close();
+			$modalStore[0].response(room_passwd);
 	}
 
 	// Base Classes
@@ -35,13 +30,13 @@
 		<form class="modal-form {cForm}">
 			<label class="label">
 				<span>대화방 비밀번호</span>
-				<input class="input" type="tel" bind:value={roomData._room_password} placeholder="대화방 비밀번호" />
+				<input class="input" type="tel" bind:value={room_passwd} placeholder="대화방 비밀번호" />
 			</label>
 		</form>
 		<!-- prettier-ignore -->
 		<footer class="modal-footer {parent.regionFooter}">
         <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>취소</button>
-        <button class="btn {parent.buttonPositive}" on:click={onRoomDataSubmit}>대화방 생성</button>
+        <button class="btn {parent.buttonPositive}" on:click={onRoomDataSubmit}>대화방 입장</button>
     </footer>
 	</div>
 {/if}

@@ -32,8 +32,11 @@ export class ChatRoomJoinDTO {
 	@IsString()
 	_room_name: string;
 
+	@IsString()
+	_room_password: string;
+
 	@IsBoolean()
-	_is_passworded: string;
+	_is_passworded: boolean;
 
 	@IsBoolean()
 	_pass: boolean;

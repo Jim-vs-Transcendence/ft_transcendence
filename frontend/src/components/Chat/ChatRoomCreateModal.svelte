@@ -7,11 +7,22 @@
 
 	// Stores
 	import { modalStore } from '@skeletonlabs/skeleton';
+	import { socketStore } from '$lib/webSocketConnection_chat';
+	import type { Socket } from 'socket.io-client';
+	import { onDestroy } from 'svelte';
 
 	// Form Data
+
+	let chat_socket : Socket;
+
+	const chat_unsubscribe = socketStore.subscribe((_socket : Socket) => {
+		chat_socket = _socket;
+	})
+
 	const roomData : ChatRoomJoinIF= {
 		_room_name: '',
 		_room_password: '',
+		_is_passworded: false,
 		_pass: false,
 	};
 
@@ -27,6 +38,7 @@
 		}
 	}
 
+	onDestroy(chat_unsubscribe);
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token';

@@ -96,7 +96,7 @@ export class ChatGateway
 	 * @brief 방 생성시 실행
 	 */
 	@SubscribeMessage('room-create')
-	ft_room_create(
+	async ft_room_create(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatRoomJoinDTO,
 	) {
@@ -110,8 +110,8 @@ export class ChatGateway
 		payload._pass = true;
 		client.join(payload._room_name);
 		if (typeof userid === "string") {
-			this.ft_channel_room_create(payload, userid);
-			this.ft_channel_auth_admin(payload._room_name, userid);
+			await this.ft_channel_room_create(payload, userid);
+			await this.ft_channel_auth_admin(payload._room_name, userid);
 		}
 		client.emit('room-create', payload);
 		this.server.emit('room-refresh', this.ft_room_list());
@@ -152,7 +152,7 @@ export class ChatGateway
 	 * @brief 방 접속
 	 */
 	@SubscribeMessage('room-join')
-	ft_room_join(
+	async ft_room_join(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatRoomJoinDTO,
 	) {
@@ -161,8 +161,11 @@ export class ChatGateway
 		if (!this.server.adapter.rooms.has(payload._room_name))
 			return client.emit('room-join', {});
 		if (typeof userid === "string") {
-			if (!this.ft_channel_join(payload, userid))
+			if (! await this.ft_channel_join(payload, userid))
+			{
+				client.emit('room-join', payload);
 				return;
+			}
 			payload._pass = true;
 			client.join(payload._room_name);
 			client.emit('room-join', payload);
