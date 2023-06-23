@@ -1,16 +1,16 @@
 <script lang="ts">
-    import type { ChatUserIF }  from '$lib/interface';
-    import type { PopupSettings } from '@skeletonlabs/skeleton';
-	import { socketStore } from '$lib/webSocketConnection_chat';
-	import type { Socket } from 'socket.io-client';
-	import type { Unsubscriber } from 'svelte/store';
-	import { gameSocketStore } from '$lib/webSocketConnection_game';
-	import { onDestroy } from 'svelte';
-    // import { popup } from '@skeletonlabs/skeleton';
-    // import { storePopup } from '@skeletonlabs/skeleton';
-    
-    export let chatUser: ChatUserIF;
-    $: chatUser; // 어떤 차이가 있는지 확인 필요
+  import type { ChatUserIF }  from '$lib/interface';
+  import type { PopupSettings } from '@skeletonlabs/skeleton';
+  import { socketStore } from '$lib/webSocketConnection_chat';
+  import type { Socket } from 'socket.io-client';
+  import type { Unsubscriber } from 'svelte/store';
+  import { gameSocketStore } from '$lib/webSocketConnection_game';
+  import { onDestroy } from 'svelte';
+  // import { popup } from '@skeletonlabs/skeleton';
+  // import { storePopup } from '@skeletonlabs/skeleton';
+
+  export let chatUser: ChatUserIF;
+  $: chatUser; // 어떤 차이가 있는지 확인 필요
 
 	let chat_socket : Socket;
 	let game_socket : Socket;
@@ -46,11 +46,11 @@
 </script>
 
 <div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
-	<div class="py-2"><p class="cursor-point">profile</p></div>
-	<div class="hover:bg-violet-300"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{ft_invite_user(chatUser._user_info.id)}}>놀이 초대 {chatUser._user_info.id}</button></div>
-	<div class="hover:bg-violet-300"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{ft_mute_user(chatUser._user_info.id)}}>멈춰✋</button></div>
-	<div class="hover:bg-violet-300"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{ft_kick_user(chatUser._user_info.id)}}>내보내기</button></div>
-	<div class="hover:bg-violet-300"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{ft_ban_user(chatUser._user_info.id)}}>영구추방</button></div>
-	<div class="hover:bg-violet-300"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{ft_appoint_user(chatUser._user_info.id)}}>부방장 임명</button></div>
+  <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{fn("invite");}}> 개인정보 </button></div>
+	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{fn("invite");}}>놀이 초대 {chatUser._user_info.id}</button></div>
+	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{fn("mute");}}>멈춰✋</button></div>
+	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{fn("kick");}}>내보내기</button></div>
+	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{fn("ban");}}>영구추방</button></div>
+	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={()=>{fn("appoint");}}>부방장 임명</button></div>
 	<div class="arrow bg-surface-100-800-token" />
 </div>

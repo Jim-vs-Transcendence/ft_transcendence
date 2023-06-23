@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { auth } from '../../../service/store';
+	import { petchApi } from '../../../service/api';
 	import { gameClientOption } from '$lib/gameData';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import type { Socket } from 'socket.io-client';
@@ -9,8 +11,7 @@
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
-	})
-
+	});
 
 	let cnt: number = 0;
 
@@ -94,10 +95,9 @@
 	}
 
 	import { Stepper, Step } from '@skeletonlabs/skeleton';
-	import { io } from 'socket.io-client';
 	let isColorSelect: boolean = false;
 
-	function onStepHandler(e: { step: number; state: { current: number; total: number } }): void {
+	function onStepHandler(e: { step: number; state: { current: number; total: number }; }): void {
 		if (e.detail.state.current === 3) {
 			const input: string | null = prompt(
 				'문제 : 조금 전 예문에서 나온 color의 개수는 몇 개 인가요?'
@@ -126,15 +126,50 @@
 		// ballSizeEmit();
 	}
 
-	
-	
-	onMount(() => {
+	let boundFlag: boolean = false;
+
+	const handlePopstate = (event: any) => {
+		console.log('Back button clicked');
+		if (boundFlag === false) {
+			io_game.emit('gameQuit');
+			boundFlag = true;
+		}
+		goto('/main');
+	};
+
+	async function handleBeforeUnload() {
+		await petchApi({
+			path: 'user/status/' + userInfo.id,
+			data: {
+				user_status: 0
+			}
+		});
+	}
+
+	let userInfo: UserDTO;
+	// 옵션 페이지에서만 작동 안 함. 왜
+	onMount(async () => {
 		if (io_game === undefined) {
+			console.log('user refresh');
 			goto('/main');
 		}
-		
-		io_game.emit('optionPageArrived', );
-		
+
+		try {
+			//1. token기반
+			userInfo = await auth.isLogin();
+		} catch (error) {
+			alert('오류 : 프로필을 출력할 수 없습니다1');
+			goto('/main');
+		}
+
+		const state = { page: 'home' };
+		const url = `/main`;
+		window.history.pushState(state, '', url);
+
+		window.addEventListener('popstate', handlePopstate);
+
+		io_game.emit('optionPageArrived');
+
 		io_game.on('gotoMain', (flag: boolean) => {
 			if (flag) {
 				goto('/main');
@@ -146,9 +181,19 @@
 				goto('/game/inGame');
 			}
 		});
+
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
 	});
 
-	onDestroy(unsubscribeGame)
+	onDestroy(() => {
+		unsubscribeGame();
+		io_game.off('gotoMain');
+		io_game.off('optionReady');
+		io_game.off('gameQuit');
+	});
 </script>
 
 <div class="flex h-screen items-center justify-center">

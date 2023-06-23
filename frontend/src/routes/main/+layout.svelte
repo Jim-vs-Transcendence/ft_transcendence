@@ -50,7 +50,7 @@
 {:else}
     <!-- tab -->
         <UserLayout {userInfo} {friendList}/>
-        <!-- Dmlist
+        <!-- DmUser
         <Dmchat  -->
     <slot />
 {/if}

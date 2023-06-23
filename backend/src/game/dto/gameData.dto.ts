@@ -18,7 +18,9 @@ export class GameUpdateData {
 
 export class GamePlayerData {
 	socketId: string;
-	userId: string;
+
+	myId: string;
+	urId: string;
 	isInGame: boolean;
 
 	canvasWidth: number;
@@ -38,10 +40,11 @@ export class GamePlayerData {
 }
 
 export class GamePlayerScoreData {
-	player1Id: string;
-	player2Id: string;
-	player1Score: number;
-	player2Score: number;
+	player1: string;
+	player2: string;
+	player1_score: number;
+	player2_score: number;
+	game_type: boolean;
 }
 
 export class GameInvitation {

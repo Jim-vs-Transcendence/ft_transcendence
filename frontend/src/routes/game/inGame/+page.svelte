@@ -1,25 +1,25 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { afterUpdate } from 'svelte';
-	import { onDestroy } from 'svelte';
 	import type { Socket } from 'socket.io-client';
+	import type { GamePlayerData, GameUpdateData, GameMoveData } from '$lib/gameData';
+	import { onMount, onDestroy } from 'svelte';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption } from '$lib/gameData';
+	import { auth } from '../../../service/store';
+	import { petchApi } from '../../../service/api';
 	import { goto } from '$app/navigation';
 
 	let io_game: Socket;
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
-	})
-
+	});
 
 	let cnt: number = 0;
 
 	let canvas: HTMLCanvasElement;
-	let	width: number;
+	let width: number;
 	let height: number;
-	let context: any;
+	let context: CanvasRenderingContext2D;
 
 	// Paddle
 	let leftPaddleX: number;
@@ -39,13 +39,18 @@
 	let leftScore: number;
 	let rightScore: number;
 
-	let	rdyFlag: boolean = false;
+	let leftPlayer: string;
+	let rightPlayer: string;
 
-	let	status: number = 0;
+	let rdyFlag: boolean = false;
+
+	let status: number = 0;
+
+	let retryCnt: number = 0;
+	let boundFlag: boolean = false;
 
 	function resizeCanvas() {
-		if (window.innerWidth <= 1200 || window.innerHeight <= 600)
-		{
+		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
 			cnt = -10;
 			alert('👆👆👆👆👆👆 멈춰 👆👆👆👆👆👆👆👆👆');
 		}
@@ -57,22 +62,23 @@
 			context.font = `${scoreTextSize * 2}px Arial`;
 			context.fillStyle = 'while';
 			context.textAlign = 'center';
-			context.fillText('You win', canvas.width / 2, canvas.height / 2);
+			context.fillText('You win', width / 2, height / 2);
 		} else {
 			context.globalAlpha = 1;
 			context.font = `${scoreTextSize * 2}px Arial`;
 			context.fillStyle = 'white';
 			context.textAlign = 'center';
-			context.fillText('You lose', canvas.width / 2, canvas.height / 2);
+			context.fillText('You lose', width / 2, height / 2);
 		}
 	}
 
-	function initPlayer(Player: any) {
+	function initPlayer(Player: GamePlayerData) {
 		console.log(Player);
+		console.log('init Player', Player.canvasWidth);
 		canvas.width = Player.canvasWidth;
 		canvas.height = Player.canvasHeight;
 		width = canvas.width;
-		height = canvas.height
+		height = canvas.height;
 		canvas.style.backgroundColor = Player.canvasColor;
 
 		gameClientOption._ballRadius = Player.ballRadius;
@@ -92,11 +98,14 @@
 
 		leftScore = Player.updateData.leftScore;
 		rightScore = Player.updateData.rightScore;
+
+		leftPlayer = Player.myId;
+		rightPlayer = Player.urId;
 	}
 
-	function draw(moveData: any) {
+	function draw(moveData: GameMoveData) {
 		console.log(moveData);
-		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.clearRect(0, 0, width, height);
 		context.beginPath();
 		context.arc(
 			moveData.ballX,
@@ -114,9 +123,9 @@
 		context.font = `${scoreTextSize}px Arial`;
 		context.fillStyle = 'white';
 		context.textAlign = 'center';
-		context.fillText(leftScore, score1X, scoreY);
+		context.fillText(leftScore.toString(), score1X, scoreY);
 
-		context.fillText(rightScore, score2X, scoreY);
+		context.fillText(rightScore.toString(), score2X, scoreY);
 
 		context.globalAlpha = 1;
 
@@ -146,82 +155,180 @@
 		}
 	}
 
-	onMount(() => {
+	const handlePopstate = (event: any) => {
+		window.removeEventListener('popstate', handlePopstate);
+		console.log('Back button clicked');
+		if (boundFlag === false) {
+			io_game.emit('gameQuit');
+			boundFlag = true;
+		}
+		goto('/main');
+	};
+
+	let userInfo: UserDTO;
+
+	async function handleBeforeUnload() {
+		await petchApi({
+			path: 'user/status/' + userInfo.id,
+			data: {
+				user_status: 0
+			}
+		});
+	}
+
+	function retryGame() {
+		retryCnt++;
+		if (retryCnt === 1) {
+			io_game.emit('gameRestart', gameClientOption._roomName);
+		}
+	}
+
+	async function getGameData(): Promise<GamePlayerData> {
+		return new Promise((resolve, reject) => {
+			io_game.on('gameDraw', (userData: GamePlayerData) => {
+				resolve(userData);
+			});
+		});
+	}
+
+	async function handleGameDraw() {
+		try {
+			const userData = await getGameData();
+			initPlayer(userData);
+			draw(userData.updateData.moveData);
+			console.log('Received game draw data:', userData);
+		} catch (error) {
+			console.error('Failed to receive game draw data:', error);
+		}
+	}
+
+	async function getBallData(): Promise<GameMoveData> {
+		return new Promise((resolve, reject) => {
+			io_game.on('ballMove', (moveData: GameMoveData) => {
+				console.log('game draw');
+				resolve(moveData);
+			});
+		});
+	}
+
+	async function getGameMoveData() {
+		try {
+			const moveData = await getBallData();
+			draw(moveData);
+		} catch (error) {
+			console.error('Failed to receive game draw data:', error);
+		}
+	}
+
+	async function getUpdateData(): Promise<GameUpdateData> {
+		return new Promise((resolve, reject) => {
+			io_game.on('oneSetEnd', (updateData: GameUpdateData) => {
+				resolve(updateData);
+			});
+		});
+	}
+
+	async function getGameUpdateData() {
+		try {
+			const updateData = await getUpdateData();
+			leftScore = updateData.leftScore;
+			rightScore = updateData.rightScore;
+			draw(updateData.moveData);
+		} catch (error) {
+			console.error('Failed to receive game draw data:', error);
+		}
+	}
+
+	onMount(async () => {
 		if (io_game === undefined) {
 			goto('/main');
 		}
 
-		canvas = document.createElement('canvas');
-		context = canvas.getContext('2d');
+		try {
+			//1. token기반
+			userInfo = await auth.isLogin();
+		} catch (error) {
+			alert('오류 : 프로필을 출력할 수 없습니다1');
+			goto('/main');
+		}
 
-		document.body.appendChild(canvas);
+		io_game.emit('inGamePageArrived', gameClientOption._roomName);
+
+		handleGameDraw();
+
+		const state = { page: 'home' };
+		const url = `/main`;
+		window.history.pushState(state, '', url);
+
+		window.addEventListener('popstate', handlePopstate);
+
+		console.log('what is the type of the canvas?', typeof canvas);
+		context = canvas.getContext('2d')!;
 
 		window.addEventListener('resize', resizeCanvas);
 		window.addEventListener('keydown', handleKeyPress);
 
-		io_game.emit('inGamePageArrived', gameClientOption._roomName);
-
 		io_game.on('gotoMain', (flag: boolean) => {
-			if (flag) goto('/main');
-		});
-
-		io_game.on('gameDraw', (Player: any) => {
-			initPlayer(Player);
-			draw(Player.updateData.moveData);
+			console.log('is in here?');
+			if (flag) {
+				goto('/main');
+			}
 		});
 
 		io_game.on('restart', (flag: boolean) => {
+			status = 1;
 			if (flag) {
 				leftScore = 0;
 				rightScore = 0;
 			}
 		});
 
-		io_game.on('ballMove', (player: any) => {
+		io_game.on('gameEnd', (flag: boolean) => {
+			status = 2;
+			retryCnt = 0;
+			setEndGame(flag);
+		});
+
+		io_game.on('ballMove', (player: GameMoveData) => {
 			draw(player);
 		});
 
-		io_game.on('oneSetEnd', (player: any) => {
+		io_game.on('oneSetEnd', (player: GameUpdateData) => {
 			leftScore = player.leftScore;
 			rightScore = player.rightScore;
 			draw(player.moveData);
 		});
 
-		io_game.on('gameEnd', (flag: boolean) => {
-			status = 2;
-			setEndGame(flag);
-		});
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
 	});
 
 	onDestroy(() => {
-		io_game.disconnect();
-		document.body.removeChild(canvas);
+		io_game.off('gameReady');
+		io_game.off('gameDraw');
+		io_game.off('ballMove');
+		io_game.off('oneSetEnd');
+		io_game.off('gotoMain');
+		io_game.off('restart');
+		io_game.off('gameEnd');
+		window.removeEventListener('resize', resizeCanvas);
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();
 	});
-
-	// afterUpdate(() => {
-	// 	// Code to handle updates or re-renders, if needed
-	// });
 </script>
 
-
-<div>
-	<div class="canvas-container">
-		<div class="canvas-wrapper">
-			<canvas bind:this={canvas} {width} {height} />
-		</div>
+<div class="flex flex-col justify-center items-center h-screen bg-gray-200">
+	<div class="relative flex items-center justify-center w-full">
+		<canvas bind:this={canvas} {width} {height} />
 	</div>
 	<div class="button-container">
 		{#if status === 0}
 			준비하려면 Enter 누르세요
 		{:else if status === 1}
-			<div>
-				player1
-			</div>
-			<div>
-				player2
-			</div>
+			<div class="player-container">{leftPlayer}</div>
+			<div class="player-container">{rightPlayer}</div>
 		{:else if status === 2}
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
@@ -229,10 +336,11 @@
 			>
 				retry
 			</button>
-	
+
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
 				data-sveltekit-preload-data="hover"
+				on:click={retryGame}
 			>
 				retry
 			</button>
@@ -240,8 +348,6 @@
 	</div>
 </div>
 
-
-	
 <style>
 	.container {
 		display: flex;
@@ -254,6 +360,14 @@
 		justify-content: center;
 		align-content: center;
 		gap: 10rem;
+	}
+
+	.player-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 24px;
+		font-weight: bold;
 	}
 
 	.canvas-container {

@@ -12,11 +12,6 @@
     export let chatUser: ChatUserIF;
     $: chatUser;
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-    // import { ChatUserIF } from '$lib/interface.d'
-    // export let chatUser: chatUserDTO;
-    // export let userInfo: UserDTO;
-    // $: chatUser;
-
 
     enum chatUserRequestStatus {
         BLOCKED = 'blocked',
@@ -63,17 +58,15 @@
 
 </script>
 
-<ul class="list">
+<!-- <ul class="list">
     
-    </ul>
+</ul> -->
 
-{#if !isRefused}
 <dl class="list-dl">
     <li>
         <span> </span>
         <span class="flex-auto"> </span>
     </li>
-    <!-- ... -->
     <div class="cursor-pointer">
             <div class="flex-auto" >
                     <span>
@@ -87,12 +80,5 @@
                     <span class="badge p-0">🔇</span>
             </div>
 		</div>
-		<!-- ... -->
 	</dl>
 	<ChatUserOptions {chatUser}/>
-{/if}
-	
-
-<!-- <div>
-    <button class="btn variant-filled" >Show Popup</button>
-</div> -->

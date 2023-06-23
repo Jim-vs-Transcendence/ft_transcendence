@@ -47,10 +47,15 @@
     //프로필 팝업
     import { storePopup } from '@skeletonlabs/skeleton';
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+	import { onDestroy } from 'svelte';
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
+    let intervalId: NodeJS.Timer;
 
+	onDestroy(() => {
+		clearInterval(intervalId);
+	});
 </script>
 
 {#if !isRefused}
