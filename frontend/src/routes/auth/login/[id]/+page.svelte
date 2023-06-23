@@ -22,7 +22,7 @@
         setTimeout(async () => {
             await authToken.login(id);
             goto('/main');
-        }, 22000); // 30초를 밀리초로 환산합니다 (30 * 1000)
+        }, 22000);
 
         // 컴포넌트가 unmount될 때 interval을 제거합니다.
         return () => clearInterval(interval);

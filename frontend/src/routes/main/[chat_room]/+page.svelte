@@ -24,19 +24,19 @@
 		socket = _socket;
 	});
 	
-	onMount(() => {
+	onMount(async () => {
 		if (socket === undefined)
-			goto("/main");
+			await goto("/");
 		userid = socket.io.engine.transport.query["_userId"];
 		/* ===== chat-connect ===== */
 		chat_data._room_name = $page.params['chat_room'];
 		
 		socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
 		
-		socket.on('chat-connect', (data: RoomCheckIF) => {
+		await socket.on('chat-connect', (data: RoomCheckIF) => {
 			if (!data._check) {
 				alert("잘못된 접근입니다");
-				goto("/main");
+				goto("/");
 			}
 		});
 		
@@ -67,11 +67,14 @@
 
 	onDestroy(() => {
 		unsubscribe();
-		socket.off('chat-connect');
-		socket.off('chat-refresh');
-		socket.off('chat-msg-event');
-		socket.off('chat-set-admin');
-		socket.emit('chat-exit-room', chat_data);
+		if (socket !== undefined)
+		{
+			socket.off('chat-connect');
+			socket.off('chat-refresh');
+			socket.off('chat-msg-event');
+			socket.off('chat-set-admin');
+			socket.emit('chat-exit-room', chat_data);
+		}
 	});
 
 	/* ================================================================================
@@ -99,11 +102,11 @@
 	}
 
 	function ft_exit_chat_room() {
-		goto('/main');
+		goto('/');
 	}
 
 	function ft_error_goback() {
-		goto('/main');
+		goto('/');
 	}
 
 	// ------------------
@@ -277,5 +280,4 @@
 		<button type="button" on:click={ () => { ft_exit_chat_room()}}   >  뒤로가기 </button>
 	</div>
 </div>
-
 <!-- <div bind:this={elemChat} class="overflow-y-auto">(chat)</div> -->
