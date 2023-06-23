@@ -20,12 +20,11 @@
 	let userid: string
 	let room : ChatRoomIF;
 
-	let unsubscribe: Unsubscriber;
+	const unsubscribe = socketStore.subscribe((_socket: Socket) => {
+		socket = _socket;
+	});
 	
 	onMount(() => {
-		unsubscribe = socketStore.subscribe((_socket: Socket) => {
-			socket = _socket;
-		});
 		if (socket === undefined)
 			goto("/main");
 		userid = socket.io.engine.transport.query["_userId"];
