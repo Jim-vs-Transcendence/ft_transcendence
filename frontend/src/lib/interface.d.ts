@@ -1,4 +1,4 @@
-import '../service/userDTO.js'
+import '../service/userDTO.ts'
 
 /* ================================================================================
 								room

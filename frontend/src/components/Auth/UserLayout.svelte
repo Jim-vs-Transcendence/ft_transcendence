@@ -24,6 +24,8 @@
 
   //DM component
   import DmUser from '../Chat/DmUser.svelte';
+  // DM dummy
+  import {dmDummyList} from '../Auth/dmDummy';
 
   // Autocomplete
   import { Autocomplete } from '@skeletonlabs/skeleton';
@@ -51,6 +53,7 @@ const openDrawer = () => {
 
 let tabSet: number = 0;
 
+
 </script>
 
 <!-- UserLayout.svelte -->
@@ -76,13 +79,11 @@ let tabSet: number = 0;
           <div class="overflow-y-scroll">
             <dl class="list-dl">
               <!-- this things for DM chat window -->
-              <!-- <Drawer /> -->
-              <!-- <AppShell>...</AppShell> -->
-              <!-- {#each chatUserList as chatUser} -->
-              {#each [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9] as num}
-                <DmUser />
+              {#each dmDummyList as dmUser}
+                <DmUser dmChatStore={dmUser}/>
               {/each}
-              <!-- <DmUser chatUser={chatUser}/> -->
+              <!-- {#each [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9] as num} -->
+                <!-- <DmUser /> -->
               <!-- {/each} -->
             </dl>
           </div>

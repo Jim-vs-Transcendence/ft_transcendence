@@ -2,7 +2,7 @@
     import type { DmChatStoreIF } from '$lib/interface';
     import DmUserPopup from './DmUserPopup.svelte';
 
-    // export let DmChatStore: DmChatStoreIF;
+    export let dmChatStore: DmChatStoreIF;
     // export let userInfo: UserDTO; // 실제로 api요청해서 데이터 가져올때 필요 
     // $: userInfo;
 
@@ -15,7 +15,7 @@
      */
     // async function getUserInfo(): Promise<void> {
     //     userInfo = await getApi({
-    //         path: 'user/' + userInfo.id,
+    //         path: 'user/' + DmChatStore.opponent,
     //     });
     // }
 
@@ -37,24 +37,24 @@
     /*
         - dummy data 
     */
-    const userInfo: UserDTO =
-    {
-        id: "jim",
-        nickname: "nickname jim",
-        avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
-        email: "email",
-        level: 0,
-        win: 0,
-        lose: 0,
-        two_factor: false,
-        user_status: 0,
-    };
+    // const userInfo: UserDTO =
+    // {
+    //     id: "jim",
+    //     nickname: "nickname jim",
+    //     avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
+    //     email: "email",
+    //     level: 0,
+    //     win: 0,
+    //     lose: 0,
+    //     two_factor: false,
+    //     user_status: 0,
+    // };
 
     const dmPopupFeatured: PopupSettings = {
 		// Represents the type of event that opens/closed the popup
 		event: 'click',
 		// Matches the data-popup value on your popup element
-		target: "dmPopup" + userInfo.id,
+		target: "dmPopup" + dmChatStore.opponent,
 		// Defines which side of your trigger the popup will appear
 		placement: 'left',
 	};
@@ -67,21 +67,22 @@
 </script>
 
 <!-- <div class="cursor-pointer hover:variant-glass-surface" use:popup={dmPopupFeatured} > -->
-<div class="cursor-pointer hover:variant-glass-surface" on:click={() => console.log(userInfo)} >
+    <!-- dmChatStore[dmChatStore.opponent]?._avatar ?? "" -->
+<div class="cursor-pointer hover:variant-glass-surface" on:click={() => console.log(dmChatStore)} >
     <Avatar
-        src={userInfo.avatar}
+        src={dmChatStore[Object.keys(dmChatStore)[0]]._avatar}
         width="w-7"
         rounded="rounded-full"
         />
-        <!-- on:click={() => goProfile(userInfo.id)} -->
+        <!-- on:click={() => goProfile(dmChatStore.opponent)} -->
     <span class="flex-auto">
         <dt>
-            {userInfo.id}
+            {Object.keys(dmChatStore)[0]}
         </dt>
     </span>
 </div>
 <!-- tmp -->
 <!-- <DmUserPopup dmUserInfo={userInfo}/> -->
 <!-- To be -->
-<!-- dmUserDmChatStore -->
+<!-- dmUserdmChatStore -->
 <!-- <DmUserPopup dmUserInfo={}/> -->
