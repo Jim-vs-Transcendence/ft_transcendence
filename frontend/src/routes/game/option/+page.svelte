@@ -128,14 +128,22 @@
 
 	let boundFlag: boolean = false;
 
-	const handlePopstate = (event: any) => {
+	let refreshFlag: boolean = false;
+
+	function handlePopstate(event: any) {
+		event.preventDefault();
+		if (refreshFlag === true) {
+			console.log('refreshFlag is true');
+			window.removeEventListener('popstate', handlePopstate);
+		}
 		console.log('Back button clicked');
 		if (boundFlag === false) {
+			console.log('game quit');
 			io_game.emit('gameQuit');
 			boundFlag = true;
 		}
-		goto('/main');
-	};
+		//goto('/main');
+	}
 
 	async function handleBeforeUnload() {
 		await petchApi({
@@ -149,9 +157,9 @@
 	let userInfo: UserDTO;
 	// 옵션 페이지에서만 작동 안 함. 왜
 	onMount(async () => {
-		if (io_game === undefined) {
+		if ( io_game === undefined) {
 			console.log('user refresh');
-			goto('/main');
+			await goto('/main');
 		}
 
 		try {
@@ -159,21 +167,23 @@
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
-			goto('/main');
+			await goto('/main');
 		}
 
 		const state = { page: 'home' };
 		const url = `/main`;
 		window.history.pushState(state, '', url);
 
-		window.addEventListener('popstate', handlePopstate);
+		if (!refreshFlag) {
+			console.log('add event listener');
+			window.addEventListener('popstate', handlePopstate);
+			refreshFlag = true;
+		}
 
 		io_game.emit('optionPageArrived');
 
-		io_game.on('gotoMain', (flag: boolean) => {
-			if (flag) {
-				goto('/main');
-			}
+		io_game.on('gotoMain', () => {
+			goto('/main');
 		});
 
 		io_game.on('optionReady', (flag: boolean) => {

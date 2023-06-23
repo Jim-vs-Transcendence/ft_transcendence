@@ -13,21 +13,23 @@ export class GameService {
 	) { this.myGameGateway = gameGateway }
 
 	private readonly fps: number = 1000 / 30;
-	private readonly canvasWidth: number = 1200;
-	private readonly canvasHeight: number = 600;
+	private readonly canvasWidth: number = 600;
+	private readonly canvasHeight: number = 400;
 
 	private readonly initBallX: number = this.canvasWidth / 2;
 	private readonly initBallY: number = this.canvasHeight / 2;
 	// 옵션 페이지 매개변수로 받아서 설정해줄 것
-	private readonly ballSpeed: number = 15;
+	private readonly ballSpeed: number = 5;
 
 	private readonly paddleWidth: number = this.canvasWidth * 0.02;
-	private readonly paddleHeight: number = this.canvasHeight * 0.2;
+	private readonly paddleHeight: number = this.canvasHeight * 0.8;
 	private readonly paddleMargin: number = this.canvasWidth * 0.05;
 
 	private readonly initLeftPaddleX: number = this.paddleMargin;
 	private readonly initRightPaddleX: number = this.canvasWidth - (this.paddleWidth + this.paddleMargin);
 	private readonly initPaddleY: number = this.canvasHeight / 2 - this.paddleHeight / 2;
+
+
 
 	async initPlayer(player: GamePlayerData, client: Socket) {
 		player.socketId = client.id;
@@ -37,8 +39,6 @@ export class GameService {
 			player.myId = userId;
 		}
 
-		console.log('initPlayer', player.myId, player.socketId);
-
 		player.canvasWidth = this.canvasWidth;
 		player.canvasHeight = this.canvasHeight;
 
@@ -46,7 +46,6 @@ export class GameService {
 		player.paddleHeight = this.paddleHeight;
 		player.leftPaddleX = this.initLeftPaddleX;
 		player.rightPaddleX = this.initRightPaddleX;
-
 
 		player.updateData.moveData.leftPaddleY = this.initPaddleY;
 		player.updateData.moveData.rightPaddleY = this.initPaddleY;
@@ -92,10 +91,6 @@ export class GameService {
 		console.log('wait success');
 	}
 
-	// private updateMatchHistroy(player1: , player2: ) {
-	// 	지금은 몰?루
-	// }
-
 	private resetScore(player: GameUpdateData) {
 		player.leftScore = 0;
 		player.rightScore = 0;
@@ -109,6 +104,7 @@ export class GameService {
 	}
 
 	public resetGame(room: GameRoom): void {
+		console.log('reset Game called');
 		room.rightPlayer.updateData.leftScore = room.leftPlayer.updateData.rightScore;
 		room.rightPlayer.updateData.rightScore = room.leftPlayer.updateData.leftScore;
 
@@ -118,13 +114,13 @@ export class GameService {
 		const endScore: number = room.leftPlayer.gameScore;
 
 		if (room.leftPlayer.updateData.leftScore >= endScore || room.leftPlayer.updateData.rightScore >= endScore) {
+			console.log('reset game called and game end');
 			clearInterval(room.dataFrame);
 			room.isEnd = true;
 			room.leftReady = false;
 			room.rightReady = false;
 
 			// 시간초가 지나면 메인 페이지 이동, 시간초 보다 restart가 빠르면 재시작
-			// room.endTimer = setTimeout(this.endGame, 10000, room);
 			room.endTimer = setTimeout(() => this.endGame(room), 10000);
 
 			
