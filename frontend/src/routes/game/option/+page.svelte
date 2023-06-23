@@ -95,10 +95,9 @@
 	}
 
 	import { Stepper, Step } from '@skeletonlabs/skeleton';
-	import { io } from 'socket.io-client';
 	let isColorSelect: boolean = false;
 
-	function onStepHandler(e: { step: number; state: { current: number; total: number } }): void {
+	function onStepHandler(e: { step: number; state: { current: number; total: number }; }): void {
 		if (e.detail.state.current === 3) {
 			const input: string | null = prompt(
 				'문제 : 조금 전 예문에서 나온 color의 개수는 몇 개 인가요?'
@@ -127,9 +126,14 @@
 		// ballSizeEmit();
 	}
 
+	let boundFlag: boolean = false;
+
 	const handlePopstate = (event: any) => {
 		console.log('Back button clicked');
-		io_game.emit('gameQuit');
+		if (boundFlag === false) {
+			io_game.emit('gameQuit');
+			boundFlag = true;
+		}
 		goto('/main');
 	};
 
@@ -184,7 +188,12 @@
 		};
 	});
 
-	onDestroy(unsubscribeGame);
+	onDestroy(() => {
+		unsubscribeGame();
+		io_game.off('gotoMain');
+		io_game.off('optionReady');
+		io_game.off('gameQuit');
+	});
 </script>
 
 <div class="flex h-screen items-center justify-center">

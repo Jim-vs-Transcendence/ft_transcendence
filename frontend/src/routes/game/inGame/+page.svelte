@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import { Socket, io } from 'socket.io-client';
-	import { gameSocketStore } from '$lib/webSocketConnection_game';
+	import type { Socket } from 'socket.io-client';
 	import type { GamePlayerData, GameUpdateData, GameMoveData } from '$lib/gameData';
+	import { onMount, onDestroy } from 'svelte';
+	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption } from '$lib/gameData';
 	import { auth } from '../../../service/store';
 	import { petchApi } from '../../../service/api';
 	import { goto } from '$app/navigation';
-	import { socketStore } from '$lib/webSocketConnection_chat';
 
 	let io_game: Socket;
 
@@ -40,11 +39,15 @@
 	let leftScore: number;
 	let rightScore: number;
 
+	let leftPlayer: string;
+	let rightPlayer: string;
+
 	let rdyFlag: boolean = false;
 
 	let status: number = 0;
 
 	let retryCnt: number = 0;
+	let boundFlag: boolean = false;
 
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
@@ -95,6 +98,9 @@
 
 		leftScore = Player.updateData.leftScore;
 		rightScore = Player.updateData.rightScore;
+
+		leftPlayer = Player.myId;
+		rightPlayer = Player.urId;
 	}
 
 	function draw(moveData: GameMoveData) {
@@ -117,9 +123,9 @@
 		context.font = `${scoreTextSize}px Arial`;
 		context.fillStyle = 'white';
 		context.textAlign = 'center';
-		context.fillText(leftScore, score1X, scoreY);
+		context.fillText(leftScore.toString(), score1X, scoreY);
 
-		context.fillText(rightScore, score2X, scoreY);
+		context.fillText(rightScore.toString(), score2X, scoreY);
 
 		context.globalAlpha = 1;
 
@@ -152,7 +158,10 @@
 	const handlePopstate = (event: any) => {
 		window.removeEventListener('popstate', handlePopstate);
 		console.log('Back button clicked');
-		io_game.emit('gameQuit');
+		if (boundFlag === false) {
+			io_game.emit('gameQuit');
+			boundFlag = true;
+		}
 		goto('/main');
 	};
 
@@ -245,14 +254,6 @@
 
 		io_game.emit('inGamePageArrived', gameClientOption._roomName);
 
-		// io_game.on('gameDraw', (userData: GamePlayerData) => {
-		// 	console.log(userData);
-		// 	if (userData === undefined)
-		// 		console.log('is it possible?');
-		// 	initPlayer(userData);
-		// 	draw(userData.updateData.moveData);
-		// })
-
 		handleGameDraw();
 
 		const state = { page: 'home' };
@@ -298,12 +299,6 @@
 			draw(player.moveData);
 		});
 
-		io_game.on('gameEnd', (flag: boolean) => {
-			status = 2;
-			retryCnt = 0;
-			setEndGame(flag);
-		});
-
 		window.addEventListener('beforeunload', handleBeforeUnload);
 		return () => {
 			window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -311,7 +306,6 @@
 	});
 
 	onDestroy(() => {
-		// io_game.disconnect();
 		io_game.off('gameReady');
 		io_game.off('gameDraw');
 		io_game.off('ballMove');
@@ -319,15 +313,10 @@
 		io_game.off('gotoMain');
 		io_game.off('restart');
 		io_game.off('gameEnd');
-		window.removeEventListener('popstate', handlePopstate);
 		window.removeEventListener('resize', resizeCanvas);
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();
 	});
-
-	// afterUpdate(() => {
-	// 	// Code to handle updates or re-renders, if needed
-	// });
 </script>
 
 <div class="flex flex-col justify-center items-center h-screen bg-gray-200">
@@ -338,8 +327,8 @@
 		{#if status === 0}
 			준비하려면 Enter 누르세요
 		{:else if status === 1}
-			<div>player1</div>
-			<div>player2</div>
+			<div class="player-container">{leftPlayer}</div>
+			<div class="player-container">{rightPlayer}</div>
 		{:else if status === 2}
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
@@ -371,6 +360,14 @@
 		justify-content: center;
 		align-content: center;
 		gap: 10rem;
+	}
+
+	.player-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 24px;
+		font-weight: bold;
 	}
 
 	.canvas-container {

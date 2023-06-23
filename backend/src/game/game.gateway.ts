@@ -65,7 +65,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	private destroyRoom(client: Socket) {
 		const curPlayer: GamePlayerData = this.players.find(data => data.socketId === client.id);
-		console.log ('what is it?',curPlayer);
+		console.log ('what is it?', curPlayer);
 		if (curPlayer) {
 			console.log('destroy player array');
 			const playerIndex: number = this.players.indexOf(curPlayer);
@@ -82,36 +82,33 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				console.log('destroy room found');
 				clearInterval(room.dataFrame);
 
-				if (room.leftPlayer.isInGame === true) {
-					console.log('in Game');
-					if (room.leftPlayer.socketId === client.id) {
-						// rightPlayer win
-						console.log('rightPlayer win');
-						gamePlayerScoreData.player1 = room.leftPlayer.userId;
-						gamePlayerScoreData.player1_score = 0;
-						gamePlayerScoreData.player2 = room.rightPlayer.userId;
-						gamePlayerScoreData.player2_score = room.rightPlayer.gameScore;
-						gamePlayerScoreData.game_type = room.gameType;
+				if (room.leftPlayer.socketId === client.id) {
+					// rightPlayer win
+					console.log('rightPlayer win');
+					gamePlayerScoreData.player1 = room.leftPlayer.myId;
+					gamePlayerScoreData.player1_score = 0;
+					gamePlayerScoreData.player2 = room.rightPlayer.myId;
+					gamePlayerScoreData.player2_score = room.rightPlayer.gameScore;
+					gamePlayerScoreData.game_type = room.gameType;
 
-						this.service.endGame(room);
+					this.service.endGame(room);
 
-						// invite / random 게임 구분하여 저장
-						// this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
-					}
-					else {
-						// leftPlayer Win
-						gamePlayerScoreData.player1 = room.leftPlayer.userId;
-						gamePlayerScoreData.player1_score = room.leftPlayer.gameScore;
-						gamePlayerScoreData.player2 = room.rightPlayer.userId;
-						gamePlayerScoreData.player2_score = 0;
-						gamePlayerScoreData.game_type = room.gameType;
-						console.log('leftPlayer win');
+					// invite / random 게임 구분하여 저장
+					// this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
+				}
+				else {
+					// leftPlayer Win
+					gamePlayerScoreData.player1 = room.leftPlayer.myId;
+					gamePlayerScoreData.player1_score = room.leftPlayer.gameScore;
+					gamePlayerScoreData.player2 = room.rightPlayer.myId;
+					gamePlayerScoreData.player2_score = 0;
+					gamePlayerScoreData.game_type = room.gameType;
+					console.log('leftPlayer win');
 
-						this.service.endGame(room);
+					this.service.endGame(room);
 
-						// invite / random 게임 구분하여 저장
-						// this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
-					}
+					// invite / random 게임 구분하여 저장
+					// this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 				}
 			}
 			// curPlayer도 없고, Room도 없으면 main인 상황
@@ -157,6 +154,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.service.initPlayer(player, client);
 		this.players.push(player);
 		// userService에서 updateUserStatus를 사용해서 게임중(2)으로 변경
+		// this.usersService.updateUserStatus(player.myId, 2);
 
 		if (this.players.length >= 2) {
 			console.log(this.players.length);
@@ -164,6 +162,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 			room.leftPlayer = this.players.shift();
 			room.rightPlayer = this.players.shift();
+
+			room.leftPlayer.urId = room.rightPlayer.myId;
+			room.rightPlayer.urId = room.leftPlayer.myId;
+
+			console.log('init leftPlayer', room.leftPlayer.myId, room.leftPlayer.urId);
+			console.log('init rightPlayer', room.rightPlayer.myId, room.rightPlayer.urId);
+
 			this.rooms.set(room.leftPlayer.socketId, room);
 
 			this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
@@ -204,7 +209,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {
 		let userSocket = this.findGameUserSocket(opponentPlayer);
 		if (userSocket) {
-			userSocket.emit('you got invite', userSocket.handshake.query.id);
+			userSocket.emit('you got invite', userSocket.handshake.query._userId);
 		}
 		else {
 			console.log('no such user')
@@ -284,9 +289,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let room = this.findRoom(RoomName);
 		if (room) {
 			if (RoomName === client.id) {
+				console.log('leftPlayer', room.leftPlayer.myId, room.leftPlayer.urId);
 				this.server.to(client.id).emit('gameDraw', room.leftPlayer);
 			}
 			else {
+				console.log('rightPlayer', room.leftPlayer.myId, room.leftPlayer.urId);
 				this.server.to(client.id).emit('gameDraw', room.rightPlayer);
 			}
 		}

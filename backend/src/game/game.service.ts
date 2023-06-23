@@ -32,10 +32,12 @@ export class GameService {
 	async initPlayer(player: GamePlayerData, client: Socket) {
 		player.socketId = client.id;
 		player.isInGame = false;
-		const userId: string | string[] = client.handshake.query.key;
+		const userId: string | string[] = client.handshake.query._userId;
 		if (userId !== null && typeof userId === 'string') {
-			player.userId = userId;
+			player.myId = userId;
 		}
+
+		console.log('initPlayer', player.myId, player.socketId);
 
 		player.canvasWidth = this.canvasWidth;
 		player.canvasHeight = this.canvasHeight;
@@ -81,6 +83,7 @@ export class GameService {
 	// 서비스로 가는데, 지우는 건 gateway가 해줘야 됨
 	public endGame(room: GameRoom) {
 		// 재시작 여부 판단 로직 추가
+		console.log('who is it?', room.leftPlayer.socketId, room.rightPlayer.socketId);
 		this.myGameGateway.server.to(room.leftPlayer.socketId).emit('gotoMain', true);
 		this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gotoMain', true);
 		this.myGameGateway.roomKey.delete(room.leftPlayer.socketId);
@@ -135,9 +138,9 @@ export class GameService {
 				this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gameEnd', true);
 			}
 			const gamePlayerScoreData: GamePlayerScoreData = new GamePlayerScoreData();
-			gamePlayerScoreData.player1 = room.leftPlayer.userId;
+			gamePlayerScoreData.player1 = room.leftPlayer.myId;
 			gamePlayerScoreData.player1_score = room.leftPlayer.gameScore;
-			gamePlayerScoreData.player2 = room.rightPlayer.userId;
+			gamePlayerScoreData.player2 = room.rightPlayer.myId;
 			gamePlayerScoreData.player2_score = room.rightPlayer.gameScore;
 			gamePlayerScoreData.game_type = room.gameType;
 			// user 쪽에서 DB에 POST하는 로직 추가
@@ -159,7 +162,7 @@ export class GameService {
 			this.resetGame(room);
 
 		}
-		if (room.leftPlayer.updateData.moveData.ballX >= this.canvasWidth - room.leftPlayer.ballRadius * 2) {
+		if (room.leftPlayer.updateData.moveData.ballX >= this.canvasWidth - room.leftPlayer.ballRadius) {
 			room.leftPlayer.updateData.leftScore++;
 			this.resetGame(room);
 		}
@@ -190,21 +193,21 @@ export class GameService {
 				room.rightPlayer.updateData.moveData.ballX -= room.leftPlayer.ballSpeed;
 			}
 
-			if (room.leftPlayer.updateData.moveData.ballX - (room.leftPlayer.ballRadius * 2) <= this.initLeftPaddleX && room.leftPlayer.updateData.moveData.ballX >= this.initLeftPaddleX - this.paddleWidth) {
+			if (room.leftPlayer.updateData.moveData.ballX - (room.leftPlayer.ballRadius) <= this.initLeftPaddleX + this.paddleWidth && room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius >= this.initLeftPaddleX) {
 				if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.leftPaddleY) {
-					room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + room.leftPlayer.ballRadius * 2;
+					room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
 					room.leftPlayer.updateData.moveData.ballMoveX = false;
-					room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius * 2;
+					room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
 					room.rightPlayer.updateData.moveData.ballMoveX = true;
 
 				}
 			}
 
-			if (room.leftPlayer.updateData.moveData.ballX - (room.leftPlayer.ballRadius * 2) <= this.initRightPaddleX && room.leftPlayer.updateData.moveData.ballX >= this.initRightPaddleX - this.paddleWidth) {
+			if (room.leftPlayer.updateData.moveData.ballX + (room.leftPlayer.ballRadius) >= this.initRightPaddleX && room.leftPlayer.updateData.moveData.ballX + room.leftPlayer.ballRadius <= this.initRightPaddleX + this.paddleWidth) {
 				if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.rightPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.rightPaddleY) {
-					room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius * 2;
+					room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
 					room.leftPlayer.updateData.moveData.ballMoveX = true;
-					room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + room.leftPlayer.ballRadius * 2;
+					room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
 					room.rightPlayer.updateData.moveData.ballMoveX = false;
 				}
 			}
