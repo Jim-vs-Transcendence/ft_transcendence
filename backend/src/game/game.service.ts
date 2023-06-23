@@ -13,16 +13,16 @@ export class GameService {
 	) { this.myGameGateway = gameGateway }
 
 	private readonly fps: number = 1000 / 30;
-	private readonly canvasWidth: number = 600;
-	private readonly canvasHeight: number = 400;
+	private readonly canvasWidth: number = 1000;
+	private readonly canvasHeight: number = 500;
 
 	private readonly initBallX: number = this.canvasWidth / 2;
 	private readonly initBallY: number = this.canvasHeight / 2;
 	// 옵션 페이지 매개변수로 받아서 설정해줄 것
-	private readonly ballSpeed: number = 5;
+	private readonly ballSpeed: number = 15;
 
 	private readonly paddleWidth: number = this.canvasWidth * 0.02;
-	private readonly paddleHeight: number = this.canvasHeight * 0.8;
+	private readonly paddleHeight: number = this.canvasHeight * 0.2;
 	private readonly paddleMargin: number = this.canvasWidth * 0.05;
 
 	private readonly initLeftPaddleX: number = this.paddleMargin;
