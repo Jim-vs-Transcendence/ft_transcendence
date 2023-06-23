@@ -8,7 +8,7 @@
 	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
-	import type { ChatRoomIF, ChatRoomJoinIF, CreateRoomPopupIF } from '$lib/interface';
+	import type { ChatRoomIF, ChatRoomJoinIF } from '$lib/interface';
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import ChatRoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';

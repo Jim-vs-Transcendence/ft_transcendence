@@ -1,11 +1,16 @@
 
-import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
-import { Socket } from 'socket.io';
+import { IsBoolean, IsNumber, IsObject, IsOptional, IsString, isBoolean, isEnum, isObject } from 'class-validator';
 import userDTO from 'src/users/user.dto';
 
 /* ================================================================================
 								chat room join interface
    ================================================================================ */
+
+export enum Authority {
+	USER,
+	MANAGER,
+	OWNER
+}
 
 export class ChatRoomDTO {
 	@IsString()
@@ -16,16 +21,21 @@ export class ChatRoomDTO {
 	_password: string;
 
 	@IsObject()
-	_users: Map<string, userDTO>;
-
-	@IsObject()
-	_auth_user: Map<string, number>;
-
-	@IsObject()
-	_mute_user: string[];
+	_users: Map<string, ChatUserDTO>;
 
 	@IsObject()
 	_ban_user: string[];
+}
+
+export class ChatUserDTO {
+	@IsObject()
+	_authority: Authority;
+
+	@IsBoolean()
+	_is_muted: boolean;
+
+	@IsObject()
+	_user_info: userDTO;
 }
 
 export class ChatRoomJoinDTO {
@@ -37,7 +47,7 @@ export class ChatRoomJoinDTO {
 
 	@IsBoolean()
 	_is_passworded: boolean;
-
+	
 	@IsBoolean()
 	_pass: boolean;
 }

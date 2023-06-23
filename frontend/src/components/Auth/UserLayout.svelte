@@ -3,11 +3,9 @@
   import { authToken } from '../../service/store';
   import '../../service/userDTO';
   import '../../service/friendDTO';
-  import type { ChatUserIF }  from '$lib/interface';
 
   export let userInfo: UserDTO ;
   export let friendList: friendDTO[];
-  export let chatUserList: ChatUserIF[];
 
   //friendsList component
   import FriendsList from '../Profile/FriendsList.svelte';

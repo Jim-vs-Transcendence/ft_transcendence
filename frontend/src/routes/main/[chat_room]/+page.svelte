@@ -1,17 +1,15 @@
 <script lang="ts">
+	import '../../../service/userDTO'
 	import { Avatar, Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import { socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, ChatUserIF, RoomCheckIF } from '$lib/interface';
-	import { popup } from '@skeletonlabs/skeleton';
-	import type { PopupSettings } from '@skeletonlabs/skeleton';
+	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, RoomCheckIF } from '$lib/interface';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
-	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	import type { Unsubscriber } from 'svelte/store';
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -26,8 +24,9 @@
 		_room_name: $page.params['chat_room']
 	};
 	let tabSet: number = 0;
+	let chatUserList : Map<string, UserDTO>;
 
-	const unsubscribe = socketStore.subscribe((_socket: Socket) => {
+	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
 	});
 	
@@ -103,59 +102,6 @@
 	function ft_exit_chat_room() {
 		goto('/main');
 	}
-
-	
-	const  chatUserList: ChatUserIF[] = [
-		{
-			_authority: 1,
-			_is_muted: false,
-			_user_id: "jim",
-			_user_info: {
-				id: "jim",
-				nickname: "nickname jim",
-				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
-				email: "email",
-				level: 0,
-				win: 0,
-				lose: 0,
-				two_factor: false,
-				user_status: 0,
-			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
-		},
-		{
-			_authority: 2,
-			_is_muted: false,
-			_user_id: "kyoulee",
-			_user_info: {
-				id: "kyoulee",
-				nickname: "nickname kyoulee",
-				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
-				email: "email",
-				level: 0,
-				win: 0,
-				lose: 0,
-				two_factor: false,
-				user_status: 0,
-			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
-		},
-		{
-			_authority: 3,
-			_is_muted: false,
-			_user_id: "yolee",
-			_user_info: {
-				id: "yolee",
-				nickname: "nickname yolee",
-				avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
-				email: "email",
-				level: 0,
-				win: 0,
-				lose: 0,
-				two_factor: false,
-				user_status: 0,
-			}, // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
-		},
-	];
-
 </script>
 
 <svelte:window on:popstate={() => goto("/main")}/>
@@ -169,7 +115,7 @@
 				<!-- {/if} -->
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
-					{#each chatUserList as chatUser}
+					{#each [... room._users] as [userid, chatUser]}
 						<ChatUserList {chatUser}/>
 					{/each}
 				{/if}

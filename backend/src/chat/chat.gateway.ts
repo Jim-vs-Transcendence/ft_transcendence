@@ -10,19 +10,16 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
 import { ConnectionClosedEvent } from 'typeorm';
-import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, ChatAuthDTO, RoomCheckDTO, ChatRoomJoinDTO } from './dto/chat.dto';
+import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, ChatAuthDTO, RoomCheckDTO, ChatRoomJoinDTO, ChatUserDTO, Authority } from './dto/chat.dto';
 import { UsersService } from 'src/users/users.service';
 import userDTO from 'src/users/user.dto';
+import { userInfo } from 'os';
 '../../'
 // let channel_list = new Map<string, ChatRoom>();
 let channel_list: Map<string, ChatRoomDTO> = new Map<string, ChatRoomDTO>();
 let socket_list: Map<string, Socket> = new Map<string, Socket>();
 
-enum chat_auth {
-	USER,
-	MANAGER,
-	OWNER
-}
+
 @WebSocketGateway({ namespace: '/chat', cors: true })
 export class ChatGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -128,14 +125,15 @@ export class ChatGateway
 		let room: ChatRoomDTO = {
 			_name: payload._room_name,
 			_password: payload._room_password,
-			_users: new Map<string, userDTO>(),
-			_auth_user: new Map<string, number>(),
+			_users: new Map<string, ChatUserDTO>(),
 			_ban_user: [],
-			_mute_user: [],
 		};
-		let user_info : userDTO = await this.userService.findOne(userid);
+		let user_info : ChatUserDTO = new ChatUserDTO();
+		user_info._authority = Authority.OWNER;
+		user_info._is_muted = false;
+		user_info._user_info = await this.userService.findOne(userid);
+
 		room._users.set(userid, user_info);
-		room._auth_user.set(userid, chat_auth.OWNER);
 		channel_list.set(payload._room_name, room);
 	}
 
@@ -182,7 +180,10 @@ export class ChatGateway
 				return 0;
 			}
 			else {
-				const user_info : userDTO = await this.userService.findOne(userid);
+				const user_info : ChatUserDTO = new ChatUserDTO();
+				user_info._authority = Authority.USER;
+				user_info._is_muted = false;
+				user_info._user_info =	await this.userService.findOne(userid);
 				room._users.set(userid, user_info);
 				return 1;
 			}
@@ -280,24 +281,28 @@ export class ChatGateway
 		console.log("\x1b[38;5;021m ft_channel_auth_admin \x1b[0m :", channel_name, " : ", userid);
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
 		let check: boolean = true;
-		if (channel._auth_user.size) {
-			channel._auth_user.forEach((val, key) => {
-				if (val == 2)
+		if (channel._users.size) {
+			channel._users.forEach((user, UID) => {
+				if (user._authority == Authority.OWNER)
 					check = false;
 			});
 		}
 		if (check)
-			channel._auth_user.set(userid, 2);
+		{
+			const curr_user : ChatUserDTO = channel._users.get(userid);
+			curr_user._authority = Authority.OWNER;
+		}
 		return (0);
 	}
 
 	ft_channel_auth_set(channel_name: string, user_grantor: string, user_heritor: string): number {
 		console.log("\x1b[38;5;021m ft_channel_auth_set \x1b[0m :", channel_name, " : ", user_grantor, " => ", user_heritor);
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._auth_user.get(user_grantor) >= 1) {
-			if (!channel._auth_user.get(user_heritor)
-				&& channel._auth_user.get(user_heritor) != 2) {
-				channel._auth_user.set(user_heritor, 1);
+		if (channel._users.get(user_grantor)._authority >= Authority.MANAGER) {
+			if (!channel._users.has(user_heritor)
+				&& channel._users.get(user_heritor)._authority != Authority.OWNER) {
+				const user_herit : ChatUserDTO = channel._users.get(user_heritor);
+				user_herit._authority = Authority.MANAGER;
 				return (0);
 			}
 		}
@@ -310,27 +315,27 @@ export class ChatGateway
 		let check: number = 0;
 
 		if (user_grantor === user_heritor) {
-			if (!channel._auth_user.has(user_grantor))
+			if (!channel._users.has(user_grantor))
 				return (1);
-			if (channel._auth_user.get(user_grantor) == 2) {
-				if (channel._auth_user.size > 1) {
-					channel._auth_user.forEach((val, key) => {
-						if (!check && key != user_grantor && ++check)
-							return channel._auth_user.set(key, 2);
+			if (channel._users.get(user_grantor)._authority == Authority.OWNER) {
+				if (channel._users.size > 1) {
+					channel._users.forEach((user, UID) => {
+						if (!check && UID != user_grantor && ++check)
+							return user._authority = Authority.OWNER;
 					});
 				}
 				else if (channel._users.size > 1) {
-					channel._users.forEach((val, key) => {
-						if (!check && key != user_grantor && ++check)
-							return channel._auth_user.set(key, 2);
+					channel._users.forEach((user, UID) => {
+						if (!check && UID != user_grantor && ++check)
+							return user._authority = Authority.OWNER;
 					});
 				}
 			}
-			channel._auth_user.delete(user_grantor);
+			channel._users.get(user_grantor)._authority = Authority.USER;
 			return (0);
 		}
-		if (channel._auth_user.get(user_grantor) > channel._auth_user.get(user_heritor)) {
-			channel._auth_user.delete(user_heritor);
+		if (channel._users.get(user_grantor)._authority > channel._users.get(user_heritor)._authority) {
+			channel._users.get(user_heritor)._authority = Authority.USER;
 			return (0);
 		}
 		return (1);
@@ -342,10 +347,9 @@ export class ChatGateway
 
 	ft_channel_kick(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._auth_user.get(user_grantor) > 1) {
-			if (!channel._auth_user.has(user_heritor))
-				this.ft_channel_leave(channel_name, user_heritor);
-			if (channel._auth_user.get(user_grantor) > channel._auth_user.get(user_heritor))
+		if (channel._users.get(user_grantor)._authority > Authority.MANAGER) {
+			if (!channel._users.has(user_heritor)
+			&& channel._users.get(user_grantor)._authority > channel._users.get(user_heritor)._authority)
 				this.ft_channel_leave(channel_name, user_heritor);
 		}
 	}
@@ -355,18 +359,16 @@ export class ChatGateway
 	   ================================================================================ */
 	ft_channel_mute_self(channel_name: string, user: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.has(user)
-			&& channel._mute_user.indexOf(user) == -1) {
-			channel._mute_user.push(user);
+		if (channel._users.has(user)) {
+			channel._users.get(user)._is_muted = true;
 			return (0);
 		}
 		return (1);
 	}
 	ft_channel_unmute_self(channel_name: string, user: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.has(user)
-			&& channel._mute_user.indexOf(user) != -1) {
-			channel._mute_user.splice(channel._mute_user.indexOf(user), 1);
+		if (channel._users.has(user)) {
+			channel._users.get(user)._is_muted = false;
 			return (0);
 		}
 		return (1);
@@ -374,10 +376,9 @@ export class ChatGateway
 
 	ft_channel_mute(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._auth_user.has(user_grantor)
-			&& channel._users.has(user_heritor)
-			&& channel._mute_user.indexOf(user_heritor) == -1) {
-			channel._mute_user.push(user_heritor);
+		if (channel._users.get(user_grantor)._authority > Authority.MANAGER
+			&& channel._users.has(user_heritor)) {
+			channel._users.get(user_heritor)._is_muted = true;
 			return (0);
 		}
 		return (1)
@@ -385,10 +386,9 @@ export class ChatGateway
 
 	ft_channel_unmute(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._auth_user.has(user_grantor)
-			&& channel._users.has(user_heritor)
-			&& channel._mute_user.indexOf(user_heritor) != -1) {
-			channel._mute_user.splice(channel._mute_user.indexOf(user_heritor), 1);
+		if (channel._users.get(user_grantor)._authority > Authority.MANAGER
+		&&	channel._users.has(user_heritor)) {
+			channel._users.get(user_heritor)._is_muted = false;
 			return (0);
 		}
 		return (1)
@@ -399,15 +399,15 @@ export class ChatGateway
 	   ================================================================================ */
 	ft_channel_ban(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._auth_user.has(user_grantor)) {
-			if (channel._auth_user.has(user_heritor) &&
-				channel._auth_user.get(user_grantor) > channel._auth_user.get(user_heritor)) {
+		if (channel._users.has(user_grantor)) {
+			if (channel._users.has(user_heritor) &&
+				channel._users.get(user_grantor)._authority > channel._users.get(user_heritor)._authority) {
 				// 능력밖 밴 금지
 				return (1);
 			}
-			if (channel._mute_user.indexOf(user_heritor) != -1)
+			if (channel._ban_user.indexOf(user_heritor) != -1)
 				return (2); // 이미 존제
-			channel._mute_user.push(user_heritor);
+			channel._ban_user.push(user_heritor);
 			return (0);
 		}
 		return (1);
