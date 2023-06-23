@@ -51,7 +51,7 @@
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
-    let intervalId: number;
+    let intervalId: NodeJS.Timer;
 
 	onDestroy(() => {
 		clearInterval(intervalId);

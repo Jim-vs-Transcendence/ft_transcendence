@@ -31,6 +31,7 @@
             goto('/main');
         }, 24000);
 
+
         // 닫아야지
         return () => clearInterval(interval);
     });

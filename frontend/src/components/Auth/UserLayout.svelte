@@ -23,7 +23,13 @@
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
   //DM component
-  import DmList from '../Chat/DmList.svelte';
+  import DmUser from '../Chat/DmUser.svelte';
+  // DM dummy
+  import {dmDummyList} from '../Auth/dmDummy';
+
+  // Autocomplete
+  import { Autocomplete } from '@skeletonlabs/skeleton';
+  import type { AutocompleteOption } from '@skeletonlabs/skeleton';
 
 const logout = () => {
   authToken.logout()
@@ -96,33 +102,38 @@ drawerStore.subscribe((state) => {
 >
 
 <TabGroup>
-  <Tab bind:group={tabSet} name="tab1" value={0}>(동무목록)</Tab>
-  <Tab bind:group={tabSet} name="tab2" value={1}>(DM)</Tab>
+  <Tab bind:group={tabSet} name="tab2" value={0} class="max-h-[80%] overflow-y-auto">(DM)</Tab>
+  <Tab bind:group={tabSet} name="tab1" value={1}>(동무목록)</Tab>
   <!-- Tab Panels --->
   <svelte:fragment slot="panel">
     {#if tabSet === 0}
-    <dl class="list-dl">
-      {#each friendList as friend}
-        <FriendsList friend={friend} userInfo={userInfo} />
-      {/each}
-    </dl>
-    {:else if tabSet === 1}
       <div>
-        <div class="overflow-y-scroll">
-          <dl class="list-dl">
-            <!-- {#each chatUserList as chatUser} -->
-            {#each [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9] as num}
-              <DmList />
-            {/each}
-            <!-- <DmList chatUser={chatUser}/> -->
-            <!-- {/each} -->
-          </dl>
-        </div>
-        <div>
-          <footer class="card-footer fixed bottom-0 w-full">(footer)</footer>
-        </div>
+        <header class="card-footer  top-0 w-full">
+          <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+            <input type="search" placeholder="Search..." />
+            <button type="button" class="variant-filled-surface">Add</button>
+          </div>
+        </header>
+        <main>
+          <div class="overflow-y-scroll">
+            <dl class="list-dl">
+              <!-- this things for DM chat window -->
+              {#each dmDummyList as dmUser}
+                <DmUser dmChatStore={dmUser}/>
+              {/each}
+              <!-- {#each [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9] as num} -->
+                <!-- <DmUser /> -->
+              <!-- {/each} -->
+            </dl>
+          </div>
+        </main>
       </div>
-
+    {:else if tabSet === 1}
+        <dl class="list-dl">
+          {#each friendList as friend}
+            <FriendsList friend={friend} userInfo={userInfo} />
+          {/each}
+        </dl>
     {/if}
   </svelte:fragment>
 </TabGroup>
@@ -146,6 +157,7 @@ drawerStore.subscribe((state) => {
     </h1>
   <div slot="trail" class="flex items-center space-x-6">
     <!-- 아바타, 친구목록 -->
-    <Avatar src={userInfo.avatar} on:click={ () => {goProfile(userInfo.id)}} width="w-8" rounded="rounded-full" style="cursor: pointer;" />    <button type="button" class="btn btn-sm variant-filled" on:click={openDrawer}>동무 | 목록</button>
+    <Avatar src={userInfo.avatar} on:click={ () => {goProfile(userInfo.id)}} width="w-8" rounded="rounded-full" style="cursor: pointer;" />
+    <button type="button" class="btn btn-sm variant-filled" on:click={openDrawer}>동무 ! 목록</button>
   </div>
 </AppBar>
