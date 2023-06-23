@@ -19,6 +19,13 @@
 	let socket: Socket;
 	let userid: string
 	let room : ChatRoomIF;
+	let msg_list: ChatMsgIF[] = [];
+	let chat_data: ChatMsgIF = {
+		_msg: '',
+		_user_name: '',
+		_room_name: $page.params['chat_room']
+	};
+	let tabSet: number = 0;
 
 	const unsubscribe = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
@@ -26,7 +33,7 @@
 	
 	onMount(async () => {
 		if (socket === undefined)
-			await goto("/");
+			await goto("/main");
 		userid = socket.io.engine.transport.query["_userId"];
 		/* ===== chat-connect ===== */
 		chat_data._room_name = $page.params['chat_room'];
@@ -36,7 +43,7 @@
 		await socket.on('chat-connect', (data: RoomCheckIF) => {
 			if (!data._check) {
 				alert("잘못된 접근입니다");
-				goto("/");
+				goto("/main");
 			}
 		});
 		
@@ -81,14 +88,6 @@
 									chat msg
 	   ================================================================================ */
 
-	let msg_list: ChatMsgIF[] = [];
-
-	let chat_data: ChatMsgIF = {
-		_msg: '',
-		_user_name: '',
-		_room_name: $page.params['chat_room']
-	};
-
 	function ft_chat_send_msg() {
 		if (chat_data._msg.length && chat_data._msg != '\n')
 			socket.emit('chat-msg-event', chat_data);
@@ -102,60 +101,10 @@
 	}
 
 	function ft_exit_chat_room() {
-		goto('/');
+		goto('/main');
 	}
 
-	function ft_error_goback() {
-		goto('/');
-	}
-
-	// ------------------
-
-	// let messageFeed = [
-	// 	{
-	// 		id: 0,
-	// 		host: true,
-	// 		avatar: 48,
-	// 		name: 'Jane',
-	// 		timestamp: 'Yesterday @ 2:30pm',
-	// 		message: 'Some message text.',
-	// 		color: 'variant-soft-primary'
-	// 	},
-	// 	{
-	// 		host: false,
-	// 		avatar: 14,
-	// 		name: 'Michael',
-	// 		timestamp: 'Yesterday @ 2:45pm',
-	// 		message: 'Some message text.',
-	// 		color: 'variant-soft-primary'
-	// 	}
-	// ];
-
-	let elemChat: HTMLElement;
-
-	function scrollChatBottom(behavior?: ScrollBehavior): void {
-		elemChat.scrollTo({ top: elemChat.scrollHeight, behavior });
-	}
-
-	// function addMessage(): void {
-	// 	const newMessage = {
-	// 		id: messageFeed.length,
-	// 		host: true,
-	// 		avatar: 48,
-	// 		name: 'Jane',
-	// 		timestamp: new Date(),
-	// 		message: chat_data._msg,
-	// 		color: 'variant-soft-primary'
-	// 	};
-		// Append the new message to the message feed
-		// messageFeed = [...messageFeed, newMessage];
-		// Clear the textarea message
-		// chat_data._msg = '';
-		// // Smoothly scroll to the bottom of the feed
-		// setTimeout(() => { scrollChatBottom('smooth'); }, 0);
-	// }
-
-	let tabSet: number = 0;
+	
 	const  chatUserList: ChatUserIF[] = [
 		{
 			_authority: 1,
@@ -210,15 +159,6 @@
 </script>
 
 <svelte:window on:popstate={() => goto("/main")}/>
-<!-- <section class="w-full max-h-[400px] p-4 overflow-y-auto space-y-4">
-	{#each messageFeed as bubble, i}
-		{#if bubble.host === true}
-			<pre>host: {JSON.stringify(bubble, null, 2)}</pre>
-		{:else}
-			<pre>guest: {JSON.stringify(bubble, null, 2)}</pre>
-		{/if}
-	{/each}
-</section> -->
 
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 	<div class="bg-surface-500/30 p-10">
@@ -281,4 +221,3 @@
 		<button type="button" on:click={ () => { ft_exit_chat_room()}}   >  뒤로가기 </button>
 	</div>
 </div>
-<!-- <div bind:this={elemChat} class="overflow-y-auto">(chat)</div> -->
