@@ -28,16 +28,17 @@
 			goto("/main");
 		userid = socket.io.engine.transport.query["_userId"];
 		/* ===== chat-connect ===== */
+		chat_data._room_name = $page.params['chat_room'];
+		
+		socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
+		
 		socket.on('chat-connect', (data: RoomCheckIF) => {
 			if (!data._check) {
 				alert("잘못된 접근입니다");
 				goto("/main");
 			}
 		});
-		chat_data._room_name = $page.params['chat_room'];
 		
-		socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
-
 		socket.emit("chat-refresh", $page.params['chat_room']);
 
 		/* ===== chat-refresh ===== */

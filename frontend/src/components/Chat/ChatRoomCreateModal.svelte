@@ -61,7 +61,7 @@
 		</form>
 		<!-- prettier-ignore -->
 		<footer class="modal-footer {parent.regionFooter}">
-        <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>취소</button>
+        <button class="btn {parent.buttonNeutral}" on:click={modalStore.close}>취소</button>
         <button class="btn {parent.buttonPositive}" on:click={onRoomDataSubmit}>대화방 생성</button>
     </footer>
 	</div>

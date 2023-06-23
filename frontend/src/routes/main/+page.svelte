@@ -100,12 +100,7 @@
 
 	function ft_room_join_modal_trigger(room_select: ChatRoomJoinIF) {
 		const modalComponent: ModalComponent = {
-			// Pass a reference to your custom component
 			ref: RoomJoinModal,
-			// Add the component properties as key/value pairs
-			props: { background: 'bg-red-500' },
-			// Provide a template literal for the default component slot
-			slot: '<p>Skeleton</p>'
 		};
 		const modal: ModalSettings = {
 			type: 'component',
@@ -121,12 +116,7 @@
 
 	function ft_room_create_modal_trigger() {
 		const modalComponent: ModalComponent = {
-			// Pass a reference to your custom component
 			ref: RoomCreateModal,
-			// Add the component properties as key/value pairs
-			props: { background: 'bg-red-500' },
-			// Provide a template literal for the default component slot
-			slot: '<p>Skeleton</p>'
 		};
 		const modal: ModalSettings = {
 			type: 'component',
