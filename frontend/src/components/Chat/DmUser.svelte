@@ -54,9 +54,9 @@
 		// Represents the type of event that opens/closed the popup
 		event: 'click',
 		// Matches the data-popup value on your popup element
-		target: userInfo.id,
+		target: "dmPopup" + userInfo.id,
 		// Defines which side of your trigger the popup will appear
-		placement: 'bottom',
+		placement: 'left',
 	};
 
     function dmWindow() {
@@ -66,7 +66,8 @@
 
 </script>
 
-<div class="cursor-pointer hover:variant-glass-surface" use:popup={dmPopupFeatured} >
+<!-- <div class="cursor-pointer hover:variant-glass-surface" use:popup={dmPopupFeatured} > -->
+<div class="cursor-pointer hover:variant-glass-surface" on:click={() => console.log(userInfo)} >
     <Avatar
         src={userInfo.avatar}
         width="w-7"
@@ -80,7 +81,7 @@
     </span>
 </div>
 <!-- tmp -->
-<DmUserPopup dmUserInfo={userInfo}/>
+<!-- <DmUserPopup dmUserInfo={userInfo}/> -->
 <!-- To be -->
 <!-- dmUserDmChatStore -->
 <!-- <DmUserPopup dmUserInfo={}/> -->

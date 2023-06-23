@@ -59,7 +59,7 @@
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
-    let intervalId: number;
+    let intervalId: NodeJS.Timer;
 
 	onMount(() => {
         intervalId = setInterval(updateFriend, 5000);
