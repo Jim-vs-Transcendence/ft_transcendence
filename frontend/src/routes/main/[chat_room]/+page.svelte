@@ -11,8 +11,8 @@
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
-	// import { popup } from '@skeletonlabs/skeleton';
-	// import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
+	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
+	import type { Unsubscriber } from 'svelte/store';
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -20,11 +20,12 @@
 	let userid: string
 	let room : ChatRoomIF;
 
-	const unsubscribe = socketStore.subscribe((_socket: Socket) => {
-		socket = _socket;
-	});
-
+	let unsubscribe: Unsubscriber;
+	
 	onMount(() => {
+		unsubscribe = socketStore.subscribe((_socket: Socket) => {
+			socket = _socket;
+		});
 		if (socket === undefined)
 			goto("/main");
 		userid = socket.io.engine.transport.query["_userId"];
@@ -67,6 +68,10 @@
 
 	onDestroy(() => {
 		unsubscribe();
+		socket.off('chat-connect');
+		socket.off('chat-refresh');
+		socket.off('chat-msg-event');
+		socket.off('chat-set-admin');
 		socket.emit('chat-exit-room', chat_data);
 	});
 
@@ -224,11 +229,6 @@
 					{#each chatUserList as chatUser}
 						<ChatUserList {chatUser}/>
 					{/each}
-						<!-- {friend}
-						<ChatUserList friend={friend} userInfo={userInfo} /> -->
-				<!-- {:else if tabSet === 1}
-					(ban list)
-					{userInfo} -->
 				{/if}
 			</svelte:fragment>
 		</TabGroup>
