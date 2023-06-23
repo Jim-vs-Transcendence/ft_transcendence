@@ -11,6 +11,8 @@
 
 	let io_game: Socket;
 
+	let	boundFlag: boolean = false;
+
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
 	})
@@ -22,7 +24,10 @@
 
 	const handlePopstate = (event: any) => {
 		console.log('Back button clicked');
-		io_game.emit('queueOut', );
+		if (boundFlag === false) {
+			io_game.emit('queueOut', );
+			boundFlag = true;
+		}
 		goto('/main');
 	};
 
@@ -71,7 +76,12 @@
 		};
 	})
 
-	onDestroy(unsubscribeGame);
+	onDestroy(() => {
+		unsubscribeGame();
+
+		io_game.off('roomName');
+		io_game.off('gotoMain');
+	});
 
 </script>
 

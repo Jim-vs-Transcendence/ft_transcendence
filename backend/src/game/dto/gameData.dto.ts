@@ -18,7 +18,9 @@ export class GameUpdateData {
 
 export class GamePlayerData {
 	socketId: string;
-	userId: string;
+
+	myId: string;
+	urId: string;
 	isInGame: boolean;
 
 	canvasWidth: number;

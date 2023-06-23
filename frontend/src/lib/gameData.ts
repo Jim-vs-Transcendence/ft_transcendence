@@ -26,7 +26,9 @@ export interface GameUpdateData {
 
 export interface GamePlayerData {
 	socketId: string;
-	userId: string;
+
+	myId: string;
+	urId: string;
 	isInGame: boolean;
 
 	canvasWidth: number;
