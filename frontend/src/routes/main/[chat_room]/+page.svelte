@@ -209,6 +209,7 @@
 
 </script>
 
+<svelte:window on:popstate={() => goto("/main")}/>
 <!-- <section class="w-full max-h-[400px] p-4 overflow-y-auto space-y-4">
 	{#each messageFeed as bubble, i}
 		{#if bubble.host === true}
