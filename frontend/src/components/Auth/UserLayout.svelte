@@ -16,8 +16,8 @@
   import { AppBar } from '@skeletonlabs/skeleton';
   import { Avatar } from '@skeletonlabs/skeleton';
   import { Drawer, drawerStore } from '@skeletonlabs/skeleton';
-  import type { DrawerSettings } from '@skeletonlabs/skeleton';
-  import { onMount } from 'svelte';
+  import { getApi } from '../../service/api';
+  import { onMount, onDestroy } from 'svelte';
 
   // tab
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
@@ -46,6 +46,47 @@ const openDrawer = () => {
 };
 
 let tabSet: number = 0;
+
+const updateFriend = async (): Promise<void> => {
+    if (toggleRefresh)
+	{
+		friendList = await getApi({
+        	path: 'friends/',
+    	});
+		console.log("done");
+	}
+};
+
+let intervalId: number;
+
+const startInterval = () => {
+	intervalId = setInterval(() => {
+	updateFriend();
+	}, 5000);
+};
+
+const stopInterval = () => {
+  clearInterval(intervalId);
+};
+
+onMount(() => {
+  startInterval();
+});
+
+onDestroy(() => {
+  stopInterval();
+});
+
+let toggleRefresh: boolean = false;
+
+drawerStore.subscribe((state) => {
+  if (state.open) {
+    toggleRefresh = true;
+  } else {
+    toggleRefresh = false;
+  }
+});
+
 </script>
 
 <!-- UserLayout.svelte -->
@@ -54,25 +95,17 @@ let tabSet: number = 0;
   position="right"
 >
 
-<!-- 친구 목록 : 옆으로 뜨는거 수정해야함 -->
-<!-- <dl class="list-dl">
-    {#each friendList as friend}
-      <FriendsList friend={friend} userInfo={userInfo} />
-    {/each}
-</dl> -->
 <TabGroup>
   <Tab bind:group={tabSet} name="tab1" value={0}>(동무목록)</Tab>
   <Tab bind:group={tabSet} name="tab2" value={1}>(DM)</Tab>
   <!-- Tab Panels --->
   <svelte:fragment slot="panel">
     {#if tabSet === 0}
+    <dl class="list-dl">
       {#each friendList as friend}
-        <dl class="list-dl">
-          {#each friendList as friend}
-            <FriendsList friend={friend} userInfo={userInfo} />
-          {/each}
-        </dl>
+        <FriendsList friend={friend} userInfo={userInfo} />
       {/each}
+    </dl>
     {:else if tabSet === 1}
       <div>
         <div class="overflow-y-scroll">
@@ -109,7 +142,7 @@ let tabSet: number = 0;
           <span on:click={goHome} style="cursor: alias;">Jim&nbsp;</span><!--
           --><span on:click={goGame} style="cursor: progress;">vs</span><!--
           --><span on:click={goHome} style="cursor: alias;">&nbsp;Transcendence</span>
-        </span>
+      </span>
     </h1>
   <div slot="trail" class="flex items-center space-x-6">
     <!-- 아바타, 친구목록 -->

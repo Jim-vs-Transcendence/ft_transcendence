@@ -44,26 +44,14 @@
         isRefused = true;
     }
 
-	//친구 정보 최신화
-	const updateFriend = async (): Promise<void> => {
-        friend = await getApi({
-            path: 'friends/' + friend.id,
-        });
-		console.log("post");
-    };
-
     //프로필 팝업
     import { storePopup } from '@skeletonlabs/skeleton';
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
     let intervalId: number;
-
-	onMount(() => {
-        intervalId = setInterval(updateFriend, 5000);
-    });
 
 	onDestroy(() => {
 		clearInterval(intervalId);
