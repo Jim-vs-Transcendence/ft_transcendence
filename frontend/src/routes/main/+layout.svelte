@@ -28,7 +28,7 @@
             userInfo = await auth.isLogin();
             if (!userInfo) {
                 goto('/');
-                throw("wrong 접근");
+                throw("잘못된 접근");
             }
 
             friendList = await getApi({ path: 'friends' });

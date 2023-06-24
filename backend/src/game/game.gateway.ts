@@ -15,7 +15,6 @@ import { UsersService } from 'src/users/users.service';
  */
 
 
-
 @WebSocketGateway({ namespace: '/game', cors: true })
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
@@ -57,7 +56,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	afterInit(server: Server) {
-		console.count('Init');
 		this.server.server.engine.opts.pingTimeout = 20000;
 		this.server.server.engine.opts.pingInterval = 20000;
 		this.server.server.engine.opts.upgradeTimeout = 20000;
@@ -65,7 +63,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	private destroyRoom(client: Socket) {
 		const curPlayer: GamePlayerData = this.players.find(data => data.socketId === client.id);
-		console.log ('what is it?', curPlayer);
 		if (curPlayer) {
 			console.log('destroy player array');
 			const playerIndex: number = this.players.indexOf(curPlayer);
@@ -81,6 +78,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				const gamePlayerScoreData: GamePlayerScoreData = new GamePlayerScoreData();
 				console.log('destroy room found');
 				clearInterval(room.dataFrame);
+				clearInterval(room.endTimer);
 
 				if (room.leftPlayer.socketId === client.id) {
 					// rightPlayer win
@@ -107,26 +105,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 					this.service.endGame(room);
 
-					// invite / random 게임 구분하여 저장
-					// this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 				}
 			}
-			// curPlayer도 없고, Room도 없으면 main인 상황
 		}
 	}
 
-	// public endGame(room: GameRoom) {
-		
-
-	// 	// invite / random 게임 구분하여 저장
-	// 	// this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
-
-	// }
-
 	handleDisconnect(client: Socket) {
-		console.log('============ disconnected ============', client.id);
+		console.log('\x1b[38;5;154m Disconnect: ', client.id + "\x1b[0m");
 		this.destroyRoom(client);
-		console.log('disconnect', client.id);
 	}
 
 	public findRoom(roomName: string): GameRoom {
@@ -142,11 +128,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('pushMatchList')
 	pushPlayer(
 		@ConnectedSocket() client: Socket,
-		// @MessageBody() userId: string,
 	) {
-		console.log(this.players.length);
-		console.log(client.id);
-		console.log('is in?');
 		let player: GamePlayerData = new GamePlayerData();
 		player.updateData = new GameUpdateData();
 		player.updateData.moveData = new GameMoveData();
@@ -157,27 +139,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		// this.usersService.updateUserStatus(player.myId, 2);
 
 		if (this.players.length >= 2) {
-			console.log(this.players.length);
 			let room: GameRoom = new GameRoom();
 
 			room.leftPlayer = this.players.shift();
 			room.rightPlayer = this.players.shift();
 
-			room.leftPlayer.urId = room.rightPlayer.myId;
-			room.rightPlayer.urId = room.leftPlayer.myId;
-
-			console.log('init leftPlayer', room.leftPlayer.myId, room.leftPlayer.urId);
-			console.log('init rightPlayer', room.rightPlayer.myId, room.rightPlayer.urId);
-
-			this.rooms.set(room.leftPlayer.socketId, room);
-
-			this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
-			this.roomKey.set(room.rightPlayer.socketId, room.leftPlayer.socketId);
-			console.log('roomkey left', this.roomKey.get(room.leftPlayer.socketId));
-			console.log('roomkey right', this.roomKey.get(room.rightPlayer.socketId));
-
-			this.server.to(room.leftPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
-			this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
+			if (room.leftPlayer.socketId !== room.rightPlayer.socketId) {
+				room.leftPlayer.urId = room.rightPlayer.myId;
+				room.rightPlayer.urId = room.leftPlayer.myId;
+	
+				this.rooms.set(room.leftPlayer.socketId, room);
+	
+				this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
+				this.roomKey.set(room.rightPlayer.socketId, room.leftPlayer.socketId);
+	
+				this.server.to(room.leftPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
+				this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
+			}
+			else {
+				this.server.to(room.leftPlayer.socketId).emit('gotoMain', );
+			}
 		}
 	}
 
@@ -185,7 +166,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	clientQuit(
 		@ConnectedSocket() client: Socket,
 	) {
-		console.log('gameQuit', client.id);
+		console.log('============Game Quit=============');
 		this.destroyRoom(client);
 	}
 
@@ -198,7 +179,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			const playerIndex: number = this.players.indexOf(curPlayer);
 			this.players.splice(playerIndex, 1);
 		}
-		client.emit('gotoMain', true);
+		client.emit('gotoMain', );
 	}
 
 
@@ -212,7 +193,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			userSocket.emit('you got invite', userSocket.handshake.query._userId);
 		}
 		else {
-			console.log('no such user')
+			client.emit('gotoMain');
 		}
 	}
 
@@ -230,6 +211,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let room: GameRoom = new GameRoom();
 		room.leftPlayer = left;
 		room.rightPlayer = right;
+
+		room.leftPlayer.urId = room.rightPlayer.myId;
+		room.rightPlayer.urId = room.leftPlayer.myId;
+
 		this.rooms.set(room.leftPlayer.socketId, room);
 
 		this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
@@ -246,7 +231,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody() gameInvitation: GameInvitation,
 	) {
 		let gameUser: Socket = this.findGameUserSocket(gameInvitation.opponentPlayer);
-		if (gameInvitation.acceptFlag) {
+		if (gameInvitation.acceptFlag === true) {
 			this.handleInvitation(client, gameUser);
 		}
 		else {
@@ -259,8 +244,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 	) {
 		let gameRoom: string = this.roomKey.get(client.id);
+		console.log('gameRoom : ', gameRoom);
 		if (!gameRoom) {
-			this.server.to(client.id).emit('gotoMain', true);
+			console.log('cannot find game room in the option page');
+			this.server.to(client.id).emit('gotoMain', );
 		}
 	}
 
@@ -277,7 +264,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.service.optionReady(room, client.id);
 		}
 		else {
-			this.server.to(client.id).emit('gotoMain', true);
+			this.server.to(client.id).emit('gotoMain', );
 		}
 	}
 
@@ -289,16 +276,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let room = this.findRoom(RoomName);
 		if (room) {
 			if (RoomName === client.id) {
-				console.log('leftPlayer', room.leftPlayer.myId, room.leftPlayer.urId);
 				this.server.to(client.id).emit('gameDraw', room.leftPlayer);
 			}
 			else {
-				console.log('rightPlayer', room.leftPlayer.myId, room.leftPlayer.urId);
 				this.server.to(client.id).emit('gameDraw', room.rightPlayer);
 			}
 		}
 		else {
-			this.server.to(client.id).emit('gotoMain', true);
+			this.server.to(client.id).emit('gotoMain', );
 		}
 	}
 
@@ -333,7 +318,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	// Down Key pressed : Paddle down
-	@SubscribeMessage('upKey')
+	@SubscribeMessage('upKey')z
 	handlePaddleDown(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() roomName: string,

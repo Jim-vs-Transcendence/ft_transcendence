@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { afterUpdate } from 'svelte';
 	import type { Socket } from 'socket.io-client';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { goto } from '$app/navigation';
@@ -13,6 +12,8 @@
 
 	let	boundFlag: boolean = false;
 
+	let refreshFlag: boolean = false;
+
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
 	})
@@ -22,14 +23,20 @@
 		await goto('/main');
 	};
 
-	const handlePopstate = (event: any) => {
+	function handlePopstate(event: any) {
+		event.preventDefault();
+		if (refreshFlag === true) {
+			console.log('refreshFlag is true');
+			window.removeEventListener('popstate', handlePopstate);
+		}
 		console.log('Back button clicked');
 		if (boundFlag === false) {
-			io_game.emit('queueOut', );
+			console.log('game quit');
+			io_game.emit('gameQuit');
 			boundFlag = true;
 		}
-		goto('/main');
-	};
+		//goto('/main');
+	}
 
 	async function handleBeforeUnload() {
 		await petchApi({
@@ -49,18 +56,22 @@
 		}
 		catch(error){
 			alert('오류 : 프로필을 출력할 수 없습니다1');
-			goto('/main');
+			await goto('/main');
 		}
 
 		if (io_game === undefined) {
-			goto('/main');
+			await goto('/main');
 		}
 
 		const state = { page: 'home' };
 		const url = `/main`;
 		window.history.pushState(state, '', url);
 
-		window.addEventListener('popstate', handlePopstate);
+		if (!refreshFlag) {
+			console.log('add event listener');
+			window.addEventListener('popstate', handlePopstate);
+			refreshFlag = true;
+		}
 
 		io_game.emit('pushMatchList', );
 
@@ -80,7 +91,6 @@
 		unsubscribeGame();
 
 		io_game.off('roomName');
-		io_game.off('gotoMain');
 	});
 
 </script>

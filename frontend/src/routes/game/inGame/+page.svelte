@@ -49,6 +49,8 @@
 	let retryCnt: number = 0;
 	let boundFlag: boolean = false;
 
+	let refreshFlag: boolean = false;
+
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
 			cnt = -10;
@@ -155,15 +157,20 @@
 		}
 	}
 
-	const handlePopstate = (event: any) => {
-		window.removeEventListener('popstate', handlePopstate);
+	function handlePopstate(event: any) {
+		event.preventDefault();
+		if (refreshFlag === true) {
+			console.log('refreshFlag is true');
+			window.removeEventListener('popstate', handlePopstate);
+		}
 		console.log('Back button clicked');
 		if (boundFlag === false) {
+			console.log('game quit');
 			io_game.emit('gameQuit');
 			boundFlag = true;
 		}
-		goto('/main');
-	};
+		//goto('/main');
+	}
 
 	let userInfo: UserDTO;
 
@@ -241,7 +248,7 @@
 
 	onMount(async () => {
 		if (io_game === undefined) {
-			goto('/main');
+			await goto('/main');
 		}
 
 		try {
@@ -249,7 +256,7 @@
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
-			goto('/main');
+			await goto('/main');
 		}
 
 		io_game.emit('inGamePageArrived', gameClientOption._roomName);
@@ -260,7 +267,11 @@
 		const url = `/main`;
 		window.history.pushState(state, '', url);
 
-		window.addEventListener('popstate', handlePopstate);
+		if (!refreshFlag) {
+			console.log('add event listener');
+			window.addEventListener('popstate', handlePopstate);
+			refreshFlag = true;
+		}
 
 		console.log('what is the type of the canvas?', typeof canvas);
 		context = canvas.getContext('2d')!;
@@ -268,11 +279,9 @@
 		window.addEventListener('resize', resizeCanvas);
 		window.addEventListener('keydown', handleKeyPress);
 
-		io_game.on('gotoMain', (flag: boolean) => {
-			console.log('is in here?');
-			if (flag) {
-				goto('/main');
-			}
+		io_game.on('gotoMain', () => {
+			console.log('in game go to main');
+			goto('/main');
 		});
 
 		io_game.on('restart', (flag: boolean) => {
@@ -313,6 +322,7 @@
 		io_game.off('gotoMain');
 		io_game.off('restart');
 		io_game.off('gameEnd');
+		window.removeEventListener('popstate', handlePopstate);
 		window.removeEventListener('resize', resizeCanvas);
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();

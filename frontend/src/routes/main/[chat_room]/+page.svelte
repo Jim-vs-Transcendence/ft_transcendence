@@ -5,41 +5,52 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import type { ChatAuthDTO, ChatMsgIF, ChatUserIF, PayLoadIF } from '$lib/interface';
+	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, ChatUserIF, RoomCheckIF } from '$lib/interface';
+	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
-	// import { popup } from '@skeletonlabs/skeleton';
-	// import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
+	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
+	import type { Unsubscriber } from 'svelte/store';
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	let socket: Socket;
 	let userid: string
-	let room : ChatRoomInfo;
+	let room : ChatRoomIF;
 
 	const unsubscribe = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
 	});
-
-	onMount(() => {
+	
+	onMount(async () => {
+		if (socket === undefined)
+			await goto("/");
 		userid = socket.io.engine.transport.query["_userId"];
 		/* ===== chat-connect ===== */
-		socket.on('chat-connect', (data: PayLoadIF) => {
-			if (!data._check) console.log('PayLoad false');
-			// or popup 잘못된 접근입니다 확인 => goto (/main);
-			
-		});
 		chat_data._room_name = $page.params['chat_room'];
 		
 		socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
-
+		
+		await socket.on('chat-connect', (data: RoomCheckIF) => {
+			if (!data._check) {
+				alert("잘못된 접근입니다");
+				goto("/");
+			}
+		});
+		
 		socket.emit("chat-refresh", $page.params['chat_room']);
 
 		/* ===== chat-refresh ===== */
-		socket.on('chat-refresh', (data: ChatRoomInfo) => {
-			room = data;
+		socket.on('chat-refresh', (data: ChatRoomIF | string) => {
+			if (typeof data === 'object')
+				room = data;
+			else
+			{
+				console.log("chat refresh error");
+				socket.emit("chat-refresh", $page.params['chat_room']);
+			}
 		})
 
 		/* ===== chat-msg-even ===== */
@@ -54,7 +65,17 @@
 		});
 	});
 
-	onDestroy(unsubscribe);
+	onDestroy(() => {
+		unsubscribe();
+		if (socket !== undefined)
+		{
+			socket.off('chat-connect');
+			socket.off('chat-refresh');
+			socket.off('chat-msg-event');
+			socket.off('chat-set-admin');
+			socket.emit('chat-exit-room', chat_data);
+		}
+	});
 
 	/* ================================================================================
 									chat msg
@@ -81,12 +102,11 @@
 	}
 
 	function ft_exit_chat_room() {
-		socket.emit('chat-exit-room', chat_data);
-		goto('/main');
+		goto('/');
 	}
 
 	function ft_error_goback() {
-		goto('/main');
+		goto('/');
 	}
 
 	// ------------------
@@ -211,11 +231,6 @@
 					{#each chatUserList as chatUser}
 						<ChatUserList {chatUser}/>
 					{/each}
-						<!-- {friend}
-						<ChatUserList friend={friend} userInfo={userInfo} /> -->
-				<!-- {:else if tabSet === 1}
-					(ban list)
-					{userInfo} -->
 				{/if}
 			</svelte:fragment>
 		</TabGroup>
@@ -265,5 +280,4 @@
 		<button type="button" on:click={ () => { ft_exit_chat_room()}}   >  뒤로가기 </button>
 	</div>
 </div>
-
 <!-- <div bind:this={elemChat} class="overflow-y-auto">(chat)</div> -->
