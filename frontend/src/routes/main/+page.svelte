@@ -139,7 +139,10 @@
 	{#each rooms_list as room}
 		<div class="col-start-2 col-span-3 logo-item m-1 variant-filled-surface cursor-pointer" id="room"
 			on:mousedown={() => { JoinRoom(room); }}>
-				{room._room_name} 🔒︎
+				{room._room_name}
+				{#if room._is_passworded}
+					🔒︎
+				{/if}
 		</div>
 	{/each}
 </div>
