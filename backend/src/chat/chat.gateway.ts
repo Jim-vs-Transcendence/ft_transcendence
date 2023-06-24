@@ -159,7 +159,7 @@ export class ChatGateway
 		if (!this.server.adapter.rooms.has(payload._room_name))
 			return client.emit('room-join', {});
 		if (typeof userid === "string") {
-			if (! await this.ft_channel_join(payload, userid))
+			if (!await this.ft_channel_join(payload, userid))
 			{
 				client.emit('room-join', payload);
 				return;
@@ -220,6 +220,7 @@ export class ChatGateway
 		channel_list.forEach((val, key) => {
 			let room: ChatRoomJoinDTO = new ChatRoomJoinDTO();
 			room._room_name = val._name;
+			room._room_password = "";
 			if (val._password)
 				room._is_passworded = true;
 			else

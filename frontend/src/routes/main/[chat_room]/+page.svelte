@@ -31,44 +31,52 @@
 	});
 	
 	onMount(async () => {
-		if (socket === undefined)
-			await goto("/main");
-		userid = socket.io.engine.transport.query["_userId"];
-		/* ===== chat-connect ===== */
-		chat_data._room_name = $page.params['chat_room'];
-		
-		socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
-		
-		await socket.on('chat-connect', (data: RoomCheckIF) => {
-			if (!data._check) {
-				alert("잘못된 접근입니다");
-				goto("/main");
-			}
-		});
-		
-		socket.emit("chat-refresh", $page.params['chat_room']);
-
-		/* ===== chat-refresh ===== */
-		socket.on('chat-refresh', (data: ChatRoomIF | string) => {
-			if (typeof data === 'object')
-				room = data;
-			else
-			{
-				console.log("chat refresh error");
-				socket.emit("chat-refresh", $page.params['chat_room']);
-			}
-		})
-
-		/* ===== chat-msg-even ===== */
-		socket.on('chat-msg-event', (data: ChatMsgIF) => {
-			msg_list = [...msg_list, data];
-		});
-		/* ===== chat-set-admin ===== */
-		socket.on('chat-set-admin', (data: ChatAuthDTO) => {
-			if (!data._check)
-				return alert("권한 설정 실패");
-			/// 권한 변경 
-		});
+		try {
+			if (socket === undefined)
+				await goto("/main");
+			userid = socket.io.engine.transport.query["_userId"];
+			/* ===== chat-connect ===== */
+			chat_data._room_name = $page.params['chat_room'];
+			
+			socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
+			
+			await socket.on('chat-connect', (data: RoomCheckIF) => {
+				if (!data._check) {
+					alert("잘못된 접근입니다");
+					goto("/main");
+				}
+			});
+			
+			socket.emit("chat-refresh", $page.params['chat_room']);
+	
+			/* ===== chat-refresh ===== */
+			socket.on('chat-refresh', (data: ChatRoomIF | string) => {
+				if (typeof data === 'object')
+				{
+					room = data;
+					console.log([...room._users]);
+				}
+				else
+				{
+					console.log("chat refresh error");
+					socket.emit("chat-refresh", $page.params['chat_room']);
+				}
+			})
+	
+			/* ===== chat-msg-even ===== */
+			socket.on('chat-msg-event', (data: ChatMsgIF) => {
+				msg_list = [...msg_list, data];
+			});
+			/* ===== chat-set-admin ===== */
+			socket.on('chat-set-admin', (data: ChatAuthDTO) => {
+				if (!data._check)
+					return alert("권한 설정 실패");
+				/// 권한 변경 
+			});
+		}
+		catch {
+			console.log("error");
+		}
 	});
 
 	onDestroy(() => {
@@ -105,7 +113,7 @@
 </script>
 
 <svelte:window on:popstate={() => goto("/main")}/>
-
+{#if room !== undefined}
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 	<div class="bg-surface-500/30 p-10">
 		<TabGroup>
@@ -167,3 +175,4 @@
 		<button type="button" on:click={ () => { ft_exit_chat_room()}}   >  뒤로가기 </button>
 	</div>
 </div>
+{/if}

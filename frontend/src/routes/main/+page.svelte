@@ -1,14 +1,12 @@
 <script lang="ts">
-	import { AppShell, Modal, type ModalComponent, type ModalSettings } from '@skeletonlabs/skeleton';
-	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
-	import { getApi, petchApi, postApi, delApi } from '../../service/api';
+	import { Modal, type ModalComponent, type ModalSettings } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import RoomCreateModal from '../../components/Chat/ChatRoomCreateModal.svelte';
 	import RoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
 	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
-	import type { ChatRoomIF, ChatRoomJoinIF } from '$lib/interface';
+	import type { ChatRoomJoinIF } from '$lib/interface';
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
 	import { modalStore } from '@skeletonlabs/skeleton';
 
