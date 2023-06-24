@@ -27,6 +27,21 @@ export class ChatRoomDTO {
 	_ban_user: string[];
 }
 
+export class ChatRoomSendDTO {
+	@IsString()
+	_name: string;
+
+	@IsOptional()
+	@IsString()
+	_password: string;
+
+	@IsObject()
+	_users: Array<[string, ChatUserDTO]>;
+
+	@IsObject()
+	_ban_user: string[];
+}
+
 export class ChatUserDTO {
 	@IsObject()
 	_authority: Authority;

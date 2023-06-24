@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
 import { ConnectionClosedEvent } from 'typeorm';
-import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, ChatAuthDTO, RoomCheckDTO, ChatRoomJoinDTO, ChatUserDTO, Authority } from './dto/chat.dto';
+import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, ChatAuthDTO, RoomCheckDTO, ChatRoomJoinDTO, ChatUserDTO, Authority, ChatRoomSendDTO } from './dto/chat.dto';
 import { UsersService } from 'src/users/users.service';
 import userDTO from 'src/users/user.dto';
 import { userInfo } from 'os';
@@ -50,8 +50,7 @@ export class ChatGateway
 	// chat.gateway.ts
 	async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
 		this.server.adapter.rooms
-		const userid: string | string[] = client.handshake.query._userId;
-		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
+		let userid: string | string[] = client.handshake.query._userId;
 		// let userdata = await this.userService.findOne(userid as string);
 		if (typeof userid === 'string') {
 			if (!socket_list.has(userid))
@@ -61,9 +60,12 @@ export class ChatGateway
 				let num : number = 0;
 				while (socket_list.has(userid + "_" + num.toString()))
 				num++;
-				socket_list.set(userid + "_" + num.toString(), client);
+				client.handshake.query._userId = userid + "_" + num.toString();
+				userid = client.handshake.query._userId;
+				socket_list.set(userid, client);
 			}
 		}
+		console.log('\x1b[38;5;154m Chat Connection: ', userid, " : ", client.id + "\x1b[0m");
 		client.emit('room-refresh', this.ft_room_list());
 	}
 
@@ -135,6 +137,7 @@ export class ChatGateway
 
 		room._users.set(userid, user_info);
 		channel_list.set(payload._room_name, room);
+		console.log(room);
 	}
 
 
@@ -175,7 +178,7 @@ export class ChatGateway
 		const room = channel_list.get(payload._room_name);
 		if (room !== undefined)
 		{
-			if (room._password != payload._room_password) {
+			if (room._password !== payload._room_password) {
 				payload._pass = false;
 				return 0;
 			}
@@ -435,9 +438,16 @@ export class ChatGateway
 		@MessageBody() payload: string,
 	) {
 		console.log("\x1b[38;5;226m chat-refresh \x1b[0m :", payload);
-		let channel = channel_list.get(payload);
-		if (channel !== undefined)		
-			client.emit('chat-refresh', channel);
+		const channel = channel_list.get(payload);
+		const channelSendDTO : ChatRoomSendDTO = {
+			_name : channel._name,
+			_password: channel._password,
+			_users : Array.from(channel._users),
+			_ban_user: channel._ban_user,
+		}
+		if (channel !== undefined) {
+			client.emit('chat-refresh', channelSendDTO);
+		}
 		else
 			client.emit('chat-refresh', 'chat refresh error!')
 	}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Modal, type ModalComponent, type ModalSettings } from '@skeletonlabs/skeleton';
+	import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import RoomCreateModal from '../../components/Chat/ChatRoomCreateModal.svelte';
 	import RoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
@@ -119,7 +119,7 @@
 			type: 'component',
 			// Pass the component directly:
 			component: modalComponent,
-			response: CreateRoom
+			response: CreateRoom // $modalstore[0].response = CreateRoom;
 		};
 		modalStore.trigger(modal);
 	}
@@ -147,9 +147,6 @@
 	{/each}
 </div>
 <!-- </AppShell> -->
-
-
-<Modal/>
 
 <style>
   .button-container {

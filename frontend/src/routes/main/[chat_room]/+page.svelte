@@ -6,7 +6,7 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, RoomCheckIF } from '$lib/interface';
+	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, ChatRoomSendIF, RoomCheckIF } from '$lib/interface';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
@@ -16,7 +16,7 @@
 
 	let socket: Socket;
 	let userid: string
-	let room : ChatRoomIF;
+	let room : ChatRoomSendIF;
 	let msg_list: ChatMsgIF[] = [];
 	let chat_data: ChatMsgIF = {
 		_msg: '',
@@ -50,12 +50,9 @@
 			socket.emit("chat-refresh", $page.params['chat_room']);
 	
 			/* ===== chat-refresh ===== */
-			socket.on('chat-refresh', (data: ChatRoomIF | string) => {
+			socket.on('chat-refresh', (data: ChatRoomSendIF | string) => {
 				if (typeof data === 'object')
-				{
 					room = data;
-					console.log([...room._users]);
-				}
 				else
 				{
 					console.log("chat refresh error");

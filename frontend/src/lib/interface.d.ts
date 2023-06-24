@@ -11,6 +11,13 @@ interface ChatRoomIF {
 	_ban_user: string[];
 }
 
+interface ChatRoomSendIF {
+	_name: string;
+	_password: string;
+	_users: Array<[string, ChatUserIF]>;
+	_ban_user: string[];
+}
+
 interface ChatUserIF {
 	_authority: Authority;
 	_is_muted: boolean;

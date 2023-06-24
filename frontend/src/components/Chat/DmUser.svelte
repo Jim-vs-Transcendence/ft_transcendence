@@ -6,7 +6,7 @@
     // export let userInfo: UserDTO; // 실제로 api요청해서 데이터 가져올때 필요 
     // $: userInfo;
 
-    import { Avatar } from '@skeletonlabs/skeleton';
+    import { Avatar, modalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
     import { getApi } from '../../service/api';
 
@@ -63,18 +63,27 @@
 
     }
 
+	function triggerModal() {
+		const modal: ModalSettings = {
+			type: 'alert',
+			// Data
+			title: 'Example Alert',
+			body: 'This is an example modal.',
+			image: 'https://i.imgur.com/WOgTG96.gif',
+		};
+		modalStore.trigger(modal);
+	}
 
 </script>
 
 <!-- <div class="cursor-pointer hover:variant-glass-surface" use:popup={dmPopupFeatured} > -->
     <!-- dmChatStore[dmChatStore.opponent]?._avatar ?? "" -->
-<div class="cursor-pointer hover:variant-glass-surface" on:click={() => console.log(dmChatStore)} >
+<div class="cursor-pointer hover:variant-glass-surface" on:click={triggerModal} >
     <Avatar
         src={dmChatStore[Object.keys(dmChatStore)[0]]._avatar}
         width="w-7"
         rounded="rounded-full"
         />
-        <!-- on:click={() => goProfile(dmChatStore.opponent)} -->
     <span class="flex-auto">
         <dt>
             {Object.keys(dmChatStore)[0]}
