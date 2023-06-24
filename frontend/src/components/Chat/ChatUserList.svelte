@@ -6,7 +6,7 @@
     import { Avatar } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
     import { getApi, postApi, delApi } from '../../service/api';
-    import { Authority } from '$lib/interface';
+    import { Authority } from '$lib/enum';
     import type { ChatUserIF } from '$lib/interface';
 	import ChatUserOptions from './ChatUserOptions.svelte';
     

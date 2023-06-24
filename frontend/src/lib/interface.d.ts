@@ -1,5 +1,5 @@
-import '../service/userDTO.ts'
-
+import '../service/userDTO'
+import '$lib/enum'
 /* ================================================================================
 								chat room join interface
    ================================================================================ */
@@ -28,13 +28,6 @@ interface ChatRoomJoinIF {
 								In chat room
    ================================================================================ */
    
-enum Authority {
-	OWNER,
-	ADMIN,
-	USER,
-}
-
-
 interface RoomCheckIF {
 	_url: string;
 	_check: boolean;

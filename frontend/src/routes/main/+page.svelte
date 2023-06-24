@@ -11,7 +11,6 @@
 	import type { ChatRoomIF, ChatRoomJoinIF } from '$lib/interface';
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import ChatRoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
 
 
 	let socket: Socket;
