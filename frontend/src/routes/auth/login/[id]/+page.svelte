@@ -11,20 +11,33 @@
 
     let position = 80;
 
+		async function goMain() {
+			await authToken.login(id);
+			goto('/main');
+		}
+
     onMount(async () => {
         // 스타워즈 스크롤 효과
         const interval = setInterval(() => {
             position -= 0.3;
         }, 40);
 
+				window.addEventListener('keydown', async function(event) {
+					if (event.code === 'KeyX') {
+            goMain();
+					}
+				});
+
         setTimeout(async () => {
-            await authToken.login(id);
-            goto('/main');
+					goMain();
         }, 24000);
+
 
         // 컴포넌트가 unmount될 때 interval을 제거합니다.
         return () => clearInterval(interval);
     });
+
+
 
 </script>
 
@@ -98,5 +111,7 @@
 	여러분의 창의력을 통해 이 웹사이트는 새로운 의미를 지속적으로 부여받게 될 것입니다.
 
 	감사합니다.
+		<button on:click={() => goMain()}>Click to Skip</button>
 	</div>
 </div>
+
