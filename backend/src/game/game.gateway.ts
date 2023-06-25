@@ -92,7 +92,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.service.endGame(room);
 
 					// invite / random 게임 구분하여 저장
-					// this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
+					this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 				}
 				else {
 					// leftPlayer Win
@@ -103,8 +103,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					gamePlayerScoreData.game_type = room.gameType;
 					console.log('leftPlayer win');
 
+					
 					this.service.endGame(room);
-
+					
+					this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 				}
 			}
 		}
@@ -136,7 +138,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.service.initPlayer(player, client);
 		this.players.push(player);
 		// userService에서 updateUserStatus를 사용해서 게임중(2)으로 변경
-		// this.usersService.updateUserStatus(player.myId, 2);
+		this.usersService.updateUserStatus(player.myId, 2);
 
 		if (this.players.length >= 2) {
 			let room: GameRoom = new GameRoom();
@@ -147,6 +149,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (room.leftPlayer.socketId !== room.rightPlayer.socketId) {
 				room.leftPlayer.urId = room.rightPlayer.myId;
 				room.rightPlayer.urId = room.leftPlayer.myId;
+
+				room.gameType = true;
 	
 				this.rooms.set(room.leftPlayer.socketId, room);
 	
@@ -209,6 +213,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.service.initPlayer(right, player2);
 
 		let room: GameRoom = new GameRoom();
+
+		room.gameType = false;
 		room.leftPlayer = left;
 		room.rightPlayer = right;
 
@@ -318,7 +324,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	// Down Key pressed : Paddle down
-	@SubscribeMessage('upKey')z
+	@SubscribeMessage('upKey')
 	handlePaddleDown(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() roomName: string,

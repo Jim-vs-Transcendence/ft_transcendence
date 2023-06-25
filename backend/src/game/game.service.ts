@@ -140,7 +140,7 @@ export class GameService {
 			gamePlayerScoreData.player2_score = room.rightPlayer.gameScore;
 			gamePlayerScoreData.game_type = room.gameType;
 			// user 쪽에서 DB에 POST하는 로직 추가
-			// this.myGameGateway.matchHistoryService.createMatchHistory(gamePlayerScoreData);
+			this.myGameGateway.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 		}
 
 		this.resetPlayer(room.leftPlayer.updateData.moveData);
