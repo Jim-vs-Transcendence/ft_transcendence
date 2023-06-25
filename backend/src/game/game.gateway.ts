@@ -5,10 +5,10 @@ import { GameRoom, GameClientOption } from './data/playerData';
 import { GameService } from './game.service';
 import { MatchHistoryService } from 'src/users/match-history/match-history.service';
 import { UsersService } from 'src/users/users.service';
-/* 
+/*
  * service : gateway에서 호출되어 게임 내부 로직 변경 (현재 게이트웨이에 있는 private 함수들)
  * gateway : 클라이언트에서 받은 소켓 정보를 service 함수를 호출하여 핸들링
- * 
+ *
  * 문제는 gateway에서 rooms 배열을 가지고 있는데, timeout 함수 호출 시 해당 room을 지워야 함.
  * 그러면 gateway에서 room을 찾아 지워주는 함수를 만들고, service에서 gateway함수를 호출하여 해당 room 삭제 되게
  * -> 서비스에서 constructor로 게이트웨이를 가지고 있으니까 해당 요소를 불러서 삭제하도록 하면 될 듯?
@@ -72,7 +72,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			console.log('client id : ', client.id);
 			const destroyedRoom: string = this.roomKey.get(client.id);
 			console.log('destroy room', destroyedRoom);
-			
+
 			if (destroyedRoom) {
 				const room: GameRoom = this.rooms.get(destroyedRoom);
 				const gamePlayerScoreData: GamePlayerScoreData = new GamePlayerScoreData();
@@ -147,12 +147,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (room.leftPlayer.socketId !== room.rightPlayer.socketId) {
 				room.leftPlayer.urId = room.rightPlayer.myId;
 				room.rightPlayer.urId = room.leftPlayer.myId;
-	
+
 				this.rooms.set(room.leftPlayer.socketId, room);
-	
+
 				this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
 				this.roomKey.set(room.rightPlayer.socketId, room.leftPlayer.socketId);
-	
+
 				this.server.to(room.leftPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 				this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 			}
@@ -318,7 +318,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	// Down Key pressed : Paddle down
-	@SubscribeMessage('upKey')z
+	@SubscribeMessage('upKey')
 	handlePaddleDown(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() roomName: string,

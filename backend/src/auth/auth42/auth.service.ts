@@ -22,9 +22,6 @@ export class AuthService {
     //   sameSite: 'none',
     // });
 
-    user.user_status = 1; //online
-    await this.usersService.updateUser(user.id, user);
-
     if (user.two_factor == true)
       res.redirect('http://localhost:5173/auth/two/' + user.id);
     else {
