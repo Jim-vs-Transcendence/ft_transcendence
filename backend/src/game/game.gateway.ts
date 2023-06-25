@@ -113,7 +113,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	handleDisconnect(client: Socket) {
 		console.log('\x1b[38;5;154m Disconnect: ', client.id + "\x1b[0m");
-		console.log('\x1b[38;5;154m Disconnect: ', client.id + "\x1b[0m");
 		this.destroyRoom(client);
 	}
 
@@ -171,7 +170,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 	) {
 		console.log('============Game Quit=============');
-		console.log('============Game Quit=============');
 		this.destroyRoom(client);
 	}
 
@@ -184,7 +182,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			const playerIndex: number = this.players.indexOf(curPlayer);
 			this.players.splice(playerIndex, 1);
 		}
-		client.emit('gotoMain', );
 		client.emit('gotoMain', );
 	}
 
@@ -199,7 +196,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			userSocket.emit('you got invite', userSocket.handshake.query._userId);
 		}
 		else {
-			client.emit('gotoMain');
 			client.emit('gotoMain');
 		}
 	}
@@ -220,10 +216,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		room.gameType = false;
 		room.leftPlayer = left;
 		room.rightPlayer = right;
-
-		room.leftPlayer.urId = room.rightPlayer.myId;
-		room.rightPlayer.urId = room.leftPlayer.myId;
-
 
 		room.leftPlayer.urId = room.rightPlayer.myId;
 		room.rightPlayer.urId = room.leftPlayer.myId;
@@ -258,10 +250,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {
 		let gameRoom: string = this.roomKey.get(client.id);
 		console.log('gameRoom : ', gameRoom);
-		console.log('gameRoom : ', gameRoom);
 		if (!gameRoom) {
-			console.log('cannot find game room in the option page');
-			this.server.to(client.id).emit('gotoMain', );
 			console.log('cannot find game room in the option page');
 			this.server.to(client.id).emit('gotoMain', );
 		}
@@ -281,7 +270,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		else {
 			this.server.to(client.id).emit('gotoMain', );
-			this.server.to(client.id).emit('gotoMain', );
 		}
 	}
 
@@ -300,7 +288,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			}
 		}
 		else {
-			this.server.to(client.id).emit('gotoMain', );
 			this.server.to(client.id).emit('gotoMain', );
 		}
 	}
