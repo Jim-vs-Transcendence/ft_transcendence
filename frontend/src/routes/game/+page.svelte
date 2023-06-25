@@ -10,8 +10,6 @@
 
 	let io_game: Socket;
 
-	let	boundFlag: boolean = false;
-
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
 	})

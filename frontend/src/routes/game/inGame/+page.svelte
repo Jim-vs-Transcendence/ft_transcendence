@@ -54,8 +54,6 @@
 
 	let retryFlag: boolean = false;
 
-	let refreshFlag: boolean = false;
-
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
 			cnt = -10;

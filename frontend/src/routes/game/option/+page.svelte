@@ -128,10 +128,6 @@
 		// ballSizeEmit();
 	}
 
-	let boundFlag: boolean = false;
-
-	let refreshFlag: boolean = false;
-
 	async function handleBeforeUnload() {
 		await petchApi({
 			path: 'user/status/' + userInfo.id,
