@@ -135,9 +135,9 @@ export class GameService {
 			}
 			const gamePlayerScoreData: GamePlayerScoreData = new GamePlayerScoreData();
 			gamePlayerScoreData.player1 = room.leftPlayer.myId;
-			gamePlayerScoreData.player1_score = room.leftPlayer.gameScore;
+			gamePlayerScoreData.player1_score = room.leftPlayer.updateData.leftScore;
 			gamePlayerScoreData.player2 = room.rightPlayer.myId;
-			gamePlayerScoreData.player2_score = room.rightPlayer.gameScore;
+			gamePlayerScoreData.player2_score = room.leftPlayer.updateData.rightScore;
 			gamePlayerScoreData.game_type = room.gameType;
 			// user 쪽에서 DB에 POST하는 로직 추가
 			this.myGameGateway.matchHistoryService.saveMatchHistory(gamePlayerScoreData);

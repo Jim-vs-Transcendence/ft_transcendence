@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	import type { Socket } from 'socket.io-client';
 	import type { GamePlayerData, GameUpdateData, GameMoveData } from '$lib/gameData';
 	import { onMount, onDestroy } from 'svelte';
@@ -155,6 +156,7 @@
 			io_game.emit('downKey', gameClientOption._roomName);
 		} else if (event.key === 'ArrowUp') {
 			io_game.emit('upKey', gameClientOption._roomName);
+		}
 	}
 
 	let userInfo: UserDTO;
@@ -263,9 +265,10 @@
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();
 	});
+
 </script>
 
-<svelte:window on:popstate={main}></svelte:window>
+<svelte:window on:popstate={main} />
 
 <div class="flex flex-col justify-center items-center h-screen bg-gray-200">
 	<div class="relative flex items-center justify-center w-full">
@@ -311,5 +314,4 @@
 		font-size: 24px;
 		font-weight: bold;
 	}
-
 </style>

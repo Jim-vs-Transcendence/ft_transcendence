@@ -39,6 +39,7 @@
 </script>
 
 
+
 {#if isLoading}
   <LoadingMessage />
 {:else}
@@ -48,7 +49,6 @@
     </div>
   </div>
 {/if}
-
 <style>
-
+  
 </style>
