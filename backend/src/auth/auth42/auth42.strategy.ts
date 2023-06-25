@@ -32,7 +32,7 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42') {
       email: profile.email,
       avatar:
         this.configService.get<string>('BACKEND_URL') +
-        'user/uploads/_default.jpg',
+        'user/uploads/_default.gif',
       win: 0,
       lose: 0,
       level: 0,

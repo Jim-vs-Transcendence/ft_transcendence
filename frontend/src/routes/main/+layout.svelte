@@ -22,7 +22,7 @@
 				}
         	});
 	}
-	
+
     onMount(async () => {
         try {
             userInfo = await auth.isLogin();
@@ -30,6 +30,13 @@
                 goto('/');
                 throw("잘못된 접근");
             }
+
+            await petchApi({
+					path: 'user/status/' + userInfo.id,
+					data: {
+					"user_status": 1,
+				}
+			});
 
             friendList = await getApi({ path: 'friends' });
             isLoading = false;
