@@ -35,8 +35,9 @@ const logout = () => {
   authToken.logout()
 };
 
+//상대경로가 아닌 절대경로 프로필로 이동하도록 설정
 const goProfile = (name: string) => {
-  goto('profile/' + name)
+	goto('/profile/' + name, { replaceState: true });
 };
 
 const goHome = () => {
