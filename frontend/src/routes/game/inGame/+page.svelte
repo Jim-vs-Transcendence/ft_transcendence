@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	import type { Socket } from 'socket.io-client';
 	import type { GamePlayerData, GameUpdateData, GameMoveData } from '$lib/gameData';
 	import { onMount, onDestroy } from 'svelte';
@@ -9,6 +10,12 @@
 	import { goto } from '$app/navigation';
 
 	let io_game: Socket;
+
+	const main = async () => {
+		io_game.emit('gameQuit');
+		console.log('in game back button clicked');
+		await goto('/main');
+	};
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
@@ -46,8 +53,7 @@
 
 	let status: number = 0;
 
-	let retryCnt: number = 0;
-	let boundFlag: boolean = false;
+	let retryFlag: boolean = false;
 
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
@@ -150,20 +156,8 @@
 			io_game.emit('downKey', gameClientOption._roomName);
 		} else if (event.key === 'ArrowUp') {
 			io_game.emit('upKey', gameClientOption._roomName);
-		} else if (event.key === 'Esc') {
-			io_game.emit('gameRestart', gameClientOption._roomName);
 		}
 	}
-
-	const handlePopstate = (event: any) => {
-		window.removeEventListener('popstate', handlePopstate);
-		console.log('Back button clicked');
-		if (boundFlag === false) {
-			io_game.emit('gameQuit');
-			boundFlag = true;
-		}
-		goto('/main');
-	};
 
 	let userInfo: UserDTO;
 
@@ -177,8 +171,8 @@
 	}
 
 	function retryGame() {
-		retryCnt++;
-		if (retryCnt === 1) {
+		if (retryFlag === true) {
+			retryFlag = false;
 			io_game.emit('gameRestart', gameClientOption._roomName);
 		}
 	}
@@ -202,46 +196,9 @@
 		}
 	}
 
-	async function getBallData(): Promise<GameMoveData> {
-		return new Promise((resolve, reject) => {
-			io_game.on('ballMove', (moveData: GameMoveData) => {
-				console.log('game draw');
-				resolve(moveData);
-			});
-		});
-	}
-
-	async function getGameMoveData() {
-		try {
-			const moveData = await getBallData();
-			draw(moveData);
-		} catch (error) {
-			console.error('Failed to receive game draw data:', error);
-		}
-	}
-
-	async function getUpdateData(): Promise<GameUpdateData> {
-		return new Promise((resolve, reject) => {
-			io_game.on('oneSetEnd', (updateData: GameUpdateData) => {
-				resolve(updateData);
-			});
-		});
-	}
-
-	async function getGameUpdateData() {
-		try {
-			const updateData = await getUpdateData();
-			leftScore = updateData.leftScore;
-			rightScore = updateData.rightScore;
-			draw(updateData.moveData);
-		} catch (error) {
-			console.error('Failed to receive game draw data:', error);
-		}
-	}
-
 	onMount(async () => {
 		if (io_game === undefined) {
-			goto('/main');
+			await goto('/main');
 		}
 
 		try {
@@ -249,30 +206,21 @@
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
-			goto('/main');
+			await goto('/main');
 		}
 
 		io_game.emit('inGamePageArrived', gameClientOption._roomName);
 
 		handleGameDraw();
 
-		const state = { page: 'home' };
-		const url = `/main`;
-		window.history.pushState(state, '', url);
-
-		window.addEventListener('popstate', handlePopstate);
-
-		console.log('what is the type of the canvas?', typeof canvas);
 		context = canvas.getContext('2d')!;
 
 		window.addEventListener('resize', resizeCanvas);
 		window.addEventListener('keydown', handleKeyPress);
 
-		io_game.on('gotoMain', (flag: boolean) => {
-			console.log('is in here?');
-			if (flag) {
-				goto('/main');
-			}
+		io_game.on('gotoMain', () => {
+			console.log('in game go to main');
+			goto('/main');
 		});
 
 		io_game.on('restart', (flag: boolean) => {
@@ -285,7 +233,7 @@
 
 		io_game.on('gameEnd', (flag: boolean) => {
 			status = 2;
-			retryCnt = 0;
+			retryFlag = true;
 			setEndGame(flag);
 		});
 
@@ -317,7 +265,10 @@
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();
 	});
+
 </script>
+
+<svelte:window on:popstate={main} />
 
 <div class="flex flex-col justify-center items-center h-screen bg-gray-200">
 	<div class="relative flex items-center justify-center w-full">
@@ -349,12 +300,6 @@
 </div>
 
 <style>
-	.container {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-	}
-
 	.button-container {
 		display: flex;
 		justify-content: center;
@@ -368,18 +313,5 @@
 		justify-content: center;
 		font-size: 24px;
 		font-weight: bold;
-	}
-
-	.canvas-container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		height: 100vh; /* 화면 높이에 맞게 캔버스 컨테이너의 높이를 설정 */
-	}
-
-	.canvas-wrapper {
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 </style>

@@ -10,6 +10,7 @@
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
+	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	import type { Unsubscriber } from 'svelte/store';
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -108,7 +109,7 @@
 	}
 
 	function ft_exit_chat_room() {
-		goto('/main');
+		goto('/');
 	}
 </script>
 

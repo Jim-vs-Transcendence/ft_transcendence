@@ -130,8 +130,8 @@
             if (uploaded_pic && uploaded_pic.length > 0) {
             const file = uploaded_pic[0];
 
-            if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
-                alert('jpeg나 png만 지원합니다');
+			if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
+                alert('jpeg나 png 그리고 gif만 지원합니다');
                 return;
             }
             if (file.size > 5 * 1024 * 1024) {

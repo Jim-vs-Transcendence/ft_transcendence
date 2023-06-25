@@ -15,9 +15,11 @@
 
 	let cnt: number = 0;
 
-	// const match = async () => {
-	// 	await goto('/game/inGame');
-	// };
+	const main = async () => {
+		io_game.emit('gameQuit');
+		console.log('option back button clicked');
+		await goto('/main');
+	};
 
 	function setReady() {
 		cnt++;
@@ -126,17 +128,6 @@
 		// ballSizeEmit();
 	}
 
-	let boundFlag: boolean = false;
-
-	const handlePopstate = (event: any) => {
-		console.log('Back button clicked');
-		if (boundFlag === false) {
-			io_game.emit('gameQuit');
-			boundFlag = true;
-		}
-		goto('/main');
-	};
-
 	async function handleBeforeUnload() {
 		await petchApi({
 			path: 'user/status/' + userInfo.id,
@@ -149,9 +140,9 @@
 	let userInfo: UserDTO;
 	// 옵션 페이지에서만 작동 안 함. 왜
 	onMount(async () => {
-		if (io_game === undefined) {
+		if ( io_game === undefined) {
 			console.log('user refresh');
-			goto('/main');
+			await goto('/main');
 		}
 
 		try {
@@ -159,21 +150,13 @@
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
-			goto('/main');
+			await goto('/main');
 		}
-
-		const state = { page: 'home' };
-		const url = `/main`;
-		window.history.pushState(state, '', url);
-
-		window.addEventListener('popstate', handlePopstate);
 
 		io_game.emit('optionPageArrived');
 
-		io_game.on('gotoMain', (flag: boolean) => {
-			if (flag) {
-				goto('/main');
-			}
+		io_game.on('gotoMain', () => {
+			goto('/main');
 		});
 
 		io_game.on('optionReady', (flag: boolean) => {
@@ -195,6 +178,8 @@
 		io_game.off('gameQuit');
 	});
 </script>
+
+<svelte:window on:popstate={main}></svelte:window>
 
 <div class="flex h-screen items-center justify-center">
 	<ul

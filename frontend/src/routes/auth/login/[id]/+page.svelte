@@ -1,4 +1,3 @@
-<!-- auth : 토큰 발급을 위한 임시 페이지 -->
 <script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
@@ -18,11 +17,10 @@
             position -= 0.3;
         }, 40);
 
-        // 30초 후에 로그인 및 리디렉션을 실행합니다.
         setTimeout(async () => {
             await authToken.login(id);
             goto('/main');
-        }, 0);
+        }, 24000);
 
         // 컴포넌트가 unmount될 때 interval을 제거합니다.
         return () => clearInterval(interval);
@@ -102,5 +100,3 @@
 	감사합니다.
 	</div>
 </div>
-
-
