@@ -1,17 +1,26 @@
-import '../service/userDTO.js'
+import '../service/userDTO.ts'
 
 /* ================================================================================
 								room
    ================================================================================ */
 
 interface ChatRoomIF {
+	_name: string;
+	_password: string;
+	_users: Map<string, userDTO>;
+	_auth_user: Map<string, number>;
+	_mute_user: string[];
+	_ban_user: string[];
+}
+
+interface ChatRoomJoinIF {
 	_room_name: string;
 	_room_password: string;
-	_room_users: string[];
+	_is_passworded: boolean;
 	_pass: boolean;
 }
 
-interface popupIF {
+interface CreateRoomPopupIF {
 	_active: boolean;
 	_message: string;
 	_option: {
@@ -27,7 +36,7 @@ interface ChatMsgIF {
 	_room_name: string;
 }
 
-interface PayLoadIF {
+interface RoomCheckIF {
 	_url: string;
 	_check: boolean;
 }
@@ -70,6 +79,11 @@ interface DmChatIF {
 	_to: string;
 }
 
+interface DmUserInfoIF {
+	_avatar: string;
+	_dmChatStore: DmChatIF[];
+}
+
 interface DmChatStoreIF {
-	[opponent: string]: DmChatIF[];
+	[opponent: string]: DmUserInfoIF;
 }

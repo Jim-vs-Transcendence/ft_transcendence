@@ -145,7 +145,9 @@
 	// 옵션 페이지에서만 작동 안 함. 왜
 	onMount(async () => {
 		if ( io_game === undefined) {
+		if ( io_game === undefined) {
 			console.log('user refresh');
+			await goto('/main');
 			await goto('/main');
 		}
 
@@ -155,10 +157,13 @@
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
 			await goto('/main');
+			await goto('/main');
 		}
 
 		io_game.emit('optionPageArrived');
 
+		io_game.on('gotoMain', () => {
+			goto('/main');
 		io_game.on('gotoMain', () => {
 			goto('/main');
 		});

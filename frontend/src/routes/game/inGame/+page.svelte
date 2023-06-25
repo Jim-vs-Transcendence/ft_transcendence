@@ -54,6 +54,8 @@
 
 	let retryFlag: boolean = false;
 
+	let refreshFlag: boolean = false;
+
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
 			cnt = -10;
@@ -200,6 +202,7 @@
 	onMount(async () => {
 		if (io_game === undefined) {
 			await goto('/main');
+			await goto('/main');
 		}
 
 		try {
@@ -207,6 +210,7 @@
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
+			await goto('/main');
 			await goto('/main');
 		}
 
@@ -219,6 +223,9 @@
 		window.addEventListener('resize', resizeCanvas);
 		window.addEventListener('keydown', handleKeyPress);
 
+		io_game.on('gotoMain', () => {
+			console.log('in game go to main');
+			goto('/main');
 		io_game.on('gotoMain', () => {
 			console.log('in game go to main');
 			goto('/main');
@@ -262,6 +269,7 @@
 		io_game.off('gotoMain');
 		io_game.off('restart');
 		io_game.off('gameEnd');
+		window.removeEventListener('popstate', handlePopstate);
 		window.removeEventListener('resize', resizeCanvas);
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();

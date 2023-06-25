@@ -1,12 +1,13 @@
 
 import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { Socket } from 'socket.io';
+import userDTO from 'src/users/user.dto';
 
 /* ================================================================================
-								room
+								chat room join interface
    ================================================================================ */
 
-export class ChatRoom {
+export class ChatRoomDTO {
 	@IsString()
 	_name: string;
 
@@ -15,7 +16,7 @@ export class ChatRoom {
 	_password: string;
 
 	@IsObject()
-	_user: Map<string, Socket>;
+	_users: Map<string, userDTO>;
 
 	@IsObject()
 	_auth_user: Map<string, number>;
@@ -27,66 +28,42 @@ export class ChatRoom {
 	_ban_user: string[];
 }
 
-export class ChatRoomDTO {
+export class ChatRoomJoinDTO {
 	@IsString()
 	_room_name: string;
 
 	@IsString()
 	_room_password: string;
 
-	@IsString()
-	_room_users: string[];
+	@IsBoolean()
+	_is_passworded: boolean;
 
 	@IsBoolean()
 	_pass: boolean;
-
 }
 
 
 /* ================================================================================
-								chat
+								In chat room
    ================================================================================ */
-
-export class ChatUser {
-	@IsString()
-	_name : string = "";
-
-	@IsString()
-	_avatar : string = "";
-
-	@IsNumber()
-	_auth : number = 0;
-
-	@IsBoolean()
-	_mute : boolean = false;
-}
-
-export class ChatRefreshDTO {
-	@IsString()
-	_name : string = "";
-
-	@IsString()
-	_ban : string [] = [];
-
-	@IsObject()
-	_user : ChatUser [] = [];
-}
-
-export class ChatMsgDTO {
-	@IsString()
-	readonly _msg: string;
-	@IsString()
-	readonly _room_name: string;
-	@IsString()
-	_user_name: string;
-}
-
-export class PayLoadDTO {
+   
+export class RoomCheckDTO {
 	@IsString()
 	readonly _room: string;
 
 	@IsBoolean()
 	_check: boolean;
+}
+
+export class ChatMsgDTO {
+	@IsString()
+	readonly _msg: string;
+
+	@IsString()
+	readonly _room_name: string;
+
+	@IsString()
+	_user_name: string;
 }
 
 export class ChatAuthDTO {
