@@ -98,16 +98,5 @@
 여러분의 창의력을 통해 이 웹사이트는 새로운 의미를 지속적으로 부여받게 될 것입니다.
 
 	감사합니다.
-	{/if}
-    	</div>
-    {#if isButtonVisible}
-		<div class="absolute inset-0 flex items-center justify-center">
-			<button
-				on:click={executeLoginAndRedirect}
-				class="bg-blue-500 text-white px-8 py-4 text-2xl font-bold rounded-full"
-			>
-				난 이런거 보고 싶지 않아 버튼
-			</button>
-		</div>
-    {/if}
+	</div>
 </div>
