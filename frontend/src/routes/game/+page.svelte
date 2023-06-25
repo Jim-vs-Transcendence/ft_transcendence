@@ -12,10 +12,6 @@
 
 	let	boundFlag: boolean = false;
 
-	let refreshFlag: boolean = false;
-
-	let refreshFlag: boolean = false;
-
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
 	})
@@ -45,11 +41,9 @@
 		catch(error){
 			alert('오류 : 프로필을 출력할 수 없습니다1');
 			await goto('/main');
-			await goto('/main');
 		}
 
 		if (io_game === undefined) {
-			await goto('/main');
 			await goto('/main');
 		}
 

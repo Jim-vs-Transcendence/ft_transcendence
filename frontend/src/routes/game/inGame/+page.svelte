@@ -157,9 +157,6 @@
 			io_game.emit('downKey', gameClientOption._roomName);
 		} else if (event.key === 'ArrowUp') {
 			io_game.emit('upKey', gameClientOption._roomName);
-		} else if (event.key === 'Esc') {
-			io_game.emit('gameRestart', gameClientOption._roomName);
-		}
 	}
 
 	let userInfo: UserDTO;
@@ -202,7 +199,6 @@
 	onMount(async () => {
 		if (io_game === undefined) {
 			await goto('/main');
-			await goto('/main');
 		}
 
 		try {
@@ -210,7 +206,6 @@
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
-			await goto('/main');
 			await goto('/main');
 		}
 
@@ -269,7 +264,6 @@
 		io_game.off('gotoMain');
 		io_game.off('restart');
 		io_game.off('gameEnd');
-		window.removeEventListener('popstate', handlePopstate);
 		window.removeEventListener('resize', resizeCanvas);
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();
