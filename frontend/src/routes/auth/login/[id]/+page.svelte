@@ -51,6 +51,7 @@
 
 	.container {
 	  perspective: 1000px;
+		max-width: 95%;
 	  overflow: hidden;
 	  display: flex;
 	  justify-content: center;
@@ -74,7 +75,7 @@
 	  class="text"
 	  style={`transform: rotateX(30deg) translateY(${position}%)`}
 	>
-	:)
+		:)
 	저희 웹사이트를 방문해 주셔서 감사드립니다.
 	우선, 이 사이트가 주는 이색적이고 독특한 경험에 당황하실 수도 있겠지만,
 	이것이 바로 저희가 의도한 바입니다.
@@ -111,7 +112,7 @@
 	여러분의 창의력을 통해 이 웹사이트는 새로운 의미를 지속적으로 부여받게 될 것입니다.
 
 	감사합니다.
-		<button on:click={() => goMain()}>Click to Skip</button>
+	<button on:click={() => goMain()}>Click to Skip</button>
 	</div>
 </div>
 
