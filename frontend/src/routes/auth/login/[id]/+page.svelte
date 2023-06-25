@@ -99,14 +99,4 @@
 
 	감사합니다.
 	</div>
-    <!-- {#if isButtonVisible}
-		<div class="absolute inset-0 flex items-center justify-center">
-			<button
-				on:click={executeLoginAndRedirect}
-				class="bg-blue-500 text-white px-8 py-4 text-2xl font-bold rounded-full"
-			>
-				난 이런거 보고 싶지 않아 버튼
-			</button>
-		</div>
-    {/if} -->
 </div>
