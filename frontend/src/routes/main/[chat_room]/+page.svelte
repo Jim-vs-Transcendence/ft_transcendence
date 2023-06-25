@@ -51,6 +51,7 @@
 	
 			/* ===== chat-refresh ===== */
 			socket.on('chat-refresh', (data: ChatRoomSendIF | string) => {
+				console.log(data);
 				if (typeof data === 'object')
 					room = data;
 				else

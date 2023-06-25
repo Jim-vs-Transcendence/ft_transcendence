@@ -7,9 +7,9 @@ import userDTO from 'src/users/user.dto';
    ================================================================================ */
 
 export enum Authority {
-	USER,
+	OWNER,
 	MANAGER,
-	OWNER
+	USER,
 }
 
 export class ChatRoomDTO {

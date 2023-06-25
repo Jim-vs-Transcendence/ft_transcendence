@@ -133,8 +133,13 @@ export class ChatGateway
 		let user_info : ChatUserDTO = new ChatUserDTO();
 		user_info._authority = Authority.OWNER;
 		user_info._is_muted = false;
-		user_info._user_info = await this.userService.findOne(userid);
-
+		if (userid.indexOf("_") === -1)
+			user_info._user_info = await this.userService.findOne(userid);
+		else // for local test
+		{
+			console.log("test: ", userid.substring(0, userid.indexOf("_")));
+			user_info._user_info = await this.userService.findOne(userid.substring(0, userid.indexOf("_")));
+		}
 		room._users.set(userid, user_info);
 		channel_list.set(payload._room_name, room);
 		console.log(room);
@@ -167,6 +172,15 @@ export class ChatGateway
 				client.emit('room-join', payload);
 				return;
 			}
+			const channel = channel_list.get(payload._room_name);
+			console.log(channel);
+			const channelSendDTO : ChatRoomSendDTO = {
+				_name : channel._name,
+				_password: channel._password,
+				_users : Array.from(channel._users),
+				_ban_user: channel._ban_user,
+			}
+			this.server.to(payload._room_name).emit('chat-refresh', channelSendDTO);
 			payload._pass = true;
 			client.join(payload._room_name);
 			client.emit('room-join', payload);
@@ -439,6 +453,7 @@ export class ChatGateway
 	) {
 		console.log("\x1b[38;5;226m chat-refresh \x1b[0m :", payload);
 		const channel = channel_list.get(payload);
+		console.log(channel);
 		const channelSendDTO : ChatRoomSendDTO = {
 			_name : channel._name,
 			_password: channel._password,
