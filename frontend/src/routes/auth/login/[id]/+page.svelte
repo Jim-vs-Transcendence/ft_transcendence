@@ -20,9 +20,9 @@
         setTimeout(async () => {
             await authToken.login(id);
             goto('/main');
-        }, 24000);
+        }, 0);
 
-        // 컴포넌트가 unmount될 때 interval을 제거합니다.
+		// 컴포넌트가 unmount될 때 interval을 제거합니다.
         return () => clearInterval(interval);
     });
 

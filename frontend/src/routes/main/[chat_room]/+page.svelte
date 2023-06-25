@@ -139,7 +139,6 @@
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{msg._user_name}</p>
-							<small class="opacity-50">{'bubble.timestamp'}</small>
 						</header>
 						<p class="font-bold">{msg._msg}</p>
 					</div>

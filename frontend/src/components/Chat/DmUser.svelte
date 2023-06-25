@@ -5,8 +5,9 @@
     export let dmChatStore: DmChatStoreIF;
     // export let userInfo: UserDTO; // 실제로 api요청해서 데이터 가져올때 필요 
     // $: userInfo;
-
-    import { Avatar, modalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+    import ChatUI from "./ChatUI.svelte"
+    import { Avatar, modalStore } from '@skeletonlabs/skeleton';
+    import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
     import { getApi } from '../../service/api';
 
@@ -38,9 +39,7 @@
         - dummy data 
     */
     // const userInfo: UserDTO =
-    // {
-    //     id: "jim",
-    //     nickname: "nickname jim",
+    // {modalComponent jim",
     //     avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
     //     email: "email",
     //     level: 0,
@@ -59,20 +58,20 @@
 		placement: 'left',
 	};
 
-    function dmWindow() {
+    function triggerModal() {
+        const modalComponent: ModalComponent = {
+            ref: ChatUI,
+        };
 
+        const modal: ModalSettings = {
+            type: 'component',
+            // Data
+            component: modalComponent,
+            response: (r: string) => console.log('response:', r),
+        };
+        modalStore.trigger(modal);
     }
 
-	function triggerModal() {
-		const modal: ModalSettings = {
-			type: 'alert',
-			// Data
-			title: 'Example Alert',
-			body: 'This is an example modal.',
-			image: 'https://i.imgur.com/WOgTG96.gif',
-		};
-		modalStore.trigger(modal);
-	}
 
 </script>
 
