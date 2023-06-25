@@ -79,7 +79,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				console.log('destroy room found');
 				clearInterval(room.dataFrame);
 				clearInterval(room.endTimer);
-				clearInterval(room.endTimer);
 
 				if (room.leftPlayer.socketId === client.id) {
 					// rightPlayer win
@@ -246,7 +245,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {
 		let gameUser: Socket = this.findGameUserSocket(gameInvitation.opponentPlayer);
 		if (gameInvitation.acceptFlag === true) {
-		if (gameInvitation.acceptFlag === true) {
 			this.handleInvitation(client, gameUser);
 		}
 		else {
@@ -338,7 +336,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	// Down Key pressed : Paddle down
-	@SubscribeMessage('upKey')z
+	@SubscribeMessage('upKey')
 	handlePaddleDown(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() roomName: string,
