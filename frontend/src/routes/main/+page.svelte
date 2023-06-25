@@ -125,32 +125,6 @@
 	}
 </script>
 
-<!-- -------------------------------------------------------------------  -->
-<!-- -------------------------------------------------------------------  -->
-<!-- -------------------------------------------------------------------  -->
-
-<!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
-<!-- background 투명하게 변경할 것 -->
-
-<!-- <div class="button-container">
-		<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_popup_create}>Create Room</button>
-	</div>
-	<AppShell class="">
-		<slot />
-		<div class="grid max-h-[70%] max-w-[70%] overflow-auto">
-			
-			{#each rooms_list as room}
-			<div class="logo-item m-1 variant-filled-surface cursor-pointer" id="room"
-			on:mousedown={() => { JoinRoom(room); }}>
-				{room._room_name}
-			</div>
-			{/each}
-		</div>
-	</AppShell> -->
-	<!-- <div> -->
-<!-- <div> -->
-
-<!-- <AppShell class=""> -->
 <div class="button-container">
 	<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_room_create_modal_trigger}>방 만들기</button>
 </div>
@@ -165,7 +139,6 @@
 		</div>
 	{/each}
 </div>
-<!-- </AppShell> -->
 
 <style>
   .button-container {
