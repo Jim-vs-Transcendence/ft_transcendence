@@ -7,6 +7,7 @@
     import "../../service/userDTO";
     import "../../service/friendDTO"
     import { getApi, petchApi } from "../../service/api";
+	import { Modal } from "@skeletonlabs/skeleton";
 
     let userInfo : UserDTO;
     let isLoading : boolean = true;
@@ -22,7 +23,7 @@
 				}
         	});
 	}
-	
+
     onMount(async () => {
         try {
             userInfo = await auth.isLogin();
@@ -30,6 +31,13 @@
                 goto('/');
                 throw("잘못된 접근");
             }
+
+            await petchApi({
+					path: 'user/status/' + userInfo.id,
+					data: {
+					"user_status": 1,
+				}
+			});
 
             friendList = await getApi({ path: 'friends' });
             isLoading = false;
@@ -54,3 +62,5 @@
         <Dmchat  -->
     <slot />
 {/if}
+
+<Modal/>

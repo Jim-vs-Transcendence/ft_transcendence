@@ -27,7 +27,7 @@ export class GamePlayerData {
 	canvasHeight: number;
 	canvasColor: string;
 
-	gameScore: number;
+	gameScore: number = 3;
 
 	paddleWidth: number;
 	paddleHeight: number;

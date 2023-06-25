@@ -10,33 +10,15 @@
 
 	let io_game: Socket;
 
-	let	boundFlag: boolean = false;
-
-	let refreshFlag: boolean = false;
-
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
 	})
 
 	const main = async () => {
 		io_game.emit('queueOut', );
+		console.log('wait back button clicked')
 		await goto('/main');
 	};
-
-	function handlePopstate(event: any) {
-		event.preventDefault();
-		if (refreshFlag === true) {
-			console.log('refreshFlag is true');
-			window.removeEventListener('popstate', handlePopstate);
-		}
-		console.log('Back button clicked');
-		if (boundFlag === false) {
-			console.log('game quit');
-			io_game.emit('gameQuit');
-			boundFlag = true;
-		}
-		//goto('/main');
-	}
 
 	async function handleBeforeUnload() {
 		await petchApi({
@@ -63,16 +45,6 @@
 			await goto('/main');
 		}
 
-		const state = { page: 'home' };
-		const url = `/main`;
-		window.history.pushState(state, '', url);
-
-		if (!refreshFlag) {
-			console.log('add event listener');
-			window.addEventListener('popstate', handlePopstate);
-			refreshFlag = true;
-		}
-
 		io_game.emit('pushMatchList', );
 
 		io_game.on('roomName', (roomName: string) => {
@@ -94,6 +66,8 @@
 	});
 
 </script>
+
+<svelte:window on:popstate={main}></svelte:window>
 
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-5">

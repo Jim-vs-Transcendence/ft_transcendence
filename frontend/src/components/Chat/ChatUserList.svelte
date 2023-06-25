@@ -6,10 +6,12 @@
     import { Avatar } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
     import { getApi, postApi, delApi } from '../../service/api';
-    import type { ChatUserIF }  from '$lib/interface';
+    import { Authority } from '$lib/enum';
+    import type { ChatUserIF } from '$lib/interface';
 	import ChatUserOptions from './ChatUserOptions.svelte';
     
     export let chatUser: ChatUserIF;
+	export let userid : string;
     $: chatUser;
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -58,27 +60,28 @@
 
 </script>
 
-<!-- <ul class="list">
-    
-</ul> -->
-
 <dl class="list-dl">
     <li>
         <span> </span>
         <span class="flex-auto"> </span>
     </li>
     <div class="cursor-pointer">
-            <div class="flex-auto" >
-                    <span>
-                        <dt use:popup={popupFeatured}>
-							<Avatar src={chatUser._user_info.avatar} width="w-7" rounded="rounded-full" />
-							{chatUser._user_info.id} | {chatUser._user_info.nickname}
-						</dt>
-                    </span>
-                    <span class="badge p-0">👑</span>
-                    <span class="badge p-0">🗡️</span>
-                    <span class="badge p-0">🔇</span>
-            </div>
+		<div class="flex-auto" >
+			<span>
+				<dt use:popup={popupFeatured}>
+					<Avatar src={chatUser._user_info.avatar} width="w-7" rounded="rounded-full" />
+					{userid} | {chatUser._user_info.nickname}
+				</dt>
+			</span>
+			{#if chatUser._authority === Authority.OWNER}
+				<span class="badge p-0">👑</span>
+			{:else if chatUser._authority === Authority.ADMIN}
+				<span class="badge p-0">🗡️</span>
+			{/if}
+			{#if chatUser._is_muted}
+				<span class="badge p-0">🔇</span>
+			{/if}
 		</div>
-	</dl>
+	</div>
+</dl>
 	<ChatUserOptions {chatUser}/>

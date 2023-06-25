@@ -50,7 +50,7 @@ export class UsersService {
     if (
       user.avatar !==
       this.configService.get<string>('BACKEND_URL') +
-        'user/uploads/_default.jpg'
+        'user/uploads/_default.gif'
     )
       this.deleteImage(user.avatar);
 

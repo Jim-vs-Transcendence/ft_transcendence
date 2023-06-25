@@ -1,17 +1,14 @@
 <script lang="ts">
-	import { AppShell, Modal, type ModalComponent, type ModalSettings } from '@skeletonlabs/skeleton';
-	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
-	import { getApi, petchApi, postApi, delApi } from '../../service/api';
+	import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import RoomCreateModal from '../../components/Chat/ChatRoomCreateModal.svelte';
 	import RoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
 	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
-	import type { ChatRoomIF, ChatRoomJoinIF, CreateRoomPopupIF } from '$lib/interface';
+	import type { ChatRoomJoinIF } from '$lib/interface';
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import ChatRoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
 
 
 	let socket: Socket;
@@ -122,7 +119,7 @@
 			type: 'component',
 			// Pass the component directly:
 			component: modalComponent,
-			response: CreateRoom
+			response: CreateRoom // $modalstore[0].response = CreateRoom;
 		};
 		modalStore.trigger(modal);
 	}
@@ -161,13 +158,14 @@
 	{#each rooms_list as room}
 		<div class="col-start-2 col-span-3 logo-item m-1 variant-filled-surface cursor-pointer" id="room"
 			on:mousedown={() => { JoinRoom(room); }}>
-				{room._room_name} 🔒︎
+				{room._room_name}
+				{#if room._is_passworded}
+					🔒︎
+				{/if}
 		</div>
 	{/each}
 </div>
 <!-- </AppShell> -->
-
-<Modal/>
 
 <style>
   .button-container {

@@ -3,11 +3,9 @@
   import { authToken } from '../../service/store';
   import '../../service/userDTO';
   import '../../service/friendDTO';
-  import type { ChatUserIF }  from '$lib/interface';
 
   export let userInfo: UserDTO ;
   export let friendList: friendDTO[];
-  export let chatUserList: ChatUserIF[];
 
   //friendsList component
   import FriendsList from '../Profile/FriendsList.svelte';
@@ -35,8 +33,9 @@ const logout = () => {
   authToken.logout()
 };
 
+//상대경로가 아닌 절대경로 프로필로 이동하도록 설정
 const goProfile = (name: string) => {
-  goto('profile/' + name)
+	goto('/profile/' + name, { replaceState: true });
 };
 
 const goHome = () => {

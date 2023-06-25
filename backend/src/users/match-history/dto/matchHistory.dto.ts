@@ -18,7 +18,7 @@ export class MatchHistoryDTO {
   @IsNumber()
   player2_score: number;
 
-  @ApiProperty({ description: '매치 종류(초대 게임: false, 랜덤 게임: ture)' })
+  @ApiProperty({ description: '매치 종류(초대 게임: false, 랜덤 게임: true)' })
   @IsBoolean()
   game_type: boolean;
 }

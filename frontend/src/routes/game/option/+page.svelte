@@ -15,9 +15,11 @@
 
 	let cnt: number = 0;
 
-	// const match = async () => {
-	// 	await goto('/game/inGame');
-	// };
+	const main = async () => {
+		io_game.emit('gameQuit');
+		console.log('option back button clicked');
+		await goto('/main');
+	};
 
 	function setReady() {
 		cnt++;
@@ -126,25 +128,6 @@
 		// ballSizeEmit();
 	}
 
-	let boundFlag: boolean = false;
-
-	let refreshFlag: boolean = false;
-
-	function handlePopstate(event: any) {
-		event.preventDefault();
-		if (refreshFlag === true) {
-			console.log('refreshFlag is true');
-			window.removeEventListener('popstate', handlePopstate);
-		}
-		console.log('Back button clicked');
-		if (boundFlag === false) {
-			console.log('game quit');
-			io_game.emit('gameQuit');
-			boundFlag = true;
-		}
-		//goto('/main');
-	}
-
 	async function handleBeforeUnload() {
 		await petchApi({
 			path: 'user/status/' + userInfo.id,
@@ -168,16 +151,6 @@
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
 			await goto('/main');
-		}
-
-		const state = { page: 'home' };
-		const url = `/main`;
-		window.history.pushState(state, '', url);
-
-		if (!refreshFlag) {
-			console.log('add event listener');
-			window.addEventListener('popstate', handlePopstate);
-			refreshFlag = true;
 		}
 
 		io_game.emit('optionPageArrived');
@@ -205,6 +178,8 @@
 		io_game.off('gameQuit');
 	});
 </script>
+
+<svelte:window on:popstate={main}></svelte:window>
 
 <div class="flex h-screen items-center justify-center">
 	<ul

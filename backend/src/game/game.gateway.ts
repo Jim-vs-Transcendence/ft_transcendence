@@ -5,10 +5,10 @@ import { GameRoom, GameClientOption } from './data/playerData';
 import { GameService } from './game.service';
 import { MatchHistoryService } from 'src/users/match-history/match-history.service';
 import { UsersService } from 'src/users/users.service';
-/* 
+/*
  * service : gateway에서 호출되어 게임 내부 로직 변경 (현재 게이트웨이에 있는 private 함수들)
  * gateway : 클라이언트에서 받은 소켓 정보를 service 함수를 호출하여 핸들링
- * 
+ *
  * 문제는 gateway에서 rooms 배열을 가지고 있는데, timeout 함수 호출 시 해당 room을 지워야 함.
  * 그러면 gateway에서 room을 찾아 지워주는 함수를 만들고, service에서 gateway함수를 호출하여 해당 room 삭제 되게
  * -> 서비스에서 constructor로 게이트웨이를 가지고 있으니까 해당 요소를 불러서 삭제하도록 하면 될 듯?
@@ -72,7 +72,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			console.log('client id : ', client.id);
 			const destroyedRoom: string = this.roomKey.get(client.id);
 			console.log('destroy room', destroyedRoom);
-			
+
 			if (destroyedRoom) {
 				const room: GameRoom = this.rooms.get(destroyedRoom);
 				const gamePlayerScoreData: GamePlayerScoreData = new GamePlayerScoreData();
@@ -92,7 +92,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.service.endGame(room);
 
 					// invite / random 게임 구분하여 저장
-					// this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
+					this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 				}
 				else {
 					// leftPlayer Win
@@ -102,9 +102,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					gamePlayerScoreData.player2_score = 0;
 					gamePlayerScoreData.game_type = room.gameType;
 					console.log('leftPlayer win');
-
+					
 					this.service.endGame(room);
-
+					
+					this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 				}
 			}
 		}
@@ -136,7 +137,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.service.initPlayer(player, client);
 		this.players.push(player);
 		// userService에서 updateUserStatus를 사용해서 게임중(2)으로 변경
-		// this.usersService.updateUserStatus(player.myId, 2);
+		this.usersService.updateUserStatus(player.myId, 2);
 
 		if (this.players.length >= 2) {
 			let room: GameRoom = new GameRoom();
@@ -147,12 +148,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (room.leftPlayer.socketId !== room.rightPlayer.socketId) {
 				room.leftPlayer.urId = room.rightPlayer.myId;
 				room.rightPlayer.urId = room.leftPlayer.myId;
-	
+
+				room.gameType = true;
+
 				this.rooms.set(room.leftPlayer.socketId, room);
-	
+
 				this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
 				this.roomKey.set(room.rightPlayer.socketId, room.leftPlayer.socketId);
-	
+
 				this.server.to(room.leftPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 				this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 			}
@@ -209,6 +212,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.service.initPlayer(right, player2);
 
 		let room: GameRoom = new GameRoom();
+
+		room.gameType = false;
 		room.leftPlayer = left;
 		room.rightPlayer = right;
 
@@ -318,7 +323,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	// Down Key pressed : Paddle down
-	@SubscribeMessage('upKey')z
+	@SubscribeMessage('upKey')
 	handlePaddleDown(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() roomName: string,
