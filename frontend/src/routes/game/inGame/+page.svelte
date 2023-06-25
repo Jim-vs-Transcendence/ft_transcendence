@@ -219,9 +219,6 @@
 		io_game.on('gotoMain', () => {
 			console.log('in game go to main');
 			goto('/main');
-		io_game.on('gotoMain', () => {
-			console.log('in game go to main');
-			goto('/main');
 		});
 
 		io_game.on('restart', (flag: boolean) => {
