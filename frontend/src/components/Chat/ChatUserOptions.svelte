@@ -6,10 +6,12 @@
   import type { Unsubscriber } from 'svelte/store';
   import { gameSocketStore } from '$lib/webSocketConnection_game';
   import { onDestroy } from 'svelte';
+	import { Authority } from '$lib/enum';
   // import { popup } from '@skeletonlabs/skeleton';
   // import { storePopup } from '@skeletonlabs/skeleton';
 
   export let chatUser: ChatUserIF;
+  export let user_self: ChatUserIF;
   $: chatUser; // 어떤 차이가 있는지 확인 필요
 
 	let chat_socket : Socket;
@@ -51,9 +53,13 @@
 <div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
   <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_show_profile("show profile");}}> 개인정보 </button></div>
 	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_invite_user("invite");}}>놀이 초대 {chatUser._user_info.id}</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_mute_user("mute");}}>멈춰✋</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_kick_user("kick");}}>내보내기</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_ban_user("ban");}}>영구추방</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_appoint_user("appoint");}}>부방장 임명</button></div>
+	{#if user_self._authority < Authority.ADMIN}
+		<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_mute_user("mute");}}>멈춰✋</button></div>
+		<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_kick_user("kick");}}>내보내기</button></div>
+		<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_ban_user("ban");}}>영구추방</button></div>
+	{/if}
+	{#if user_self._authority === Authority.OWNER}
+		<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_appoint_user("appoint");}}>부방장 임명</button></div>
+	{/if}
 	<div class="arrow bg-surface-100-800-token" />
 </div>

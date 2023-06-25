@@ -6,7 +6,7 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, ChatRoomSendIF, RoomCheckIF } from '$lib/interface';
+	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, ChatRoomSendIF, ChatUserIF, RoomCheckIF } from '$lib/interface';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
@@ -16,7 +16,7 @@
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	let socket: Socket;
-	let userid: string
+	let user_self: ChatUserIF;
 	let room : ChatRoomSendIF;
 	let msg_list: ChatMsgIF[] = [];
 	let chat_data: ChatMsgIF = {
@@ -46,7 +46,7 @@
 					goto("/main");
 				}
 				else
-					userid = data._uid;
+					user_self = data._user;
 			});
 			
 			socket.emit("chat-refresh", $page.params['chat_room']);
@@ -100,7 +100,7 @@
 		if (chat_data._msg.length && chat_data._msg != '\n')
 			socket.emit('chat-msg-event', chat_data);
 		chat_data._msg = '';
-		console.log(userid);
+		console.log(user_self);
 	}
 
 	function ft_chat_send_msg_keydown(e: KeyboardEvent) {
@@ -124,8 +124,8 @@
 				<!-- {/if} -->
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
-					{#each [... room._users] as [userid, chatUser]}
-						<ChatUserList {userid} {chatUser}/>
+					{#each [... room._users] as [userid_list, chatUser]}
+						<ChatUserList {user_self} {userid_list} {chatUser}/>
 					{/each}
 				{/if}
 			</svelte:fragment>
@@ -133,7 +133,7 @@
 	</div>
 	<div class="bg-surface-500/30 p-4">
 		{#each msg_list as msg}
-			{#if (msg._user_name == userid)}
+			{#if (msg._user_name == user_self._user_info.id)}
 				<div class="grid grid-cols-[auto_1fr] gap-5">
 					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">

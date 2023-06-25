@@ -136,7 +136,10 @@ export class ChatGateway
 		if (userid.indexOf("_") === -1)
 			user_info._user_info = await this.userService.findOne(userid);
 		else // for local test
+		{
 			user_info._user_info = await this.userService.findOne(userid.substring(0, userid.indexOf("_")));
+			user_info._user_info.id = userid;
+		}
 		room._users.set(userid, user_info);
 		channel_list.set(payload._room_name, room);
 		console.log(room);
@@ -201,7 +204,10 @@ export class ChatGateway
 				if (userid.indexOf("_") === -1)
 					user_info._user_info = await this.userService.findOne(userid);
 				else // for local test
+				{
 					user_info._user_info = await this.userService.findOne(userid.substring(0, userid.indexOf("_")));
+					user_info._user_info.id = userid;
+				}
 				room._users.set(userid, user_info);
 				return 1;
 			}
@@ -317,7 +323,7 @@ export class ChatGateway
 	ft_channel_auth_set(channel_name: string, user_grantor: string, user_heritor: string): number {
 		console.log("\x1b[38;5;021m ft_channel_auth_set \x1b[0m :", channel_name, " : ", user_grantor, " => ", user_heritor);
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority >= Authority.MANAGER) {
+		if (channel._users.get(user_grantor)._authority <= Authority.MANAGER) {
 			if (!channel._users.has(user_heritor)
 				&& channel._users.get(user_heritor)._authority != Authority.OWNER) {
 				const user_herit : ChatUserDTO = channel._users.get(user_heritor);
@@ -366,7 +372,7 @@ export class ChatGateway
 
 	ft_channel_kick(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority > Authority.MANAGER) {
+		if (channel._users.get(user_grantor)._authority < Authority.MANAGER) {
 			if (!channel._users.has(user_heritor)
 			&& channel._users.get(user_grantor)._authority > channel._users.get(user_heritor)._authority)
 				this.ft_channel_leave(channel_name, user_heritor);
@@ -395,7 +401,7 @@ export class ChatGateway
 
 	ft_channel_mute(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority > Authority.MANAGER
+		if (channel._users.get(user_grantor)._authority < Authority.MANAGER
 			&& channel._users.has(user_heritor)) {
 			channel._users.get(user_heritor)._is_muted = true;
 			return (0);
@@ -405,7 +411,7 @@ export class ChatGateway
 
 	ft_channel_unmute(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority > Authority.MANAGER
+		if (channel._users.get(user_grantor)._authority < Authority.MANAGER
 		&&	channel._users.has(user_heritor)) {
 			channel._users.get(user_heritor)._is_muted = false;
 			return (0);
@@ -480,7 +486,7 @@ export class ChatGateway
 	 * @brief url 이 정상적인 룸이 있는지 확인
 	 */
 	@SubscribeMessage('chat-connect')
-	ft_chat_connect(
+	async ft_chat_connect(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: RoomCheckDTO,
 	) {
@@ -489,7 +495,8 @@ export class ChatGateway
 			payload._check = false;
 		}
 		payload._check = true;
-		payload._uid = client.handshake.query._userId as string;
+		const userid : string = client.handshake.query._userId as string;
+		payload._user = channel_list.get(payload._room)._users.get(userid);
 		client.emit('chat-connect', payload);
 	}
 

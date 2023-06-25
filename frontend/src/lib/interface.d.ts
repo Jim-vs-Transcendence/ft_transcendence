@@ -36,7 +36,7 @@ interface ChatRoomJoinIF {
    ================================================================================ */
    
 interface RoomCheckIF {
-	_uid: string;
+	_user: ChatUserIF;
 	_url: string;
 	_check: boolean;
 }

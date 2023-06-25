@@ -73,8 +73,8 @@ export class ChatRoomJoinDTO {
    ================================================================================ */
    
 export class RoomCheckDTO {
-	@IsString()
-	_uid: string;
+	@IsObject()
+	_user: ChatUserDTO;
 
 	@IsString()
 	readonly _room: string;
