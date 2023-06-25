@@ -54,10 +54,6 @@
 		placement: 'bottom',
 	};
 
-    function fn() {
-
-    }
-
 </script>
 
 <dl class="list-dl">
@@ -84,4 +80,4 @@
 		</div>
 	</div>
 </dl>
-	<ChatUserOptions {chatUser}/>
+<ChatUserOptions {chatUser}/>
