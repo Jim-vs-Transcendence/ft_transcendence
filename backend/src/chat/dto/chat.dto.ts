@@ -74,6 +74,9 @@ export class ChatRoomJoinDTO {
    
 export class RoomCheckDTO {
 	@IsString()
+	_uid: string;
+
+	@IsString()
 	readonly _room: string;
 
 	@IsBoolean()

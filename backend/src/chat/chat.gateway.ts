@@ -136,10 +136,7 @@ export class ChatGateway
 		if (userid.indexOf("_") === -1)
 			user_info._user_info = await this.userService.findOne(userid);
 		else // for local test
-		{
-			console.log("test: ", userid.substring(0, userid.indexOf("_")));
 			user_info._user_info = await this.userService.findOne(userid.substring(0, userid.indexOf("_")));
-		}
 		room._users.set(userid, user_info);
 		channel_list.set(payload._room_name, room);
 		console.log(room);
@@ -172,8 +169,8 @@ export class ChatGateway
 				client.emit('room-join', payload);
 				return;
 			}
+			// refactoring
 			const channel = channel_list.get(payload._room_name);
-			console.log(channel);
 			const channelSendDTO : ChatRoomSendDTO = {
 				_name : channel._name,
 				_password: channel._password,
@@ -181,6 +178,7 @@ export class ChatGateway
 				_ban_user: channel._ban_user,
 			}
 			this.server.to(payload._room_name).emit('chat-refresh', channelSendDTO);
+			// refactoring end
 			payload._pass = true;
 			client.join(payload._room_name);
 			client.emit('room-join', payload);
@@ -200,7 +198,10 @@ export class ChatGateway
 				const user_info : ChatUserDTO = new ChatUserDTO();
 				user_info._authority = Authority.USER;
 				user_info._is_muted = false;
-				user_info._user_info =	await this.userService.findOne(userid);
+				if (userid.indexOf("_") === -1)
+					user_info._user_info = await this.userService.findOne(userid);
+				else // for local test
+					user_info._user_info = await this.userService.findOne(userid.substring(0, userid.indexOf("_")));
 				room._users.set(userid, user_info);
 				return 1;
 			}
@@ -452,15 +453,16 @@ export class ChatGateway
 		@MessageBody() payload: string,
 	) {
 		console.log("\x1b[38;5;226m chat-refresh \x1b[0m :", payload);
+		// refactoring
 		const channel = channel_list.get(payload);
-		console.log(channel);
-		const channelSendDTO : ChatRoomSendDTO = {
-			_name : channel._name,
-			_password: channel._password,
-			_users : Array.from(channel._users),
-			_ban_user: channel._ban_user,
-		}
+		// refactoring end
 		if (channel !== undefined) {
+			const channelSendDTO : ChatRoomSendDTO = {
+				_name : channel._name,
+				_password: channel._password,
+				_users : Array.from(channel._users),
+				_ban_user: channel._ban_user,
+			}
 			client.emit('chat-refresh', channelSendDTO);
 		}
 		else
@@ -487,6 +489,7 @@ export class ChatGateway
 			payload._check = false;
 		}
 		payload._check = true;
+		payload._uid = client.handshake.query._userId as string;
 		client.emit('chat-connect', payload);
 	}
 
@@ -506,7 +509,7 @@ export class ChatGateway
 		@MessageBody() payload: ChatMsgDTO,
 	) {
 		const userid: string | string[] = client.handshake.query._userId;
-		console.log("\x1b[38;5;226m chat-msg-event \x1b[0m :", payload);
+		console.log("\x1b[38;5;226m chat-msg-event \x1b[0m :", payload, userid);
 		if (!this.server.adapter.rooms.has(payload._room_name)) {
 			console.log("\x1b[38;5;196m Error :: \x1b[0m chat-connect url is not enable");
 			return;

@@ -34,7 +34,6 @@
 		try {
 			if (socket === undefined)
 				await goto("/main");
-			userid = socket.io.engine.transport.query["_userId"];
 			/* ===== chat-connect ===== */
 			chat_data._room_name = $page.params['chat_room'];
 			
@@ -45,6 +44,8 @@
 					alert("잘못된 접근입니다");
 					goto("/main");
 				}
+				else
+					userid = data._uid;
 			});
 			
 			socket.emit("chat-refresh", $page.params['chat_room']);
@@ -63,6 +64,7 @@
 	
 			/* ===== chat-msg-even ===== */
 			socket.on('chat-msg-event', (data: ChatMsgIF) => {
+				console.log("chat-msg-event : ", data);
 				msg_list = [...msg_list, data];
 			});
 			/* ===== chat-set-admin ===== */
@@ -122,7 +124,7 @@
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
 					{#each [... room._users] as [userid, chatUser]}
-						<ChatUserList {chatUser}/>
+						<ChatUserList {userid} {chatUser}/>
 					{/each}
 				{/if}
 			</svelte:fragment>

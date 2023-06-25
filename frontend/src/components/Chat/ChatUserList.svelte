@@ -11,6 +11,7 @@
 	import ChatUserOptions from './ChatUserOptions.svelte';
     
     export let chatUser: ChatUserIF;
+	export let userid : string;
     $: chatUser;
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -69,7 +70,7 @@
 			<span>
 				<dt use:popup={popupFeatured}>
 					<Avatar src={chatUser._user_info.avatar} width="w-7" rounded="rounded-full" />
-					{chatUser._user_info.id} | {chatUser._user_info.nickname}
+					{userid} | {chatUser._user_info.nickname}
 				</dt>
 			</span>
 			{#if chatUser._authority === Authority.OWNER}
