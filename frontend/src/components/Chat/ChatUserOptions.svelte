@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ChatActionDTO, ChatUserIF } from '$lib/interface';
-	import type { PopupSettings } from '@skeletonlabs/skeleton';
+	import { modalStore, type ModalSettings, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import type { Unsubscriber } from 'svelte/store';
@@ -78,6 +78,29 @@
 		chatUnsubscribe();
 		gameUnsubscribe();
 	});
+
+    function triggerModal() {
+		const modal: ModalSettings = {
+			type: 'alert',
+			// Data
+			title: 'Example Alert',
+			body: 'This is an example modal.',
+			image: 'https://i.imgur.com/WOgTG96.gif',
+		};
+		modalStore.trigger(modal);
+
+        // const modalComponent: ModalComponent = {
+        //     ref: ChatUI,
+        // };
+
+        // const modal: ModalSettings = {
+        //     type: 'component',
+        //     // Data
+        //     component: modalComponent
+        //     // response: (r: string) => console.log('response:', r),
+        // };
+        // modalStore.trigger(modal);
+    }
 </script>
 
 <div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
@@ -135,31 +158,7 @@
 			>
 		</div>
 	{/if}
-
-    function triggerModal() {
-		const modal: ModalSettings = {
-			type: 'alert',
-			// Data
-			title: 'Example Alert',
-			body: 'This is an example modal.',
-			image: 'https://i.imgur.com/WOgTG96.gif',
-		};
-		modalStore.trigger(modal);
-
-        // const modalComponent: ModalComponent = {
-        //     ref: ChatUI,
-        // };
-
-        // const modal: ModalSettings = {
-        //     type: 'component',
-        //     // Data
-        //     component: modalComponent
-        //     // response: (r: string) => console.log('response:', r),
-        // };
-        // modalStore.trigger(modal);
-    }
-
-</script>
+</div>
 
 <div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
   <!-- <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_show_profile("show profile");}}> 개인정보 </button></div> -->
