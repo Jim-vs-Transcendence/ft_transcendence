@@ -87,14 +87,13 @@
 
         const modalComponent: ModalComponent = {
             ref: ChatRoomProfile,
+			props: {profile_info: user_info},
         };
 
         const modal: ModalSettings = {
             type: 'component',
             // Data
             component: modalComponent,
-			value: user_info,
-            // response: (r: string) => console.log('response:', r),
         };
         modalStore.trigger(modal);
     }
@@ -157,7 +156,7 @@
 
 <div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
   <!-- <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_show_profile("show profile");}}> 개인정보 </button></div> -->
-  <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={ft_profile_view_in_chatroom}> 개인정보 </button></div>
+  <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => ft_profile_view_in_chatroom(chatUser._user_info)}> 개인정보 </button></div>
 	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_invite_user("invite");}}>놀이 초대</button></div>
 	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_mute_user("mute");}}>멈춰✋</button></div>
 	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_kick_user("kick");}}>내보내기</button></div>
