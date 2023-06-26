@@ -1,6 +1,6 @@
 import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { TwoFactorService } from './two-factor.service';
-import RequestWithUser from '../interfaces/RequestWithUser.interface';
+import RequestWithUser from '../interfaces/RequestWithUserDTO.interface';
 import twoFactorDTO from './two-factor.dto';
 import { TokenGuard } from '../token/token.guard';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -40,7 +40,7 @@ export class TwoFactorController {
   async authentication(
     @Param('id') id: string,
     @Body() twoFactorDTO: twoFactorDTO,
-  ) {
+  ): Promise<boolean> {
     return await this.twoFactorService.twoFactorLogin(
       id,
       twoFactorDTO.twoFactorCode,
@@ -60,7 +60,7 @@ export class TwoFactorController {
   async init_authentication(
     @Param('id') id: string,
     @Body() twoFactorDTO: twoFactorDTO,
-  ) {
+  ): Promise<boolean> {
     return await this.twoFactorService.isTwoFactorCodeValid(
       id,
       twoFactorDTO.twoFactorCode,

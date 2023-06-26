@@ -29,14 +29,15 @@ interface ChatRoomJoinIF {
 	_room_password: string;
 	_is_passworded: boolean;
 	_pass: boolean;
+	_ban: boolean;
 }
 
 /* ================================================================================
 								In chat room
    ================================================================================ */
-   
+
 interface RoomCheckIF {
-	_uid: string;
+	_user: ChatUserIF;
 	_url: string;
 	_check: boolean;
 }
@@ -47,12 +48,19 @@ interface ChatMsgIF {
 	_user_name: string;
 }
 
-interface ChatAuthDTO{
-	_room : string;
-	_option : number;
-	_user_grantor : string;
-	_user_heritor : string;
-	_check : boolean;
+interface ChatAuthDTO {
+	_room: string;
+	_option: number;
+	_user_grantor: string;
+	_user_heritor: string;
+	_check: boolean;
+}
+
+interface ChatActionDTO {
+	_action: string;
+	_channel_name: string;
+	_user_from: string;
+	_user_to: string;
 }
 
 

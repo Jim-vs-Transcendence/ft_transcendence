@@ -9,7 +9,7 @@ import { Response } from 'express';
 
 @Catch(UnauthorizedException)
 export class AuthFilter42 implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();

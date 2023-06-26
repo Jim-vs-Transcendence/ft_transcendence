@@ -62,19 +62,22 @@ export class ChatRoomJoinDTO {
 
 	@IsBoolean()
 	_is_passworded: boolean;
-	
+
 	@IsBoolean()
 	_pass: boolean;
+	
+	@IsBoolean()
+	_ban: boolean;
 }
 
 
 /* ================================================================================
 								In chat room
    ================================================================================ */
-   
+
 export class RoomCheckDTO {
-	@IsString()
-	_uid: string;
+	@IsObject()
+	_user: ChatUserDTO;
 
 	@IsString()
 	readonly _room: string;
@@ -109,6 +112,21 @@ export class ChatAuthDTO {
 
 	@IsBoolean()
 	_check: boolean;
+}
+
+
+export class ChatActionDTO {
+	@IsString()
+	readonly _user_from: string;
+
+	@IsString()
+	readonly _user_to: string;
+
+	@IsString()
+	readonly _channel_name: string;
+
+	@IsString()
+	readonly _action: string;
 }
 
 /* ================================================================================

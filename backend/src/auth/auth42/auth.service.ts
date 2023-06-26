@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { TokenService } from '../token/token.service';
 import userDTO from 'src/users/user.dto';
+import { Response } from 'express';
+import RequestWithUserDTO from '../interfaces/RequestWithUserDTO.interface';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +12,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  async login({ req, res }): Promise<void> {
+  async login(req: RequestWithUserDTO, res: Response): Promise<void> {
     let user = await this.usersService.findOne(req.user.id);
 
     if (!user) user = await this.usersService.saveUser(req.user);
@@ -30,8 +32,9 @@ export class AuthService {
     }
   }
 
-  async logout(token: string) {
+  async logout(token: string): Promise<void> {
     const userId = await this.tokenService.verifyToken(token);
+    if (!userId) return;
 
     await this.tokenService.deleteToken(userId.toString());
 

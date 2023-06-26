@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { DmChatStoreIF } from '$lib/interface';
-    import DmUserPopup from './DmUserPopup.svelte';
 
     export let dmChatStore: DmChatStoreIF;
     // export let userInfo: UserDTO; // 실제로 api요청해서 데이터 가져올때 필요 
@@ -75,8 +74,6 @@
 
 </script>
 
-<!-- <div class="cursor-pointer hover:variant-glass-surface" use:popup={dmPopupFeatured} > -->
-    <!-- dmChatStore[dmChatStore.opponent]?._avatar ?? "" -->
 <div class="cursor-pointer hover:variant-glass-surface" on:click={triggerModal} >
     <Avatar
         src={dmChatStore[Object.keys(dmChatStore)[0]]._avatar}
@@ -89,8 +86,3 @@
         </dt>
     </span>
 </div>
-<!-- tmp -->
-<!-- <DmUserPopup dmUserInfo={userInfo}/> -->
-<!-- To be -->
-<!-- dmUserdmChatStore -->
-<!-- <DmUserPopup dmUserInfo={}/> -->

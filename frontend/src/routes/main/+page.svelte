@@ -44,9 +44,11 @@
 			/* ===== room-join ===== */
 			socket.on('room-join', (data: ChatRoomJoinIF) => {
 				console.log('check trigger');
+				if (data._ban)
+				 	return alert("추방되셨습니다");
 				if (!data._room_name)
 					return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
-				if (!data._pass) 
+				if (!data._pass)
 					return alert("비밀번호가 일치하지 않습니다.");
 				modalStore.close();
 				goto('/main/' + data._room_name);
@@ -85,6 +87,7 @@
 
 	function JoinRoom(room_select: ChatRoomJoinIF) {
 		room_select._pass = false;
+		room_select._ban = true;
 		if (room_select._is_passworded)
 			ft_room_join_modal_trigger(room_select);
 		else

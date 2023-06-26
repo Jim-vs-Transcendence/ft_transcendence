@@ -19,7 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Express, Response } from 'express';
-import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
+import RequestWithUser from 'src/auth/interfaces/RequestWithUserID.interface';
 import userDTO from './user.dto';
 
 @Controller('user')
@@ -144,7 +144,7 @@ export class UsersController {
   async uploadImage(
     @Req() req: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<{ url: string }> {
     console.log('uploads');
     return await this.usersService.uploadImage(req, file);
   }
@@ -158,7 +158,10 @@ export class UsersController {
     description: '이미지 반환',
     type: String,
   })
-  async getImage(@Param('filename') filename: string, @Res() res: Response) {
+  async getImage(
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ): Promise<void> {
     res.sendFile(filename, { root: '../data/profile' });
   }
 

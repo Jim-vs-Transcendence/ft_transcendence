@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { FriendsService } from './friend.service';
-import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
+import RequestWithUser from 'src/auth/interfaces/RequestWithUserID.interface';
 import SendFriendRequestDTO from './dto/sendFriendRequest.dto';
 import friendDTO from './dto/friend.dto';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';

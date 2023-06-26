@@ -20,7 +20,7 @@ export class FriendsService {
   ) {}
 
   // Find a friend request
-  async findFriend(user_to: string) {
+  async findFriend(user_to: string): Promise<friendDTO[]> {
     const friendEntities = await this.friendRepository.find({
       where: {
         user_to: user_to,

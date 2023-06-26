@@ -10,10 +10,13 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
 import { ConnectionClosedEvent } from 'typeorm';
-import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, ChatAuthDTO, RoomCheckDTO, ChatRoomJoinDTO, ChatUserDTO, Authority, ChatRoomSendDTO } from './dto/chat.dto';
+import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, ChatAuthDTO, RoomCheckDTO, ChatRoomJoinDTO, ChatUserDTO, Authority, ChatRoomSendDTO, ChatActionDTO } from './dto/chat.dto';
 import { UsersService } from 'src/users/users.service';
 import userDTO from 'src/users/user.dto';
 import { userInfo } from 'os';
+import { channel } from 'diagnostics_channel';
+import { timeout } from 'rxjs';
+import { parentPort } from 'worker_threads';
 '../../'
 // let channel_list = new Map<string, ChatRoom>();
 let channel_list: Map<string, ChatRoomDTO> = new Map<string, ChatRoomDTO>();
@@ -25,7 +28,7 @@ export class ChatGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
 	constructor(private readonly userService: UsersService) { }
-	
+
 	@WebSocketServer() server: Namespace;
 
 	afterInit(server: Server) {
@@ -34,14 +37,14 @@ export class ChatGateway
 		this.server.server.engine.opts.pingInterval = 20000;
 		this.server.server.engine.opts.upgradeTimeout = 20000;
 
-		this.server.adapter.on("delete-room", (room : string) => {
+		this.server.adapter.on("delete-room", (room: string) => {
 			channel_list.delete(room);
 			this.server.emit('room-refresh', this.ft_room_list());
 		})
 
-		this.server.adapter.on("leave-room", (room : string, id : string) => {
-			const client : Socket = this.server.sockets.get(id);
-			const userid : string | String[] = client.handshake.query._userId;
+		this.server.adapter.on("leave-room", (room: string, id: string) => {
+			const client: Socket = this.server.sockets.get(id);
+			const userid: string | String[] = client.handshake.query._userId;
 			if (typeof userid === "string")
 				this.ft_channel_leave(room, userid);
 		})
@@ -57,9 +60,9 @@ export class ChatGateway
 				socket_list.set(userid, client);
 			else // for test in duplicate user
 			{
-				let num : number = 0;
+				let num: number = 0;
 				while (socket_list.has(userid + "_" + num.toString()))
-				num++;
+					num++;
 				client.handshake.query._userId = userid + "_" + num.toString();
 				userid = client.handshake.query._userId;
 				socket_list.set(userid, client);
@@ -69,15 +72,15 @@ export class ChatGateway
 		client.emit('room-refresh', this.ft_room_list());
 	}
 
-	
+
 	handleDisconnect(@ConnectedSocket() client: Socket) {
 		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;196m Disconnect: ', userid, " : ", client.id, "\x1b[0m");
 		if (typeof userid === 'string')
-				socket_list.delete(userid);
+			socket_list.delete(userid);
 		client.emit('room-refresh', this.ft_room_list());
 	}
-	
+
 	// ================================================================================ //
 	/* =                                                                              =
 									room                                     
@@ -86,7 +89,7 @@ export class ChatGateway
 	/* ================================================================================
 									room create
 	   ================================================================================ */
-	
+
 	/**
 	 * @name ft_room_create
 	 * @param client
@@ -99,7 +102,7 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatRoomJoinDTO,
 	) {
-		console.log('\x1b[38;5;226m room-create \x1b[0m : ', payload);
+		console.log('\x1b[38;5;226m room-create \x1b[0m : ');
 		if (this.server.adapter.rooms.has(payload._room_name)) {
 			payload._pass = false;
 			client.emit('room-create', payload);
@@ -123,20 +126,23 @@ export class ChatGateway
 	 * @brief 방만들기 세팅용 
 	 * @returns 
 	 */
-	async ft_channel_room_create(payload: ChatRoomJoinDTO, userid: string){
+	async ft_channel_room_create(payload: ChatRoomJoinDTO, userid: string) {
 		let room: ChatRoomDTO = {
 			_name: payload._room_name,
 			_password: payload._room_password,
 			_users: new Map<string, ChatUserDTO>(),
 			_ban_user: [],
 		};
-		let user_info : ChatUserDTO = new ChatUserDTO();
+		let user_info: ChatUserDTO = new ChatUserDTO();
 		user_info._authority = Authority.OWNER;
 		user_info._is_muted = false;
 		if (userid.indexOf("_") === -1)
 			user_info._user_info = await this.userService.findOne(userid);
 		else // for local test
+		{
 			user_info._user_info = await this.userService.findOne(userid.substring(0, userid.indexOf("_")));
+			user_info._user_info.id = userid;
+		}
 		room._users.set(userid, user_info);
 		channel_list.set(payload._room_name, room);
 		console.log(room);
@@ -159,22 +165,27 @@ export class ChatGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: ChatRoomJoinDTO,
 	) {
-		console.log("\x1b[38;5;226m room-join \x1b[0m :", payload);
+		console.log("\x1b[38;5;226m room-join \x1b[0m :");
 		const userid: string | string[] = client.handshake.query._userId;
 		if (!this.server.adapter.rooms.has(payload._room_name))
 			return client.emit('room-join', {});
+		if (channel_list.get(payload._room_name)._ban_user.includes(client.handshake.query._userId as string))
+		{
+			payload._ban = true;
+			return client.emit('room-join', payload);
+		}
+		payload._ban = false;
 		if (typeof userid === "string") {
-			if (!await this.ft_channel_join(payload, userid))
-			{
+			if (!await this.ft_channel_join(payload, userid)) {
 				client.emit('room-join', payload);
 				return;
 			}
 			// refactoring
 			const channel = channel_list.get(payload._room_name);
-			const channelSendDTO : ChatRoomSendDTO = {
-				_name : channel._name,
+			const channelSendDTO: ChatRoomSendDTO = {
+				_name: channel._name,
 				_password: channel._password,
-				_users : Array.from(channel._users),
+				_users: Array.from(channel._users),
 				_ban_user: channel._ban_user,
 			}
 			this.server.to(payload._room_name).emit('chat-refresh', channelSendDTO);
@@ -188,20 +199,22 @@ export class ChatGateway
 
 	async ft_channel_join(payload: ChatRoomJoinDTO, userid: string) {
 		const room = channel_list.get(payload._room_name);
-		if (room !== undefined)
-		{
+		if (room !== undefined) {
 			if (room._password !== payload._room_password) {
 				payload._pass = false;
 				return 0;
 			}
 			else {
-				const user_info : ChatUserDTO = new ChatUserDTO();
+				const user_info: ChatUserDTO = new ChatUserDTO();
 				user_info._authority = Authority.USER;
 				user_info._is_muted = false;
 				if (userid.indexOf("_") === -1)
 					user_info._user_info = await this.userService.findOne(userid);
 				else // for local test
+				{
 					user_info._user_info = await this.userService.findOne(userid.substring(0, userid.indexOf("_")));
+					user_info._user_info.id = userid;
+				}
 				room._users.set(userid, user_info);
 				return 1;
 			}
@@ -255,12 +268,16 @@ export class ChatGateway
 
 	ft_channel_leave(channel_name: string, userid: string) {
 		console.log("\x1b[38;5;021m; ft_channel_leave \x1b[0m :", channel_name, " : ", userid);
-		const room = channel_list.get(channel_name);
-		if (room !== undefined)
-		{
-			if (room._users.has(userid)) {
+		const channel = channel_list.get(channel_name);
+		if (channel !== undefined) {
+			if (channel._users.has(userid)) {
 				this.ft_channel_auth_delete(channel_name, userid, userid);
-				room._users.delete(userid);
+				channel._users.delete(userid);
+				this.ft_chat_refresh_all(channel);
+				if (socket_list.get(userid))
+				{
+					socket_list.get(userid).emit("chat-leave","leave");
+				}
 			}
 		}
 	}
@@ -295,6 +312,25 @@ export class ChatGateway
 			this.server.to(payload._room).emit("chat-set-admin", payload);
 	}
 
+	/**
+	 * 
+	 * @param client 
+	 * @param payload 
+	 */
+	@SubscribeMessage("chat-auth-user")
+	ft_chat_auth_user(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: ChatActionDTO,
+	) {
+		if (payload._action == "appoint")
+		{
+			this.ft_channel_auth_set(payload._channel_name, payload._user_from, payload._user_to);
+		}
+		else if (payload._action == "unappoint")
+		{
+			this.ft_channel_auth_delete(payload._channel_name, payload._user_from, payload._user_to);
+		}
+	}
 
 	ft_channel_auth_admin(channel_name: string, userid: string): number {
 		console.log("\x1b[38;5;021m ft_channel_auth_admin \x1b[0m :", channel_name, " : ", userid);
@@ -306,9 +342,8 @@ export class ChatGateway
 					check = false;
 			});
 		}
-		if (check)
-		{
-			const curr_user : ChatUserDTO = channel._users.get(userid);
+		if (check) {
+			const curr_user: ChatUserDTO = channel._users.get(userid);
 			curr_user._authority = Authority.OWNER;
 		}
 		return (0);
@@ -317,11 +352,13 @@ export class ChatGateway
 	ft_channel_auth_set(channel_name: string, user_grantor: string, user_heritor: string): number {
 		console.log("\x1b[38;5;021m ft_channel_auth_set \x1b[0m :", channel_name, " : ", user_grantor, " => ", user_heritor);
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority >= Authority.MANAGER) {
-			if (!channel._users.has(user_heritor)
-				&& channel._users.get(user_heritor)._authority != Authority.OWNER) {
-				const user_herit : ChatUserDTO = channel._users.get(user_heritor);
+		if (channel._users.get(user_grantor)._authority <= Authority.MANAGER) {
+			if (channel._users.has(user_heritor)
+				&& channel._users.get(user_grantor)._authority == Authority.OWNER) {
+				const user_herit: ChatUserDTO = channel._users.get(user_heritor);
 				user_herit._authority = Authority.MANAGER;
+				socket_list.get(user_heritor).emit("chat-self-update", channel._users.get(user_heritor));
+				this.ft_chat_refresh_all(channel);
 				return (0);
 			}
 		}
@@ -339,11 +376,9 @@ export class ChatGateway
 			if (channel._users.get(user_grantor)._authority == Authority.OWNER) {
 				if (channel._users.size > 1) {
 					channel._users.forEach((user, UID) => {
-						if (!check && UID != user_grantor && ++check)
+						if (!check && UID != user_grantor && user._authority == 1 && ++check)
 							return user._authority = Authority.OWNER;
 					});
-				}
-				else if (channel._users.size > 1) {
 					channel._users.forEach((user, UID) => {
 						if (!check && UID != user_grantor && ++check)
 							return user._authority = Authority.OWNER;
@@ -351,10 +386,14 @@ export class ChatGateway
 				}
 			}
 			channel._users.get(user_grantor)._authority = Authority.USER;
+			socket_list.get(user_heritor).emit("chat-self-update", channel._users.get(user_heritor));
+			this.ft_chat_refresh_all(channel);
 			return (0);
 		}
-		if (channel._users.get(user_grantor)._authority > channel._users.get(user_heritor)._authority) {
+		if (channel._users.get(user_grantor)._authority < channel._users.get(user_heritor)._authority) {
 			channel._users.get(user_heritor)._authority = Authority.USER;
+			socket_list.get(user_heritor).emit("chat-self-update", channel._users.get(user_heritor));
+			this.ft_chat_refresh_all(channel);
 			return (0);
 		}
 		return (1);
@@ -364,18 +403,58 @@ export class ChatGateway
 									room kick
 	   ================================================================================ */
 
+	/**
+	 * 
+	 * @param client 
+	 * @param payload 
+	 */
+	@SubscribeMessage("chat-kick-user")
+	ft_chat_kick_user(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: ChatActionDTO,
+	) {
+		this.ft_channel_kick(payload._channel_name, payload._user_from, payload._user_to);
+		this.ft_chat_refresh_all(channel_list.get(payload._channel_name));
+	}
+
 	ft_channel_kick(channel_name: string, user_grantor: string, user_heritor: string) {
+		console.log("\x1b[38;5;021m ft_channel_kick \x1b[0m :", channel_name, " : ", user_grantor, " => ", user_heritor);
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority > Authority.MANAGER) {
-			if (!channel._users.has(user_heritor)
-			&& channel._users.get(user_grantor)._authority > channel._users.get(user_heritor)._authority)
-				this.ft_channel_leave(channel_name, user_heritor);
+
+		console.log("kick test : ", channel._users.get(user_grantor)._authority,  Authority.MANAGER);
+		if (channel._users.get(user_grantor)._authority <= Authority.MANAGER) {
+			console.log("kick test :2 ", channel._users.has(user_heritor));
+			if (channel._users.has(user_heritor)
+				&& channel._users.get(user_grantor)._authority < channel._users.get(user_heritor)._authority)
+				{
+					this.ft_channel_leave(channel_name, user_heritor);
+				}
 		}
 	}
 
 	/* ================================================================================
 									room mute
 	   ================================================================================ */
+
+	/**
+	 * 
+	 * @param client 
+	 * @param payload 
+	 */
+	@SubscribeMessage("chat-mute-user")
+	ft_chat_mute_user(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: ChatActionDTO,
+	) {
+		if (payload._action == "mute")
+			this.ft_channel_mute(payload._channel_name, payload._user_from, payload._user_to);
+		else (payload._action == "unmute")
+			this.ft_channel_unmute(payload._channel_name, payload._user_from, payload._user_to);
+		this.ft_chat_refresh_all(channel_list.get(payload._channel_name));
+	}
+
+
+
 	ft_channel_mute_self(channel_name: string, user: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
 		if (channel._users.has(user)) {
@@ -395,9 +474,13 @@ export class ChatGateway
 
 	ft_channel_mute(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority > Authority.MANAGER
+		if (channel._users.get(user_grantor)._authority < Authority.MANAGER
 			&& channel._users.has(user_heritor)) {
 			channel._users.get(user_heritor)._is_muted = true;
+			setTimeout(() => {
+				channel._users.get(user_heritor)._is_muted = false;
+				this.ft_chat_refresh_all(channel);
+			}, 3000);
 			return (0);
 		}
 		return (1)
@@ -405,8 +488,8 @@ export class ChatGateway
 
 	ft_channel_unmute(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority > Authority.MANAGER
-		&&	channel._users.has(user_heritor)) {
+		if (channel._users.get(user_grantor)._authority < Authority.MANAGER
+			&& channel._users.has(user_heritor)) {
 			channel._users.get(user_heritor)._is_muted = false;
 			return (0);
 		}
@@ -416,6 +499,22 @@ export class ChatGateway
 	/* ================================================================================
 									room ban
 	   ================================================================================ */
+
+	/**
+	 * 
+	 * @param client 
+	 * @param payload 
+	 */
+	@SubscribeMessage("chat-ban-user")
+	ft_chat_ban_user(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: ChatActionDTO,
+	) {
+		this.ft_channel_ban(payload._channel_name, payload._user_from, payload._user_to);
+		this.ft_chat_refresh_all(channel_list.get(payload._channel_name));
+	}
+
+
 	ft_channel_ban(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
 		if (channel._users.has(user_grantor)) {
@@ -427,6 +526,11 @@ export class ChatGateway
 			if (channel._ban_user.indexOf(user_heritor) != -1)
 				return (2); // 이미 존제
 			channel._ban_user.push(user_heritor);
+			this.ft_channel_kick(channel_name,user_grantor, user_heritor);
+			setTimeout(() => {
+				channel._ban_user.splice(channel._ban_user.indexOf(user_heritor), 1);
+				this.ft_chat_refresh_all(channel);
+			}, 30000);
 			return (0);
 		}
 		return (1);
@@ -457,16 +561,31 @@ export class ChatGateway
 		const channel = channel_list.get(payload);
 		// refactoring end
 		if (channel !== undefined) {
-			const channelSendDTO : ChatRoomSendDTO = {
-				_name : channel._name,
+			const channelSendDTO: ChatRoomSendDTO = {
+				_name: channel._name,
 				_password: channel._password,
-				_users : Array.from(channel._users),
+				_users: Array.from(channel._users),
 				_ban_user: channel._ban_user,
 			}
 			client.emit('chat-refresh', channelSendDTO);
 		}
 		else
 			client.emit('chat-refresh', 'chat refresh error!')
+	}
+
+	ft_chat_refresh_all(channel : ChatRoomDTO)
+	{
+
+		const send: ChatRoomSendDTO = {
+			_name: channel._name,
+			_password: channel._password,
+			_users: Array.from(channel._users),
+			_ban_user: channel._ban_user,
+		}
+		channel._users.forEach((val, key) =>
+		{
+			socket_list.get(key).emit("chat-refresh", send)
+		})
 	}
 
 	/* ================================================================================
@@ -480,7 +599,7 @@ export class ChatGateway
 	 * @brief url 이 정상적인 룸이 있는지 확인
 	 */
 	@SubscribeMessage('chat-connect')
-	ft_chat_connect(
+	async ft_chat_connect(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: RoomCheckDTO,
 	) {
@@ -489,7 +608,8 @@ export class ChatGateway
 			payload._check = false;
 		}
 		payload._check = true;
-		payload._uid = client.handshake.query._userId as string;
+		const userid: string = client.handshake.query._userId as string;
+		payload._user = channel_list.get(payload._room)._users.get(userid);
 		client.emit('chat-connect', payload);
 	}
 
