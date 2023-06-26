@@ -357,6 +357,7 @@ export class ChatGateway
 				&& channel._users.get(user_grantor)._authority == Authority.OWNER) {
 				const user_herit: ChatUserDTO = channel._users.get(user_heritor);
 				user_herit._authority = Authority.MANAGER;
+				socket_list.get(user_heritor).emit("chat-self-update", channel._users.get(user_heritor));
 				this.ft_chat_refresh_all(channel);
 				return (0);
 			}
@@ -385,11 +386,13 @@ export class ChatGateway
 				}
 			}
 			channel._users.get(user_grantor)._authority = Authority.USER;
+			socket_list.get(user_heritor).emit("chat-self-update", channel._users.get(user_heritor));
 			this.ft_chat_refresh_all(channel);
 			return (0);
 		}
 		if (channel._users.get(user_grantor)._authority < channel._users.get(user_heritor)._authority) {
 			channel._users.get(user_heritor)._authority = Authority.USER;
+			socket_list.get(user_heritor).emit("chat-self-update", channel._users.get(user_heritor));
 			this.ft_chat_refresh_all(channel);
 			return (0);
 		}

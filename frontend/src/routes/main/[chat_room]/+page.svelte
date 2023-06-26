@@ -51,6 +51,9 @@
 			});
 			socket.emit("chat-refresh", $page.params['chat_room']);
 	
+			socket.on("chat-self-update", (data: ChatUserIF)=>{
+				user_self = data;
+			})
 			/* ===== chat-refresh ===== */
 			socket.on('chat-refresh', (data: ChatRoomSendIF | string) => {
 				console.log(data);
