@@ -17,6 +17,7 @@
 
 	let socket: Socket;
 	let user_self: ChatUserIF;
+	let channel_name: string = $page.params['chat_room'];
 	let room : ChatRoomSendIF;
 	let msg_list: ChatMsgIF[] = [];
 	let chat_data: ChatMsgIF = {
@@ -48,7 +49,6 @@
 				else
 					user_self = data._user;
 			});
-			
 			socket.emit("chat-refresh", $page.params['chat_room']);
 	
 			/* ===== chat-refresh ===== */
@@ -59,10 +59,15 @@
 				else
 				{
 					console.log("chat refresh error");
-					socket.emit("chat-refresh", $page.params['chat_room']);
+					goto("/main");
 				}
 			})
 	
+			socket.on("chat-leave", (data) => {
+				console.log("chat_leave",data);
+				goto("/main");
+			})
+			
 			/* ===== chat-msg-even ===== */
 			socket.on('chat-msg-event', (data: ChatMsgIF) => {
 				console.log("chat-msg-event : ", data);
@@ -125,7 +130,7 @@
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
 					{#each [... room._users] as [userid_list, chatUser]}
-						<ChatUserList {user_self} {userid_list} {chatUser}/>
+						<ChatUserList {user_self} {userid_list} {chatUser}  {channel_name}/>
 					{/each}
 				{/if}
 			</svelte:fragment>
