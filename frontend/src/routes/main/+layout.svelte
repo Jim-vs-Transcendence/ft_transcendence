@@ -7,6 +7,7 @@
     import "../../service/userDTO";
     import "../../service/friendDTO"
     import { getApi, petchApi } from "../../service/api";
+	import { Modal } from "@skeletonlabs/skeleton";
 
     let userInfo : UserDTO;
     let isLoading : boolean = true;
@@ -61,3 +62,5 @@
         <Dmchat  -->
     <slot />
 {/if}
+
+<Modal/>

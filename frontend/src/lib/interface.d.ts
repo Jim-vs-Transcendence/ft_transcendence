@@ -1,16 +1,27 @@
-import '../service/userDTO.ts'
-
+import '../service/userDTO'
+import '$lib/enum'
 /* ================================================================================
-								room
+								chat room join interface
    ================================================================================ */
 
 interface ChatRoomIF {
 	_name: string;
 	_password: string;
-	_users: Map<string, userDTO>;
-	_auth_user: Map<string, number>;
-	_mute_user: string[];
+	_users: Map<string, ChatUserIF>;
 	_ban_user: string[];
+}
+
+interface ChatRoomSendIF {
+	_name: string;
+	_password: string;
+	_users: Array<[string, ChatUserIF]>;
+	_ban_user: string[];
+}
+
+interface ChatUserIF {
+	_authority: Authority;
+	_is_muted: boolean;
+	_user_info: UserDTO;
 }
 
 interface ChatRoomJoinIF {
@@ -20,48 +31,21 @@ interface ChatRoomJoinIF {
 	_pass: boolean;
 }
 
-interface CreateRoomPopupIF {
-	_active: boolean;
-	_message: string;
-	_option: {
-		_password: string;
-		_index: number;
-		_room: ChatRoomIF;
-	};
-}
-
-interface ChatMsgIF {
-	_msg: string;
-	_user_name: string;
-	_room_name: string;
-}
-
+/* ================================================================================
+								In chat room
+   ================================================================================ */
+   
 interface RoomCheckIF {
+	_uid: string;
 	_url: string;
 	_check: boolean;
 }
 
-
-/* ================================================================================
-								chat
-   ================================================================================ */
-
-
-///////////////////////////
-enum Authority {
-    OWNER,
-    ADMIN,
-    USER,
+interface ChatMsgIF {
+	_msg: string;
+	_room_name: string;
+	_user_name: string;
 }
-
-interface ChatUserIF {
-    _authority: Authority;
-    _is_muted: boolean;
-    _user_id: string;
-	_user_info: UserDTO; // temp OAuth되면 user단에서 만든 함수 이용해서  userinfo를 가져올 예정
-}
-
-////////////////////////////
 
 interface ChatAuthDTO{
 	_room : string;
@@ -70,6 +54,8 @@ interface ChatAuthDTO{
 	_user_heritor : string;
 	_check : boolean;
 }
+
+
 /* ================================================================================
 								DM
    ================================================================================ */

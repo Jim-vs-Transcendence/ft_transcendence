@@ -10,7 +10,6 @@
 
 	//운영체제 세팅 따라서 모드 설정
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
-	export const ssr = false;
 </script>
 
 <svelte:head>{@html `<script>${autoModeWatcher.toString()} autoModeWatcher();</script>`}</svelte:head>

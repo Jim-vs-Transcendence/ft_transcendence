@@ -1,11 +1,16 @@
 
-import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
-import { Socket } from 'socket.io';
+import { IsBoolean, IsNumber, IsObject, IsOptional, IsString, isBoolean, isEnum, isObject } from 'class-validator';
 import userDTO from 'src/users/user.dto';
 
 /* ================================================================================
 								chat room join interface
    ================================================================================ */
+
+export enum Authority {
+	OWNER,
+	MANAGER,
+	USER,
+}
 
 export class ChatRoomDTO {
 	@IsString()
@@ -16,16 +21,36 @@ export class ChatRoomDTO {
 	_password: string;
 
 	@IsObject()
-	_users: Map<string, userDTO>;
-
-	@IsObject()
-	_auth_user: Map<string, number>;
-
-	@IsObject()
-	_mute_user: string[];
+	_users: Map<string, ChatUserDTO>;
 
 	@IsObject()
 	_ban_user: string[];
+}
+
+export class ChatRoomSendDTO {
+	@IsString()
+	_name: string;
+
+	@IsOptional()
+	@IsString()
+	_password: string;
+
+	@IsObject()
+	_users: Array<[string, ChatUserDTO]>;
+
+	@IsObject()
+	_ban_user: string[];
+}
+
+export class ChatUserDTO {
+	@IsObject()
+	_authority: Authority;
+
+	@IsBoolean()
+	_is_muted: boolean;
+
+	@IsObject()
+	_user_info: userDTO;
 }
 
 export class ChatRoomJoinDTO {
@@ -37,7 +62,7 @@ export class ChatRoomJoinDTO {
 
 	@IsBoolean()
 	_is_passworded: boolean;
-
+	
 	@IsBoolean()
 	_pass: boolean;
 }
@@ -48,6 +73,9 @@ export class ChatRoomJoinDTO {
    ================================================================================ */
    
 export class RoomCheckDTO {
+	@IsString()
+	_uid: string;
+
 	@IsString()
 	readonly _room: string;
 

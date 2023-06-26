@@ -5,8 +5,9 @@
     export let dmChatStore: DmChatStoreIF;
     // export let userInfo: UserDTO; // 실제로 api요청해서 데이터 가져올때 필요 
     // $: userInfo;
-
-    import { Avatar } from '@skeletonlabs/skeleton';
+    import ChatUI from "./ChatUI.svelte"
+    import { Avatar, modalStore } from '@skeletonlabs/skeleton';
+    import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
     import { getApi } from '../../service/api';
 
@@ -38,9 +39,7 @@
         - dummy data 
     */
     // const userInfo: UserDTO =
-    // {
-    //     id: "jim",
-    //     nickname: "nickname jim",
+    // {modalComponent jim",
     //     avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
     //     email: "email",
     //     level: 0,
@@ -59,8 +58,18 @@
 		placement: 'left',
 	};
 
-    function dmWindow() {
+    function triggerModal() {
+        const modalComponent: ModalComponent = {
+            ref: ChatUI,
+        };
 
+        const modal: ModalSettings = {
+            type: 'component',
+            // Data
+            component: modalComponent,
+            response: (r: string) => console.log('response:', r),
+        };
+        modalStore.trigger(modal);
     }
 
 
@@ -68,13 +77,12 @@
 
 <!-- <div class="cursor-pointer hover:variant-glass-surface" use:popup={dmPopupFeatured} > -->
     <!-- dmChatStore[dmChatStore.opponent]?._avatar ?? "" -->
-<div class="cursor-pointer hover:variant-glass-surface" on:click={() => console.log(dmChatStore)} >
+<div class="cursor-pointer hover:variant-glass-surface" on:click={triggerModal} >
     <Avatar
         src={dmChatStore[Object.keys(dmChatStore)[0]]._avatar}
         width="w-7"
         rounded="rounded-full"
         />
-        <!-- on:click={() => goProfile(dmChatStore.opponent)} -->
     <span class="flex-auto">
         <dt>
             {Object.keys(dmChatStore)[0]}
