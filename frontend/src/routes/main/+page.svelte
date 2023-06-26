@@ -128,13 +128,6 @@
 	}
 </script>
 
-<!-- -------------------------------------------------------------------  -->
-<!-- -------------------------------------------------------------------  -->
-<!-- -------------------------------------------------------------------  -->
-
-<!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
-<!-- background 투명하게 변경할 것 -->
-<!-- <AppShell class=""> -->
 <div class="button-container">
 	<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_room_create_modal_trigger}>방 만들기</button>
 </div>
@@ -149,7 +142,6 @@
 		</div>
 	{/each}
 </div>
-<!-- </AppShell> -->
 
 <style>
   .button-container {

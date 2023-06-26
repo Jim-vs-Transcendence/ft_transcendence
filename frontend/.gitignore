@@ -7,4 +7,4 @@ node_modules
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 /md_dir
-/test
+/src/routes/test

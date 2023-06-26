@@ -57,7 +57,6 @@
 		placement: 'bottom'
 	};
 
-	function fn() {}
 </script>
 
 <dl class="list-dl">
