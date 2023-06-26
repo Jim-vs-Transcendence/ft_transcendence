@@ -11,20 +11,33 @@
 
     let position = 80;
 
+		async function goMain() {
+			await authToken.login(id);
+			goto('/main');
+		}
+
     onMount(async () => {
         // 스타워즈 스크롤 효과
         const interval = setInterval(() => {
             position -= 0.3;
         }, 40);
 
-        setTimeout(async () => {
-            await authToken.login(id);
-            goto('/main');
-        }, 0);
+				window.addEventListener('keydown', async function(event) {
+					if (event.code === 'KeyX') {
+            goMain();
+					}
+				});
 
-		// 컴포넌트가 unmount될 때 interval을 제거합니다.
+        setTimeout(async () => {
+					goMain();
+        }, 24000);
+
+
+        // 컴포넌트가 unmount될 때 interval을 제거합니다.
         return () => clearInterval(interval);
     });
+
+
 
 </script>
 
@@ -38,6 +51,7 @@
 
 	.container {
 	  perspective: 1000px;
+		max-width: 95%;
 	  overflow: hidden;
 	  display: flex;
 	  justify-content: center;
@@ -61,7 +75,7 @@
 	  class="text"
 	  style={`transform: rotateX(30deg) translateY(${position}%)`}
 	>
-	:)
+		:)
 	저희 웹사이트를 방문해 주셔서 감사드립니다.
 	우선, 이 사이트가 주는 이색적이고 독특한 경험에 당황하실 수도 있겠지만,
 	이것이 바로 저희가 의도한 바입니다.
@@ -98,5 +112,7 @@
 	여러분의 창의력을 통해 이 웹사이트는 새로운 의미를 지속적으로 부여받게 될 것입니다.
 
 	감사합니다.
+	<button on:click={() => goMain()}>Click to Skip</button>
 	</div>
 </div>
+
