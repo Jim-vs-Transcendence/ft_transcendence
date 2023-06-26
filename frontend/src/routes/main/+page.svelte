@@ -129,7 +129,7 @@
 </script>
 
 <div class="button-container">
-	<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_room_create_modal_trigger}>방 만들기</button>
+	<button type="button" class="btn variant-filled-surface m-1 mt-3" on:click={ft_room_create_modal_trigger}>방 만들기</button>
 </div>
 <div class="max-h-[80%] grid grid-cols-5 gap-3 overflow-auto">
 	{#each rooms_list as room}
@@ -150,7 +150,4 @@
 	/* margin: 1px; */
   }
 
-  .centered-button {
-    margin:  4px;
-  }
 </style>

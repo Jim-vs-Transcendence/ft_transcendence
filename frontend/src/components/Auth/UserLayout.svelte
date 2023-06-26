@@ -23,7 +23,7 @@
   //DM component
   import DmUser from '../Chat/DmUser.svelte';
   // DM dummy
-  import {dmDummyList} from '../Auth/dmDummy';
+  import { dmDummyList } from '../Auth/dmDummy';
 
   // Autocomplete
   import { Autocomplete } from '@skeletonlabs/skeleton';
