@@ -41,7 +41,7 @@ export class ChatGateway
 			channel_list.delete(room);
 			this.server.emit('room-refresh', this.ft_room_list());
 		})
-
+		
 		this.server.adapter.on("leave-room", (room: string, id: string) => {
 			const client: Socket = this.server.sockets.get(id);
 			const userid: string | String[] = client.handshake.query._userId;
@@ -68,6 +68,7 @@ export class ChatGateway
 				socket_list.set(userid, client);
 			}
 		}
+
 		console.log('\x1b[38;5;154m Chat Connection: ', userid, " : ", client.id + "\x1b[0m");
 		client.emit('room-refresh', this.ft_room_list());
 	}
@@ -78,6 +79,7 @@ export class ChatGateway
 		console.log('\x1b[38;5;196m Disconnect: ', userid, " : ", client.id, "\x1b[0m");
 		if (typeof userid === 'string')
 			socket_list.delete(userid);
+		this.userService.updateUserStatus(client.handshake.query._userId as string, 0);
 		client.emit('room-refresh', this.ft_room_list());
 	}
 
@@ -103,6 +105,8 @@ export class ChatGateway
 		@MessageBody() payload: ChatRoomJoinDTO,
 	) {
 		console.log('\x1b[38;5;226m room-create \x1b[0m : ');
+		if (!payload._room_name)
+			return;
 		if (this.server.adapter.rooms.has(payload._room_name)) {
 			payload._pass = false;
 			client.emit('room-create', payload);

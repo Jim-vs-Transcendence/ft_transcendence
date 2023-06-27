@@ -239,6 +239,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 		@MessageBody() gameInvitation: GameInvitation,
 	) {
+		console.log(client.id, gameInvitation);
 		let gameUser: Socket = this.findGameUserSocket(gameInvitation.opponentPlayer);
 		if (gameInvitation.acceptFlag === true) {
 			this.handleInvitation(client, gameUser);
