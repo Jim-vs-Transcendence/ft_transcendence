@@ -197,7 +197,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {
 		let userSocket = this.findGameUserSocket(opponentPlayer);
 		if (userSocket) {
-			userSocket.emit('you got invite', userSocket.handshake.query._userId);
+			userSocket.emit('youGotInvite', userSocket.handshake.query._userId);
 		}
 		else {
 			client.emit('gotoMain');
@@ -234,7 +234,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 	}
 
-	@SubscribeMessage('inviteResponsse')
+	@SubscribeMessage('inviteResponse')
 	gameInviteResponse(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() gameInvitation: GameInvitation,
@@ -244,7 +244,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.handleInvitation(client, gameUser);
 		}
 		else {
-			gameUser.emit('Invite Denied');
+			gameUser.emit('InviteDenied');
 		}
 	}
 

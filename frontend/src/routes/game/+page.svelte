@@ -39,8 +39,7 @@
 	let userInfo : UserDTO;
 
 	onMount(async() => {
-		audio = new Audio(music);
-
+		
 		try{
 			//1. token기반
 			userInfo = await auth.isLogin();
@@ -49,13 +48,16 @@
 			alert('오류 : 프로필을 출력할 수 없습니다1');
 			await goto('/main');
 		}
-
+		
 		if (io_game === undefined) {
+			console.log('game socket is undefined');
 			await goto('/main');
 		}
 
+		audio = new Audio(music);
+		
 		io_game.emit('pushMatchList', );
-
+		
 		io_game.on('roomName', (roomName: string) => {
 			gameClientOption._roomName = roomName;
 			console.log('got message from : ', roomName);

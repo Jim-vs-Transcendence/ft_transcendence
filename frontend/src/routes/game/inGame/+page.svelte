@@ -20,6 +20,10 @@
 		await goto('/main');
 	};
 
+	function dummyButton() {
+		alert('잘못된 버튼을 누르셨습니다');
+	}
+
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
 	});
@@ -291,6 +295,7 @@
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
 				data-sveltekit-preload-data="hover"
+				on:click={dummyButton}
 			>
 				retry
 			</button>
