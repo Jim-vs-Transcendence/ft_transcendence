@@ -7,8 +7,34 @@
 
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
+    import type { DmChatStoreIF } from '$lib/interface';
 
-    export let parent : any
+    // export let parent : any
+    export let dmChatInfo: DmChatStoreIF;
+    
+    // api
+    import { getApi } from '../../service/api';
+	import { onMount } from 'svelte';
+    
+    export let userId: string;
+    let userInfo: UserDTO;
+    $:userInfo;
+
+    onMount (async () => {
+        try {
+            userInfo = await getApi({
+                path: 'user/' + userId,
+            });
+
+        } catch (error )
+        {
+            alert('오류 : user정보를 가져올 수 없습니다.');
+            // await goto('/main');k
+        }
+    })
+    let opponentUserInfo: UserDTO;
+    
+    let my_user_info: UserDTO;
 
     let socket: Socket
     let userid: string
@@ -44,36 +70,38 @@
     let currentMessage = '';
     let elemChat: HTMLElement;
 
-	interface MessageFeed {
-		id: number;
-		host: boolean;
-		avatar: number;
-		name: string;
-		timestamp: string;
-		message: string;
-		color: string;
-	}
+	// interface MessageFeed {
+	// 	id: number;
+	// 	host: boolean;
+	// 	avatar: number;
+	// 	name: string;
+	// 	timestamp: string;
+	// 	message: string;
+	// 	color: string;
+	// }
 
-    let messageFeed = [
-        {
-            id: 0,
-            host: true,
-            avatar: 48,
-            name: 'Jane',
-            timestamp: 'Yesterday @ 2:30pm',
-            message: 'Some message text.',
-            color: 'variant-soft-primary'
-        },
-        {
-            id: 1,
-            host: false,
-            avatar: 14,
-            name: 'Michael',
-            timestamp: 'Yesterday @ 2:45pm',
-            message: 'Some message text.',
-            color: 'variant-soft-primary'
-        }
-    ];
+    // let messageFeed = [
+    //     {
+    //         id: 0,
+    //         host: true,
+    //         avatar: 48,
+    //         name: 'Jane',
+    //         timestamp: 'Yesterday @ 2:30pm',
+    //         message: 'Some message text.',
+    //         color: 'variant-soft-primary'
+    //     },
+    //     {
+    //         id: 1,
+    //         host: false,
+    //         avatar: 14,
+    //         name: 'Michael',
+    //         timestamp: 'Yesterday @ 2:45pm',
+    //         message: 'Some message text.',
+    //         color: 'variant-soft-primary'
+    //     }
+    // ];
+
+    let messageFeed = [];
 
 	function getCurrentTimestamp(): string {
 		return new Date().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });

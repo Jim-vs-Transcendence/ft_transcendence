@@ -57,14 +57,14 @@
 		placement: 'left',
 	};
 
-    function triggerModal() {
+    function ft_dm_chat(dmChatStore :DmChatStoreIF) {
         const modalComponent: ModalComponent = {
             ref: ChatUI,
+            props: {dmChatInfo: dmChatStore},
         };
 
         const modal: ModalSettings = {
             type: 'component',
-            // Data
             component: modalComponent,
             response: (r: string) => console.log('response:', r),
         };
@@ -74,9 +74,9 @@
 
 </script>
 
-<div class="cursor-pointer hover:variant-glass-surface" on:click={triggerModal} >
+<div class="cursor-pointer hover:variant-glass-surface" on:click={ft_dm_chat} >
     <Avatar
-        src={dmChatStore[Object.keys(dmChatStore)[0]]._avatar}
+        src={dmChatStore[Object.keys(dmChatStore)[0]]._useInfo.avatar}
         width="w-7"
         rounded="rounded-full"
         />

@@ -26,7 +26,7 @@
 		setTimeout(async () => {
 			audio.pause();
             goMain();
-        }, 28000);
+        }, 280.00);
         // Set an interval to remove itself
         return () => clearInterval(interval);
     }
