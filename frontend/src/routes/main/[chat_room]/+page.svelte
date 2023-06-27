@@ -12,6 +12,8 @@
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
 	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	import type { Unsubscriber } from 'svelte/store';
+	import { gameSocketStore } from '$lib/webSocketConnection_game';
+
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -27,6 +29,13 @@
 	};
 	let tabSet: number = 0;
 	let chatUserList : Map<string, UserDTO>;
+	let game_socket: Socket;
+	let pop_game: boolean = false;
+	let game_inv_user :string; 
+
+	const gameUnsubscribe: Unsubscriber = gameSocketStore.subscribe((_socket: Socket) => {
+		game_socket = _socket;
+	});
 
 	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
@@ -82,14 +91,29 @@
 					return alert("권한 설정 실패");
 				/// 권한 변경 
 			});
+
+			game_socket.on("youGotInvite",(userid : string) => {
+				game_inv_user = userid;
+				pop_game = true;
+			})
 		}
 		catch {
 			console.log("error");
 		}
 	});
-
+	function ft_pop_invite_game()
+	{
+		pop_game = false;
+		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: true});
+	}
+	function ft_pop_uninvite_game()
+	{
+		pop_game = false;
+		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: false});
+	}
 	onDestroy(() => {
 		unsubscribe();
+		gameUnsubscribe();
 		if (socket !== undefined)
 		{
 			socket.off('chat-connect');
@@ -120,7 +144,12 @@
 		goto('/');
 	}
 </script>
-
+{#if  pop_game}
+<div style="display:flex">
+	<button on:click={ ft_pop_invite_game } >확인</button>
+	<button on:click={ ()=>{ ft_pop_uninvite_game } }> 닫기</button>
+</div>
+{/if}
 <svelte:window on:popstate={() => goto("/main")}/>
 {#if room !== undefined}
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
