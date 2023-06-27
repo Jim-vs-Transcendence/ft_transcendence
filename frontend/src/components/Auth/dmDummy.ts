@@ -24,7 +24,7 @@ interface DmChatStoreIF {
 export const dmDummyList: DmChatStoreIF[] = [
   {
     "jim": {
-      "_useInfo": {
+      "_userInfo": {
         "id": "jim",
         "nickname": "Opponent 1",
         "avatar": "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
@@ -39,11 +39,11 @@ export const dmDummyList: DmChatStoreIF[] = [
         {
           "_msg": "Hello!",
           "_from": "jim",
-          "_to": "me"
+          "_to": "yolee"
         },
         {
           "_msg": "How are you?",
-          "_from": "me",
+          "_from": "yolee",
           "_to": "jim"
         }
       ]
@@ -51,7 +51,7 @@ export const dmDummyList: DmChatStoreIF[] = [
   },
   {
     "yolee": {
-      "_useInfo": {
+      "_userInfo": {
         "id": "yolee",
         "nickname": "Opponent 2",
         "avatar": "https://cdn.intra.42.fr/users/b3db6af844578c88432ba57ac1c6bd3a/yolee.jpg",
@@ -65,54 +65,15 @@ export const dmDummyList: DmChatStoreIF[] = [
       "_dmChatStore": [
         {
           "_msg": "Hi!",
-          "_from": "yolee",
-          "_to": "me"
+          "_from": "jim",
+          "_to": "yolee"
         },
         {
           "_msg": "Are you free to play?",
-          "_from": "me",
-          "_to": "yolee"
+          "_from": "yolee",
+          "_to": "jim"
         }
       ]
     }
   }
 ];
-
-
-// export const dmDummyList: DmChatStoreIF[] = [
-//     {
-//       "jim": {
-//         _avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
-//         _dmChatStore: [
-//           {
-//             _msg: "Hello!",
-//             _from: "jim",
-//             _to: "yolee"
-//           },
-//           {
-//             _msg: "Hi there!",
-//             _from: "yolee",
-//             _to: "jim"
-//           }
-//         ]
-//       }
-//     },
-//     {
-//       "yolee": {
-//         _avatar: "https://cdn.intra.42.fr/users/b3db6af844578c88432ba57ac1c6bd3a/yolee.jpg",
-//         _dmChatStore: [
-//           {
-//             _msg: "Hey!",
-//             _from: "yolee",
-//             _to: "jim"
-//           },
-//           {
-//             _msg: "How are you?",
-//             _from: "jim",
-//             _to: "yolee"
-//           }
-//         ]
-//       }
-//     },
-// ];
-  

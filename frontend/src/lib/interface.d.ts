@@ -75,7 +75,7 @@ interface DmChatIF {
 
 interface DmUserInfoIF {
 	// _avatar: string; // to be removed
-	_useInfo: userDTO; // avatar, nickname
+	_userInfo: userDTO; // avatar, nickname
 	_dmChatStore: DmChatIF[];
 }
 

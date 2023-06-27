@@ -50,8 +50,7 @@
     drawerStore.open();
   };
 
-  let tabSet: number = 0;
-
+  let tabSet: numbdmstore
   const updateFriend = async (): Promise<void> => {
       if (toggleRefresh)
     {
@@ -117,7 +116,7 @@
           <div class="overflow-y-scroll">
             <dl class="list-dl">
               {#each dmDummyList as dmUser}
-                <DmUser dmChatStore={dmUser}/>
+                <DmUser dmChatStore={dmUser} userInfo={userInfo}/>
               {/each}
             </dl>
           </div>
