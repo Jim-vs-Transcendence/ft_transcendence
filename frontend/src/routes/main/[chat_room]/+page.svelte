@@ -13,6 +13,7 @@
 	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	import type { Unsubscriber } from 'svelte/store';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
+	import { gameClientOption } from '$lib/gameData';
 
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -96,6 +97,12 @@
 				game_inv_user = userid;
 				pop_game = true;
 			})
+
+			game_socket.on('roomName', (roomName: string) => {
+			gameClientOption._roomName = roomName;
+			console.log('got message from : ', roomName);
+			goto('/game/option');
+		});
 		}
 		catch {
 			console.log("error");
@@ -104,11 +111,13 @@
 	function ft_pop_invite_game()
 	{
 		pop_game = false;
+		console.log("ft_pop_invite_game : ", game_inv_user);
 		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: true});
 	}
 	function ft_pop_uninvite_game()
 	{
 		pop_game = false;
+		console.log("ft_pop_uninvite_game : ", game_inv_user);
 		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: false});
 	}
 	onDestroy(() => {
@@ -120,7 +129,7 @@
 			socket.off('chat-refresh');
 			socket.off('chat-msg-event');
 			socket.off('chat-set-admin');
-			socket.emit('chat-exit-room', chat_data);
+			// socket.emit('chat-exit-room', chat_data);
 		}
 	});
 
@@ -142,7 +151,7 @@
 
 </script>
 {#if  pop_game}
-<div style="display:flex">
+<div>
 	<button on:click={ ft_pop_invite_game } >확인</button>
 	<button on:click={ ()=>{ ft_pop_uninvite_game } }> 닫기</button>
 </div>

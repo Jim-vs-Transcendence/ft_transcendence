@@ -41,6 +41,10 @@
 	onMount(async() => {
 		
 		try{
+			if (io_game === undefined) {
+				console.log('game socket is undefined');
+				await goto('/main');
+			}
 			//1. token기반
 			userInfo = await auth.isLogin();
 		}
@@ -49,10 +53,11 @@
 			await goto('/main');
 		}
 		
-		if (io_game === undefined) {
-			console.log('game socket is undefined');
-			await goto('/main');
+		if (io_game) {
+			console.log(io_game, 'game socket is defined');
 		}
+
+
 
 		audio = new Audio(music);
 		

@@ -193,11 +193,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('sendGameInvite')
 	sendGameInvite(
 		@ConnectedSocket() client: Socket,
+		// @MessageBody() gameInvitation: GameInvitation,
 		@MessageBody() opponentPlayer: string,
 	) {
-		let userSocket = this.findGameUserSocket(opponentPlayer);
+		console.log('game invite : ', client.id, opponentPlayer);
+		let userSocket: Socket = this.findGameUserSocket(opponentPlayer);
 		if (userSocket) {
-			userSocket.emit('youGotInvite', userSocket.handshake.query._userId);
+			userSocket.emit('youGotInvite', client.handshake.query._userId);
 		}
 		else {
 			client.emit('gotoMain');
@@ -224,6 +226,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		room.leftPlayer.urId = room.rightPlayer.myId;
 		room.rightPlayer.urId = room.leftPlayer.myId;
 
+		console.log('invite game room init : ', room);
+
 		this.rooms.set(room.leftPlayer.socketId, room);
 
 		this.roomKey.set(room.leftPlayer.socketId, room.leftPlayer.socketId);
@@ -239,9 +243,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 		@MessageBody() gameInvitation: GameInvitation,
 	) {
-		console.log(client.id, gameInvitation);
+		console.log('Game invite response : ',client.id, gameInvitation);
 		let gameUser: Socket = this.findGameUserSocket(gameInvitation.opponentPlayer);
 		if (gameInvitation.acceptFlag === true) {
+			console.log('game invite accepted');
 			this.handleInvitation(client, gameUser);
 		}
 		else {
