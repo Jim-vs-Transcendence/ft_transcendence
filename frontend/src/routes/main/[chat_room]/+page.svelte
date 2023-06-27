@@ -104,11 +104,13 @@
 	function ft_pop_invite_game()
 	{
 		pop_game = false;
+		console.log("ft_pop_invite_game : ", game_inv_user);
 		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: true});
 	}
 	function ft_pop_uninvite_game()
 	{
 		pop_game = false;
+		console.log("ft_pop_uninvite_game : ", game_inv_user);
 		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: false});
 	}
 	onDestroy(() => {
