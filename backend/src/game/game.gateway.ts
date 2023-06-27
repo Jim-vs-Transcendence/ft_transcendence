@@ -61,7 +61,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.server.server.engine.opts.upgradeTimeout = 20000;
 	}
 
-	private destroyRoom(client: Socket) {
+	private destroyRoom(client: Socket, gameStatus?: boolean) {
 		const curPlayer: GamePlayerData = this.players.find(data => data.socketId === client.id);
 		if (curPlayer) {
 			console.log('destroy player array');
@@ -83,29 +83,32 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				if (room.leftPlayer.socketId === client.id) {
 					// rightPlayer win
 					console.log('rightPlayer win');
-					gamePlayerScoreData.player1 = room.leftPlayer.myId;
-					gamePlayerScoreData.player1_score = 0;
-					gamePlayerScoreData.player2 = room.rightPlayer.myId;
-					gamePlayerScoreData.player2_score = room.rightPlayer.gameScore;
-					gamePlayerScoreData.game_type = room.gameType;
+					if (gameStatus === true) {
+						gamePlayerScoreData.player1 = room.leftPlayer.myId;
+						gamePlayerScoreData.player1_score = 0;
+						gamePlayerScoreData.player2 = room.rightPlayer.myId;
+						gamePlayerScoreData.player2_score = room.rightPlayer.gameScore;
+						gamePlayerScoreData.game_type = room.gameType;
+
+						this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
+					}
 
 					this.service.endGame(room);
-
-					// invite / random 게임 구분하여 저장
-					this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 				}
 				else {
 					// leftPlayer Win
-					gamePlayerScoreData.player1 = room.leftPlayer.myId;
-					gamePlayerScoreData.player1_score = room.leftPlayer.gameScore;
-					gamePlayerScoreData.player2 = room.rightPlayer.myId;
-					gamePlayerScoreData.player2_score = 0;
-					gamePlayerScoreData.game_type = room.gameType;
 					console.log('leftPlayer win');
+					if (gameStatus === true) {
+						gamePlayerScoreData.player1 = room.leftPlayer.myId;
+						gamePlayerScoreData.player1_score = room.leftPlayer.gameScore;
+						gamePlayerScoreData.player2 = room.rightPlayer.myId;
+						gamePlayerScoreData.player2_score = 0;
+						gamePlayerScoreData.game_type = room.gameType;
+
+						this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
+					}
 					
 					this.service.endGame(room);
-					
-					this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 				}
 			}
 		}
@@ -168,9 +171,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('gameQuit')
 	clientQuit(
 		@ConnectedSocket() client: Socket,
+		@MessageBody() gameStatus: boolean,
 	) {
 		console.log('============Game Quit=============');
-		this.destroyRoom(client);
+		this.destroyRoom(client, gameStatus);
 	}
 
 	@SubscribeMessage('queueOut')

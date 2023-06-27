@@ -17,7 +17,6 @@
     function startScrolling() {
         isScrolling = true;
 		audio.play();
-		console.log(audio);
 
         const interval = setInterval(() => {
             position -= 0.25;
@@ -77,23 +76,23 @@
 <div class="h-screen flex flex-col items-center justify-center">
     {#if !isScrolling}
 	<div class="p-4 bg-gray-100 rounded-lg">
-		<h3 class="text-md font-bold mb-2">제 1조 (약관의 목적)</h3>
+		<h3 class="text-md font-bold mb-2 text-primary-500">제 1조 (약관의 목적)</h3>
 		<p class="mb-4">
 		  본 약관은 "JIM-VS-TRANSCENDENCE"(이하 "JVT") 서비스 이용에 관한 규정을 목적으로 합니다.
 		</p>
-		<h3 class="text-md font-bold mb-2">제 2조 (사용자의 의무)</h3>
+		<h3 class="text-md font-bold mb-2 text-primary-500">제 2조 (사용자의 의무)</h3>
 		<p class="mb-4">
 		  사용자는 서비스 이용 시 아무런 실질적인 의무가 없습니다.
 		</p>
-		<h3 class="text-md font-bold mb-2">제 3조 (개인정보 보호)</h3>
+		<h3 class="text-md font-bold mb-2 text-primary-500">제 3조 (개인정보 보호)</h3>
 		<p class="mb-4">
 		  사용자가 제공하는 개인정보는 적절히 보호됩니다.
 		</p>
-		<h3 class="text-md font-bold mb-2">제 4조 (서비스 이용)</h3>
+		<h3 class="text-md font-bold mb-2 text-primary-500">제 4조 (서비스 이용)</h3>
 		<p class="mb-4">
 		  사용자는 JVT 서비스를 자유롭게 이용할 수 있습니다.
 		</p>
-		<h3 class="text-md font-bold mb-2">제 5조 (면책)</h3>
+		<h3 class="text-md font-bold mb-2 text-primary-500">제 5조 (면책)</h3>
 		<p>
 		  JVT는 어떠한 책임도 지지 않습니다.
 		</p>

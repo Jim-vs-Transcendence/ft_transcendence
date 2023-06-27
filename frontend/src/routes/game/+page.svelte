@@ -6,7 +6,8 @@
 	import { gameClientOption } from '$lib/gameData';
 	import { auth } from '../../service/store';
 	import { petchApi } from '../../service/api';
-	import Img from '$lib/tmp.png'
+	import Img from '$lib/JVT_gameLoading.gif'
+	import music from "./great_rocky_music.mp3"
 
 	let io_game: Socket;
 
@@ -29,9 +30,17 @@
 		});
 	}
 
+	let audio: HTMLAudioElement;
+
+	function awesomePlay() {
+		audio.play();
+	}
+
 	let userInfo : UserDTO;
 
 	onMount(async() => {
+		audio = new Audio(music);
+
 		try{
 			//1. token기반
 			userInfo = await auth.isLogin();
@@ -61,7 +70,7 @@
 
 	onDestroy(() => {
 		unsubscribeGame();
-
+		audio.pause();
 		io_game.off('roomName');
 	});
 
@@ -71,6 +80,8 @@
 
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-5">
-		<img src={Img} alt="back to main" on:click={main}/>
+		<div on:mouseenter={awesomePlay} on:click={main}>
+			<img src={Img} alt="back to main">
+		</div>
 	</div>
 </div>
