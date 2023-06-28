@@ -27,7 +27,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 			let dmData : DmChatStoreIF = {};
 			if (loadDmChat)
 				dmData = JSON.parse(loadDmChat);
-			dmData[data._from].push(data);
+			dmData[data._from]._dmChatStore.push(data);
 			localStorage.setItem(DM_KEY, JSON.stringify(dmData));
 		}
 	})
