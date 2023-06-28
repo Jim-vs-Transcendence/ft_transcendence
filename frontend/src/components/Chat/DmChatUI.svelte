@@ -91,6 +91,42 @@
 			addMessage()
 		}
 	}
+    
+    /* ================================================================================
+                                from dmPageFile
+    ================================================================================ */
+    
+    /* 
+    import { socketStore } from '$lib/webSocketConnection_chat';
+	import type { Socket } from 'socket.io-client';
+	import { onDestroy, onMount } from 'svelte';
+	import type { DmChatIF } from '$lib/interface';
+
+	let socket: Socket;
+    let dmChatData : DmChatIF;
+    
+    const unsubscribe = socketStore.subscribe((_socket: Socket) => {
+        socket = _socket;
+	});
+    
+    onDestroy(unsubscribe);
+
+    function sendDm(opponent : string)
+    {
+        dmStoreData[opponent]._dmChatStore.push(dmChatData);
+        localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
+        if (dmChatData._msg.length && dmChatData._msg != '\n')
+            socket.emit('dm-chat', dmChatData);
+    }
+
+    function receiveDm(opponent : string)
+    {
+        socket.on('dm-chat', (data: ChatMsgIF) => {
+            console.log("dm-chat : ", data);
+            // msg_list = [...msg_list, data];
+        });
+    }
+    */
 
 </script>
 
