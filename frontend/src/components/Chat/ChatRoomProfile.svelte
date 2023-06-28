@@ -17,7 +17,6 @@
     //유저가 친구인지 뭔지에 대한 정보
     let friendStat : string;
 
-
 </script>
 
 <div class="card flex flex-col items-center">

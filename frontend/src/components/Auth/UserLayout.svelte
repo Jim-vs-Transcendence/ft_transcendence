@@ -20,17 +20,8 @@
   // tab
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
-  //DM component
-  import DmUser from '../Chat/DmUser.svelte';
-  // DM dummy
-  import { DM_KEY } from '$lib/webSocketConnection_chat'
-  
 	import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface';
 	import DmList from '../Chat/DmList.svelte';
-
-  // Autocomplete for search
-  // import { Autocomplete } from '@skeletonlabs/skeleton';
-  // import type { AutocompleteOption } from '@skeletonlabs/skeleton';
 
   const logout = () => {
     authToken.logout()

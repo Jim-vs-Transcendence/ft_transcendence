@@ -1,32 +1,31 @@
 <script lang="ts">
-    import { Avatar, ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
+    export let dmChatStore: DmChatStoreIF
+    export let userInfo: UserDTO
+    export let opponent : string
+
+    import { Avatar, ListBox, ListBoxItem } from '@skeletonlabs/skeleton'
     import type { Socket } from 'socket.io-client'
     // dm인데 그대로 갈것인가?
     import { page } from '$app/stores'
 
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
-    import type { DmChatStoreIF, DmUserInfoIF, DmChatIF } from '$lib/interface';
-
-    // export let parent : any
-    export let dmChatStore: DmChatStoreIF;
-    export let userInfo: UserDTO;
-    let opponent : string = Object.keys(dmChatStore)[0];
+    import type { DmChatStoreIF, DmUserInfoIF, DmChatIF } from '$lib/interface'
     
     // api
-    import { getApi } from '../../service/api';
-	import { onMount } from 'svelte';
+    import { getApi } from '../../service/api'
+	import { onMount } from 'svelte'
     
     onMount (async () => {
         try {
             // dmChatStore[opponent]._userInfo = await getApi({
             //     path: 'user/' + opponent,
-            // });
+            // })
 
         } catch (error )
         {
-            alert('오류 : ' + opponent + ' user정보를 가져올 수 없습니다.');
-            // await goto('/main');k
+            alert('오류 : ' + opponent + ' user정보를 가져올 수 없습니다.')
+            // await goto('/main')k
         }
     })
 
@@ -57,15 +56,15 @@
 	}
 
     // Base Classes
-	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
-	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token';
+	const cBase = 'card p-4 w-modal shadow-xl space-y-4'
+	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token'
 
     // chat 
-    let currentMessage = '';
-    let elemChat: HTMLElement;
+    let currentMessage = ''
+    let elemChat: HTMLElement
     
     function scrollChatBottom(behavior?: ScrollBehavior): void {
-        elemChat.scrollTo({ top: elemChat.scrollHeight, behavior });
+        elemChat.scrollTo({ top: elemChat.scrollHeight, behavior })
     }
 
     function addMessage(): void {
@@ -73,23 +72,23 @@
             _from: userInfo.id,
             _to: opponent,
             _msg: currentMessage,
-		};
+		}
 		// Update the message feed
         // opponent data
-		dmChatStore[opponent]._dmChatStore = [... dmChatStore[opponent]._dmChatStore, newMessage];
+		dmChatStore[opponent]._dmChatStore = [... dmChatStore[opponent]._dmChatStore, newMessage]
 		// Clear prompt
-		currentMessage = '';
+		currentMessage = ''
 		// Smooth scroll to bottom
 		// Timeout prevents race condition
 		setTimeout(() => {
-			scrollChatBottom('smooth');
-		}, 0);
+			scrollChatBottom('smooth')
+		}, 0)
 	}
 
     function onPromptKeydown(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
-			event.preventDefault();
-			addMessage();
+			event.preventDefault()
+			addMessage()
 		}
 	}
 
