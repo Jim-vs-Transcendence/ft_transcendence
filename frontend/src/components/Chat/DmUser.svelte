@@ -5,7 +5,7 @@
     export let userInfo: UserDTO;
     // export let userInfo: UserDTO; // 실제로 api요청해서 데이터 가져올때 필요 
     // $: userInfo;
-    import ChatUI from "./ChatUI.svelte"
+    import DmChatUI from "./DmChatUI.svelte"
     import { Avatar, modalStore } from '@skeletonlabs/skeleton';
     import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
@@ -49,7 +49,7 @@
 
     function ftDmChat() {
         const modalComponent: ModalComponent = {
-            ref: ChatUI,
+            ref: DmChatUI,
             props: {dmUserInfo: dmUserInfo,
                     userInfo: userInfo},
         };
