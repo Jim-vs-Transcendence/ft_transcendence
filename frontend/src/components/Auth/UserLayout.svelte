@@ -50,9 +50,9 @@
     drawerStore.open();
   };
 
-  let tabSet: numbdmstore
+  let tabSet: number = 0
   const updateFriend = async (): Promise<void> => {
-      if (toggleRefresh)
+    if (toggleRefresh)
     {
       friendList = await getApi({
             path: 'friends/',
@@ -91,6 +91,45 @@
     }
   });
 
+  function onPromptKeydown(event: KeyboardEvent): void {
+		if (['Enter'].includes(event.code)) {
+			event.preventDefault()
+      console.log("search key down")
+		}
+	}
+
+  /*
+  async () => {
+        try {
+            // dmChatStore[opponent]._userInfo = await getApi({
+            //     path: 'user/' + opponent,
+            // });
+
+        } catch (error )
+        {
+            alert('오류 : ' + opponent + ' user정보를 가져올 수 없습니다.');
+            // await goto('/main');k
+        }
+    }
+    api요청해서 찾고자하는 유저가 있는지 검색한다.
+  */
+  let opponentUserId = '';
+  let opponentUserInfo: UserDTO;
+  $: opponentUserInfo;
+  async function ft_search(): Promise<void> {
+    try {
+      if (!(opponentUserId.trim())) {
+        return alert('찾고자하는 user를 입력하세요')
+      }
+      opponentUserId = opponentUserId.trim()
+      opponentUserInfo = await getApi({ path: 'user/' + opponentUserId})
+      console.log(opponentUserInfo)
+    } catch (error )
+    {
+        alert('오류 : ' + opponentUserId + ' user정보를 가져올 수 없습니다.');
+    }
+  }
+
 </script>
 
 <!-- UserLayout.svelte -->
@@ -106,12 +145,14 @@
   <svelte:fragment slot="panel">
     {#if tabSet === 0}
       <div>
+        <!-- search -->
         <header class="card-footer  top-0 w-full">
           <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-            <input type="search" placeholder="Search..." />
-            <button type="button" class="variant-filled-surface">Add</button>
+            <input type="search" placeholder="Search!!" bind:value={opponentUserId} on:keydown={ft_search} />
+            <button type="button" class="variant-filled-surface" on:click={ft_search}>Add</button>
           </div>
         </header>
+        <!-- DM list -->
         <main>
           <div class="overflow-y-scroll">
             <dl class="list-dl">
@@ -123,6 +164,7 @@
         </main>
       </div>
     {:else if tabSet === 1}
+      <!-- Friend list -->
         <dl class="list-dl">
           {#each friendList as friend}
             <FriendsList friend={friend} userInfo={userInfo} />

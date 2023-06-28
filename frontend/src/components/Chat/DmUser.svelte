@@ -74,8 +74,6 @@
         };
         modalStore.trigger(modal);
     }
-
-
 </script>
 
 <div class="cursor-pointer hover:variant-glass-surface" on:click={ft_dm_chat(dmChatStore)} >
