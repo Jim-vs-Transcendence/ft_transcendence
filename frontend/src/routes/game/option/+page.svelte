@@ -97,6 +97,7 @@
 	}
 
 	import { Stepper, Step } from '@skeletonlabs/skeleton';
+	import LoadingMessage from '../../../components/Auth/LoadingMessage.svelte';
 	let isColorSelect: boolean = false;
 
 	function onStepHandler(e: { step: number; state: { current: number; total: number }; }): void {
@@ -167,16 +168,14 @@
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
 		return () => {
+			unsubscribeGame();
+			io_game.off('gotoMain');
+			io_game.off('optionReady');
+			io_game.off('gameQuit');
 			window.removeEventListener('beforeunload', handleBeforeUnload);
 		};
 	});
 
-	onDestroy(() => {
-		unsubscribeGame();
-		io_game.off('gotoMain');
-		io_game.off('optionReady');
-		io_game.off('gameQuit');
-	});
 </script>
 
 <svelte:window on:popstate={main}></svelte:window>
@@ -185,6 +184,9 @@
 	<ul
 		class="list flex-col w-screen h-screen transform scale-200 fixed inset-0 flex items-center justify-center"
 	>
+	{#if io_game === undefined}
+		<LoadingMessage />
+	{:else}
 		<li>
 			<span class="flex justify-center items-center text-2xl">ㅇ옵션ㅇ</span>
 		</li>
@@ -264,20 +266,21 @@
 						</Step>
 					</Stepper>
 				{/if}
-			</li>
-			<li>
-				<span class="flex justify-center items-center">Ball 42즈 : </span>
-				<RangeSlider name="range-slider" bind:value max={25} on:change={setBallSize} ticked
-					>{ballSize}</RangeSlider
-				>
-			</li>
-		{:else}
-			<span class="flex justify-center item-center">호스트가 설정할 때 까지 기다리세요</span>
+				</li>
+				<li>
+					<span class="flex justify-center items-center">Ball 42즈 : </span>
+					<RangeSlider name="range-slider" bind:value max={25} on:change={setBallSize} ticked
+						>{ballSize}</RangeSlider
+					>
+				</li>
+			{:else}
+				<span class="flex justify-center item-center">호스트가 설정할 때 까지 기다리세요</span>
+			{/if}
+			<button
+				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
+				data-sveltekit-preload-data="hover"
+				on:click={setReady}>게임 시작</button
+			>
 		{/if}
-		<button
-			class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
-			data-sveltekit-preload-data="hover"
-			on:click={setReady}>게임 시작</button
-		>
 	</ul>
 </div>

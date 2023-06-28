@@ -17,7 +17,7 @@
 
 	const main = async () => {
 		io_game.emit('queueOut', );
-		console.log('wait back button clicked')
+		audio.pause();
 		await goto('/main');
 	};
 
@@ -58,21 +58,18 @@
 
 		io_game.on('roomName', (roomName: string) => {
 			gameClientOption._roomName = roomName;
-			console.log('got message from : ', roomName);
+			audio.pause();
 			goto('/game/option');
 		});
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
 			return () => {
+			unsubscribeGame();
+			audio.pause();
+			io_game.off('roomName');
 			window.removeEventListener('beforeunload', handleBeforeUnload);
 		};
 	})
-
-	onDestroy(() => {
-		unsubscribeGame();
-		audio.pause();
-		io_game.off('roomName');
-	});
 
 </script>
 

@@ -252,22 +252,20 @@
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
 		return () => {
+			io_game.off('gameReady');
+			io_game.off('gameDraw');
+			io_game.off('ballMove');
+			io_game.off('oneSetEnd');
+			io_game.off('gotoMain');
+			io_game.off('restart');
+			io_game.off('gameEnd');
+			window.removeEventListener('resize', resizeCanvas);
+			window.removeEventListener('keydown', handleKeyPress);
+			unsubscribeGame();
 			window.removeEventListener('beforeunload', handleBeforeUnload);
 		};
 	});
 
-	onDestroy(() => {
-		io_game.off('gameReady');
-		io_game.off('gameDraw');
-		io_game.off('ballMove');
-		io_game.off('oneSetEnd');
-		io_game.off('gotoMain');
-		io_game.off('restart');
-		io_game.off('gameEnd');
-		window.removeEventListener('resize', resizeCanvas);
-		window.removeEventListener('keydown', handleKeyPress);
-		unsubscribeGame();
-	});
 
 </script>
 
@@ -285,6 +283,8 @@
 		{:else if status === 1}
 			<div class="text-secondary-900">
 				<div class="player-container">{leftPlayer}</div>
+			</div>
+			<div class="text-secondary-900">
 				<div class="player-container">{rightPlayer}</div>
 			</div>
 		{:else if status === 2}
