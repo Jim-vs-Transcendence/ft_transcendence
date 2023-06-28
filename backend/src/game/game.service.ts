@@ -22,7 +22,7 @@ export class GameService {
 	private readonly ballSpeed: number = 15;
 
 	private readonly paddleWidth: number = this.canvasWidth * 0.02;
-	private readonly paddleHeight: number = this.canvasHeight * 0.2;
+	private readonly paddleHeight: number = this.canvasHeight;// * 0.2;
 	private readonly paddleMargin: number = this.canvasWidth * 0.05;
 
 	private readonly initLeftPaddleX: number = this.paddleMargin;
