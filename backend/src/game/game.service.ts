@@ -143,6 +143,8 @@ export class GameService {
 			this.myGameGateway.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 		}
 
+		room.leftPlayer.ballSpeed = this.ballSpeed;
+		room.rightPlayer.ballSpeed = this.ballSpeed;
 		this.resetPlayer(room.leftPlayer.updateData.moveData);
 		this.resetPlayer(room.rightPlayer.updateData.moveData);
 		this.setBallMove(room.leftPlayer.updateData.moveData, room.rightPlayer.updateData.moveData);
@@ -163,14 +165,54 @@ export class GameService {
 			this.resetGame(room);
 		}
 		if (!room.isEnd) {
-			if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.ballRadius) {
+			let blinkMoveLeft: number = (room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius) - (this.initLeftPaddleX + this.paddleWidth);
+			let blinkMoveRight: number = (this.initRightPaddleX) - (room.rightPlayer.updateData.moveData.ballX + room.rightPlayer.ballRadius);
+			let blinkMoveUp: number = room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius;
+			let blinkMoveDown: number = room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius;
+
+			if (blinkMoveUp <= 0) {
+				room.leftPlayer.updateData.moveData.ballY = room.leftPlayer.ballRadius;
+				room.rightPlayer.updateData.moveData.ballY = room.leftPlayer.ballRadius;
+				if (room.leftPlayer.updateData.moveData.ballMoveX === true) {
+					room.leftPlayer.updateData.moveData.ballX += blinkMoveUp;
+					room.rightPlayer.updateData.moveData.ballX -= blinkMoveUp;
+				}
+				else {
+					room.leftPlayer.updateData.moveData.ballX -= blinkMoveUp;
+					room.rightPlayer.updateData.moveData.ballX += blinkMoveUp;
+				}
 				room.leftPlayer.updateData.moveData.ballMoveY = false;
 				room.rightPlayer.updateData.moveData.ballMoveY = false;
 			}
-			if (room.leftPlayer.updateData.moveData.ballY >= this.canvasHeight - room.leftPlayer.ballRadius) {
+			else if (blinkMoveDown >= this.canvasHeight) {
+				room.leftPlayer.updateData.moveData.ballY = this.canvasHeight - room.leftPlayer.ballRadius;
+				room.rightPlayer.updateData.moveData.ballY = this.canvasHeight - room.leftPlayer.ballRadius;
+				if (room.leftPlayer.updateData.moveData.ballMoveX === true) {
+					room.leftPlayer.updateData.moveData.ballX +=  this.canvasHeight - blinkMoveDown;
+					room.rightPlayer.updateData.moveData.ballX -= this.canvasHeight - blinkMoveDown;
+				}
+				else {
+					room.leftPlayer.updateData.moveData.ballX -= this.canvasHeight - blinkMoveDown;
+					room.rightPlayer.updateData.moveData.ballX += this.canvasHeight - blinkMoveDown;
+				}
 				room.leftPlayer.updateData.moveData.ballMoveY = true;
 				room.rightPlayer.updateData.moveData.ballMoveY = true;
 			}
+			else {
+				if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.ballRadius) {
+					room.leftPlayer.updateData.moveData.ballY = room.leftPlayer.ballRadius;
+					room.rightPlayer.updateData.moveData.ballY = room.leftPlayer.ballRadius;
+					room.leftPlayer.updateData.moveData.ballMoveY = false;
+					room.rightPlayer.updateData.moveData.ballMoveY = false;
+				}
+				if (room.leftPlayer.updateData.moveData.ballY >= this.canvasHeight - room.leftPlayer.ballRadius) {
+					room.leftPlayer.updateData.moveData.ballY = this.canvasHeight - room.leftPlayer.ballRadius;
+					room.rightPlayer.updateData.moveData.ballY = this.canvasHeight - room.leftPlayer.ballRadius;
+					room.leftPlayer.updateData.moveData.ballMoveY = true;
+					room.rightPlayer.updateData.moveData.ballMoveY = true;
+				}
+			}
+
 
 			if (room.leftPlayer.updateData.moveData.ballMoveY === true) {
 				room.leftPlayer.updateData.moveData.ballY -= room.leftPlayer.ballSpeed;
@@ -188,8 +230,7 @@ export class GameService {
 				room.leftPlayer.updateData.moveData.ballX += room.leftPlayer.ballSpeed;
 				room.rightPlayer.updateData.moveData.ballX -= room.leftPlayer.ballSpeed;
 			}
-			let blinkMoveLeft: number = (room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius) - (this.initLeftPaddleX + this.paddleWidth);
-			let blinkMoveRight: number = (this.initRightPaddleX) - (room.rightPlayer.updateData.moveData.ballX + room.rightPlayer.ballRadius);
+			
 			if (room.leftPlayer.ballSpeed <= blinkMoveLeft || room.leftPlayer.ballSpeed <= blinkMoveRight) {
 				if (room.leftPlayer.updateData.moveData.ballX - (room.leftPlayer.ballRadius) <= this.initLeftPaddleX + this.paddleWidth && room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius >= this.initLeftPaddleX) {
 					if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.leftPaddleY) {
@@ -197,7 +238,7 @@ export class GameService {
 						room.leftPlayer.updateData.moveData.ballMoveX = false;
 						room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
 						room.rightPlayer.updateData.moveData.ballMoveX = true;
-						room.leftPlayer.ballSpeed += 0.1;
+						room.leftPlayer.ballSpeed += 1;
 					}
 				}
 				if (room.leftPlayer.updateData.moveData.ballX + (room.leftPlayer.ballRadius) >= this.initRightPaddleX && room.leftPlayer.updateData.moveData.ballX + room.leftPlayer.ballRadius <= this.initRightPaddleX + this.paddleWidth) {
@@ -206,37 +247,45 @@ export class GameService {
 						room.leftPlayer.updateData.moveData.ballMoveX = true;
 						room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
 						room.rightPlayer.updateData.moveData.ballMoveX = false;
-						room.leftPlayer.ballSpeed += 0.1;
+						room.leftPlayer.ballSpeed += 1;
 					}
 				}
 			}
 			else {
 				if (room.leftPlayer.updateData.moveData.ballX - (room.leftPlayer.ballRadius) <= this.initLeftPaddleX + this.paddleWidth && room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius >= this.initLeftPaddleX) {
 					room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth;
-					if (room.leftPlayer.updateData.moveData.ballMoveY)
+					if (room.leftPlayer.updateData.moveData.ballMoveY) {
 						room.leftPlayer.updateData.moveData.ballY -= blinkMoveLeft;
-					else
+						room.rightPlayer.updateData.moveData.ballY -= blinkMoveLeft;
+					}
+					else {
 						room.leftPlayer.updateData.moveData.ballY += blinkMoveLeft;
+						room.rightPlayer.updateData.moveData.ballY += blinkMoveLeft;
+					}
 					if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.leftPaddleY) {
 						room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
 						room.leftPlayer.updateData.moveData.ballMoveX = false;
 						room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
 						room.rightPlayer.updateData.moveData.ballMoveX = true;
-						room.leftPlayer.ballSpeed += 0.1;
+						room.leftPlayer.ballSpeed += 1;
 					}
 				}
 				if (room.leftPlayer.updateData.moveData.ballX + (room.leftPlayer.ballRadius) >= this.initRightPaddleX && room.leftPlayer.updateData.moveData.ballX + room.leftPlayer.ballRadius <= this.initRightPaddleX + this.paddleWidth) {
 					room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX;
-					if (room.leftPlayer.updateData.moveData.ballMoveY)
+					if (room.leftPlayer.updateData.moveData.ballMoveY) {
 						room.leftPlayer.updateData.moveData.ballY -= blinkMoveRight;
-					else
+						room.rightPlayer.updateData.moveData.ballY -= blinkMoveRight;
+					}
+					else {
 						room.leftPlayer.updateData.moveData.ballY += blinkMoveRight;
+						room.rightPlayer.updateData.moveData.ballY += blinkMoveRight;
+					}
 					if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.rightPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.rightPaddleY) {
 						room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
 						room.leftPlayer.updateData.moveData.ballMoveX = true;
 						room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
 						room.rightPlayer.updateData.moveData.ballMoveX = false;
-						room.leftPlayer.ballSpeed += 0.1;
+						room.leftPlayer.ballSpeed += 1;
 					}
 				}
 			}
