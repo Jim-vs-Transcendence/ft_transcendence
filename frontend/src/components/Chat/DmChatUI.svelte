@@ -43,17 +43,17 @@
     ================================================================================ */
     // chat room에도 있어서 통합 필요. 별도 ts로 만들거나 등등
 
-    function ft_chat_send_msg() {
-		if (chat_data._msg.length && chat_data._msg != '\n')
-			socket.emit('chat-msg-event', chat_data)
-		chat_data._msg = ''
-		console.log(userid)
-	}
+    // function ft_chat_send_msg() {
+	// 	if (chat_data._msg.length && chat_data._msg != '\n')
+	// 		socket.emit('chat-msg-event', chat_data)
+	// 	chat_data._msg = ''
+	// 	console.log(userid)
+	// }
 
-	function ft_chat_send_msg_keydown(e: KeyboardEvent) {
-		if (e.keyCode != 13) return
-		ft_chat_send_msg()
-	}
+	// function ft_chat_send_msg_keydown(e: KeyboardEvent) {
+	// 	if (e.keyCode != 13) return
+	// 	ft_chat_send_msg()
+	// }
 
     // Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4'

@@ -453,8 +453,6 @@ export class ChatGateway
 		this.ft_chat_refresh_all(channel_list.get(payload._channel_name));
 	}
 
-
-
 	ft_channel_mute_self(channel_name: string, user: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
 		if (channel._users.has(user)) {
