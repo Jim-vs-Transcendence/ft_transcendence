@@ -1,7 +1,7 @@
 <script lang="ts">
   export let userInfo: UserDTO
 
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount } from 'svelte'
 
   import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
   import DmUser from './DmUser.svelte'
@@ -113,7 +113,7 @@
         <dl class="list-dl">
           {#if dmStoreData != null}
             {#each Object.entries(dmStoreData) as [key, curDmChatStore]}
-              <DmUser opponent={key} dmUserInfo={curDmChatStore} userInfo={userInfo} />
+              <DmUser opponent={key} dmUserInfo={curDmChatStore} userInfo={userInfo} dmStoreData={dmStoreData} />
             {/each}
           {/if}
         </dl>

@@ -2,9 +2,11 @@
     export let opponent: string
     export let dmUserInfo: DmUserInfoIF
     export let userInfo: UserDTO
+    export let dmStoreData: DmChatStoreIF
+    
     $: dmUserInfo
 
-    import type { DmUserInfoIF } from '$lib/interface'
+    import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
     import DmChatUI from "./DmChatUI.svelte"
     import { Avatar, modalStore } from '@skeletonlabs/skeleton'
     import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton'
@@ -56,7 +58,8 @@
             ref: DmChatUI,
             props: {opponent: opponent,
                     dmUserInfo: dmUserInfo,
-                    userInfo: userInfo}
+                    userInfo: userInfo,
+                    dmStoreData: dmStoreData}
         }
 
         const modal: ModalSettings = {

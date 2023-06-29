@@ -2,33 +2,29 @@
     export let dmUserInfo: DmUserInfoIF
     export let userInfo: UserDTO
     export let opponent : string
+    export let dmStoreData: DmChatStoreIF
 
-    import { Avatar, ListBox, ListBoxItem } from '@skeletonlabs/skeleton'
-    import type { Socket } from 'socket.io-client'
+    import { onMount } from 'svelte'
+    import { Avatar } from '@skeletonlabs/skeleton'
     // dm인데 그대로 갈것인가?
-    import { page } from '$app/stores'
+    // import { page } from '$app/stores'
 
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
-    import type { DmUserInfoIF, DmChatIF } from '$lib/interface'
+    import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
     
-    // api
-    import { getApi } from '../../service/api'
-	import { onMount } from 'svelte'
-    
-    onMount (async () => {
-        try {
-            // dmUserInfo._userInfo = await getApi({
-            //     path: 'user/' + opponent,
-            // })
-
-        } catch (error )
-        {
-            alert('오류 : ' + opponent + ' user정보를 가져올 수 없습니다.')
-            // await goto('/main')k
+    // 데이터 수신때 사용
+    onMount(async () => {
+      try {
+        loadDmChat = localStorage.getItem(DM_KEY)
+        if (loadDmChat) {
+          dmStoreData = JSON.parse(loadDmChat)
+          ftUpdateDmList()
         }
-    })
-
+      } catch (error) {
+        console.log('DM loading error')
+      }
+  })
     // let socket: Socket
     // let userid: string
     // let msg_list: ChatMsgIF[] = []
@@ -78,6 +74,7 @@
 		dmUserInfo._dmChatStore = [... dmUserInfo._dmChatStore, newMessage]
 		// Clear prompt
 		currentMessage = ''
+        sendDm(opponent)
 		// Smooth scroll to bottom
 		// Timeout prevents race condition
 		setTimeout(() => {
@@ -85,7 +82,7 @@
 		}, 0)
 	}
 
-    function onPromptKeydown(event: KeyboardEvent): void {
+    function onPromptKeyPress(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
 			event.preventDefault()
 			addMessage()
@@ -96,11 +93,10 @@
                                 from dmPageFile
     ================================================================================ */
     
-    /* 
-    import { socketStore } from '$lib/webSocketConnection_chat';
+    
+    import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
-	import type { DmChatIF } from '$lib/interface';
 
 	let socket: Socket;
     let dmChatData : DmChatIF;
@@ -113,7 +109,7 @@
 
     function sendDm(opponent : string)
     {
-        dmStoreData[opponent]._dmUserInfo.push(dmChatData);
+        dmUserInfo._dmChatStore.push(dmChatData);
         localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
         if (dmChatData._msg.length && dmChatData._msg != '\n')
             socket.emit('dm-chat', dmChatData);
@@ -126,7 +122,7 @@
             // msg_list = [...msg_list, data];
         });
     }
-    */
+   /*  */
 
 </script>
 
@@ -174,7 +170,7 @@
                             id="prompt"
                             placeholder="Write a message..."
                             rows="1"
-                            on:keydown={onPromptKeydown}
+                            on:keypress={onPromptKeyPress}
                         />
                         <button class={currentMessage ? 'variant-filled-primary' : 'input-group-shim'} on:click={addMessage}>
                             <i class="fa-solid fa-paper-plane" />
