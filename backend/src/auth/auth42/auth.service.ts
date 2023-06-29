@@ -23,6 +23,7 @@ export class AuthService {
       const token = await this.tokenService.createToken(req.user.id);
       res.cookie('auth_token', token, {
         httpOnly: true,
+        secure: true,
       });
       res.redirect('http://localhost:5173/auth/login/' + user.id);
     }
