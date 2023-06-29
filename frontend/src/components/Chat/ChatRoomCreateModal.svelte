@@ -24,6 +24,7 @@
 		_room_password: '',
 		_is_passworded: false,
 		_pass: false,
+		_ban: false,
 	};
 
 	// We've created a custom submit function to pass the response and close the modal.

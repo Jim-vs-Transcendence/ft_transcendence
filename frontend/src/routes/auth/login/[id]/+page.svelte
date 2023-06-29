@@ -30,7 +30,7 @@
 
         setTimeout(async () => {
 					goMain();
-        }, 24000);
+        }, 0);
 
 
         // 컴포넌트가 unmount될 때 interval을 제거합니다.

@@ -7,6 +7,7 @@
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { onDestroy } from 'svelte';
 	import { Authority } from '$lib/enum';
+	import { auth } from '../../service/store';
 	// import { popup } from '@skeletonlabs/skeleton';
 	// import { storePopup } from '@skeletonlabs/skeleton';
 
@@ -79,28 +80,28 @@
 		gameUnsubscribe();
 	});
 
-    function triggerModal() {
+	function triggerModal() {
 		const modal: ModalSettings = {
 			type: 'alert',
 			// Data
 			title: 'Example Alert',
 			body: 'This is an example modal.',
-			image: 'https://i.imgur.com/WOgTG96.gif',
+			image: 'https://i.imgur.com/WOgTG96.gif'
 		};
 		modalStore.trigger(modal);
 
-        // const modalComponent: ModalComponent = {
-        //     ref: ChatUI,
-        // };
+		// const modalComponent: ModalComponent = {
+		//     ref: ChatUI,
+		// };
 
-        // const modal: ModalSettings = {
-        //     type: 'component',
-        //     // Data
-        //     component: modalComponent
-        //     // response: (r: string) => console.log('response:', r),
-        // };
-        // modalStore.trigger(modal);
-    }
+		// const modal: ModalSettings = {
+		//     type: 'component',
+		//     // Data
+		//     component: modalComponent
+		//     // response: (r: string) => console.log('response:', r),
+		// };
+		// modalStore.trigger(modal);
+	}
 </script>
 
 <div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
@@ -122,15 +123,17 @@
 			}}>놀이 초대 {chatUser._user_info.id}</button
 		>
 	</div>
-	{#if user_self._authority <= Authority.ADMIN}
-		<div class="hover:variant-filled-surface">
-			<button
-				class="cursor-pointer font-sans md:font-serif"
-				on:click={() => {
-					ft_mute_user('mute');
-				}}>멈춰✋</button
-			>
-		</div>
+	{#if user_self._authority < chatUser._authority}
+		{#if !chatUser._is_muted}
+			<div class="hover:variant-filled-surface">
+				<button
+					class="cursor-pointer font-sans md:font-serif"
+					on:click={() => {
+						ft_mute_user('mute');
+					}}>멈춰✋</button
+				>
+			</div>
+		{/if}
 		<div class="hover:variant-filled-surface">
 			<button
 				class="cursor-pointer font-sans md:font-serif"
@@ -149,24 +152,24 @@
 		</div>
 	{/if}
 	{#if user_self._authority === Authority.OWNER}
-		<div class="hover:variant-filled-surface">
-			<button
-				class="cursor-pointer font-sans md:font-serif"
-				on:click={() => {
-					ft_appoint_user('appoint');
-				}}>부방장 임명</button
-			>
-		</div>
+		{#if chatUser._authority == Authority.USER}
+			<div class="hover:variant-filled-surface">
+				<button
+					class="cursor-pointer font-sans md:font-serif"
+					on:click={() => {
+						ft_appoint_user('appoint');
+					}}>부방장 임명</button
+				>
+			</div>
+		{:else}
+			<div class="hover:variant-filled-surface">
+				<button
+					class="cursor-pointer font-sans md:font-serif"
+					on:click={() => {
+						ft_appoint_user('unappoint');
+					}}>부방장 임명</button
+				>
+			</div>
+		{/if}
 	{/if}
-</div>
-
-<div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
-  <!-- <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_show_profile("show profile");}}> 개인정보 </button></div> -->
-  <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={triggerModal}> 개인정보 </button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_invite_user("invite");}}>놀이 초대</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_mute_user("mute");}}>멈춰✋</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_kick_user("kick");}}>내보내기</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_ban_user("ban");}}>영구추방</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_appoint_user("appoint");}}>부방장 임명</button></div>
-	<div class="arrow bg-surface-100-800-token" />
 </div>
