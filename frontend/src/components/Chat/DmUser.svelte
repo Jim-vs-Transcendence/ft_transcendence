@@ -49,15 +49,15 @@
     }
 </script>
 
-<div class="cursor-pointer hover:variant-glass-surface" on:click={ftDmChat} >
+<div class="cursor-pointer hover:variant-glass-surface" on:keypress={()=>{console.log("keypress")}} on:click={ftDmChat} >
     <Avatar
-        src={dmUserInfo[opponent]._userInfo.avatar}
+        bind:src={dmUserInfo._userInfo.avatar}
         width="w-7"
         rounded="rounded-full"
         />
     <span class="flex-auto">
         <dt>
-            {opponent} | {dmUserInfo[opponent]._userInfo.nickname}
+            {opponent} | {dmUserInfo._userInfo.nickname}
         </dt>
     </span>
 </div>

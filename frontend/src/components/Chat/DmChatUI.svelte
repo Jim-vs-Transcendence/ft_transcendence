@@ -1,5 +1,5 @@
 <script lang="ts">
-    export let dmChatStore: DmChatStoreIF
+    export let dmUserInfo: DmUserInfoIF
     export let userInfo: UserDTO
     export let opponent : string
 
@@ -10,7 +10,7 @@
 
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
-    import type { DmChatStoreIF, DmUserInfoIF, DmChatIF } from '$lib/interface'
+    import type { DmUserInfoIF, DmChatIF } from '$lib/interface'
     
     // api
     import { getApi } from '../../service/api'
@@ -18,7 +18,7 @@
     
     onMount (async () => {
         try {
-            // dmChatStore[opponent]._userInfo = await getApi({
+            // dmUserInfo._userInfo = await getApi({
             //     path: 'user/' + opponent,
             // })
 
@@ -29,14 +29,14 @@
         }
     })
 
-    let socket: Socket
-    let userid: string
-    let msg_list: ChatMsgIF[] = []
-    let chat_data: ChatMsgIF = {
-		_msg: '',
-		_user_name: '',
-		_room_name: $page.params['chat_room']
-	}
+    // let socket: Socket
+    // let userid: string
+    // let msg_list: ChatMsgIF[] = []
+    // let chat_data: ChatMsgIF = {
+	// 	_msg: '',
+	// 	_user_name: '',
+	// 	_room_name: $page.params['chat_room']
+	// }
 
     /* ================================================================================
                                 chat msg
@@ -75,7 +75,7 @@
 		}
 		// Update the message feed
         // opponent data
-		dmChatStore[opponent]._dmChatStore = [... dmChatStore[opponent]._dmChatStore, newMessage]
+		dmUserInfo._dmChatStore = [... dmUserInfo._dmChatStore, newMessage]
 		// Clear prompt
 		currentMessage = ''
 		// Smooth scroll to bottom
@@ -113,7 +113,7 @@
 
     function sendDm(opponent : string)
     {
-        dmStoreData[opponent]._dmChatStore.push(dmChatData);
+        dmStoreData[opponent]._dmUserInfo.push(dmChatData);
         localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
         if (dmChatData._msg.length && dmChatData._msg != '\n')
             socket.emit('dm-chat', dmChatData);
@@ -139,7 +139,7 @@
             <div class="grid grid-row-[1fr_auto]">
                 <!-- Conversation -->
                 <section bind:this={elemChat} class="max-h-[500px] p-4 overflow-y-auto space-y-4">
-                    {#each dmChatStore[opponent]._dmChatStore as bubble}
+                    {#each dmUserInfo._dmChatStore as bubble}
                         {#if bubble._from === userInfo.id}
                             <div class="grid grid-cols-[auto_1fr] gap-2">
                                 <Avatar src="{userInfo.avatar}" width="w-12" />
@@ -158,7 +158,7 @@
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>
-                                <Avatar src="{dmChatStore[opponent]._userInfo.avatar}" width="w-12" />
+                                <Avatar src="{dmUserInfo._userInfo.avatar}" width="w-12" />
                             </div>
                         {/if}
                     {/each}
