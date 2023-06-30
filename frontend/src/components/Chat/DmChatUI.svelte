@@ -15,10 +15,11 @@
     import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
         
     // Socket
-    import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
+    import { DM_KEY, socketStore, customEventElement } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
+	import { element } from 'svelte/internal';
 
 	let socket: Socket;
     
@@ -57,7 +58,7 @@
     const startInterval = () => {
         intervalId = setInterval(() => {
             dmDataLoad();
-        }, 1000);
+        }, 500);
     };
 
     const stopInterval = () => {
@@ -71,20 +72,21 @@
     // 데이터 수신때 사용
     onMount(async () => {
       try {
-        // dmDataLoad();
-        startInterval();
+        dmDataLoad();
+        // startInterval();
         //   ftUpdateDmList()
+        customEventElement.addEventListner("dm-received-msg", function(event) {
+            dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, event.detail.msg]
+        })
         // socket.on("dm-chat-to-ui", (data: DmChatIF) => {
         //     console.log("dm-chat-to-ui in DmChatUI")
         //     console.log(data)
-        //     dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
-        //     console.log(data)
-        //     const loadDmChat : string | null = localStorage.getItem(DM_KEY);
-		// 	let dmData : DmChatStoreIF = {};
-		// 	if (loadDmChat)
-		// 		dmData = JSON.parse(loadDmChat);
-		// 	dmData[data._from]._dmChatStore.push(data);
-		// 	localStorage.setItem(DM_KEY, JSON.stringify(dmData));
+        //     // const loadDmChat : string | null = localStorage.getItem(DM_KEY);
+		// 	// let dmData : DmChatStoreIF = {};
+		// 	// if (loadDmChat)
+		// 	// 	dmData = JSON.parse(loadDmChat);
+		// 	// dmData[data._from]._dmChatStore.push(data);
+		// 	// localStorage.setItem(DM_KEY, JSON.stringify(dmData));
         // })
         console.log("onMount DmChatUI")
       } catch (error) {
@@ -181,7 +183,7 @@
                 socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
-            alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
+            alert('오류: 상대방의 생사유무를 확인할 수 없습니다. in dm chat')
         }
     }
 
