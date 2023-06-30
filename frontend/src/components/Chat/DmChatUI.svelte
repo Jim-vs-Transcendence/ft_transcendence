@@ -34,7 +34,7 @@
         unsubscribe;
         if (socket !== undefined)
 		{
-			socket.off('dm-received-msg');
+			socket.off('dm-chat-to-ui');
 		}
     });
     
@@ -47,8 +47,8 @@
           dmUserInfo._dmChatStore = dmUserInfo._dmChatStore;
         }
         //   ftUpdateDmList()
-        socket.on("dm-received-msg", (data: DmChatIF) => {
-            console.log("dm-received-msg in DmChatUI")
+        socket.on("dm-chat-to-ui", (data: DmChatIF) => {
+            console.log("dm-chat-to-ui in DmChatUI")
             console.log(data)
             dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
             console.log(data)
@@ -58,7 +58,7 @@
 				dmData = JSON.parse(loadDmChat);
 			dmData[data._from]._dmChatStore.push(data);
 			localStorage.setItem(DM_KEY, JSON.stringify(dmData));
-			socket.emit("dm-received-msg", data);
+			socket.emit("dm-chat-to-ui", data);
         }) 
       } catch (error) {
         console.log('DM loading error')
@@ -155,8 +155,8 @@
 
     // function receiveDm(opponent : string)
     // {
-    //     socket.on('dm-received-msg', (data: ChatMsgIF) => {
-    //         console.log("dm-received-msg : ", data);
+    //     socket.on('dm-chat-to-ui', (data: ChatMsgIF) => {
+    //         console.log("dm-chat-to-ui : ", data);
     //         // msg_list = [...msg_list, data];
     //     });
     // }
