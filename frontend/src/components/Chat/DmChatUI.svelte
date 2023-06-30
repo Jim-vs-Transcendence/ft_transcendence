@@ -13,13 +13,14 @@
 	import { modalStore } from '@skeletonlabs/skeleton'
     import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
     
+    let loadDmChat : string | null
     // 데이터 수신때 사용
     onMount(async () => {
       try {
         loadDmChat = localStorage.getItem(DM_KEY)
         if (loadDmChat) {
           dmStoreData = JSON.parse(loadDmChat)
-          ftUpdateDmList()
+        //   ftUpdateDmList()
         }
       } catch (error) {
         console.log('DM loading error')
@@ -89,6 +90,7 @@
 		}
 	}
     
+
     /* ================================================================================
                                 from dmPageFile
     ================================================================================ */
@@ -96,7 +98,7 @@
     
     import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 
 	let socket: Socket;
     let dmChatData : DmChatIF;
@@ -107,6 +109,14 @@
     
     onDestroy(unsubscribe);
 
+    /*
+        동시에 여러 사용자와의DM으로 꼬일 일은 없다
+        한번에 1명의 사용자와만 통신한다.
+        고려해야할 것은
+        나는 DM창을 안켰는데 상대방만 킨 경우 어떻게 되는가?
+        socket이 연결 되는가?
+        둘다 켜야지만 되는가?
+    */
     function sendDm(opponent : string)
     {
         dmUserInfo._dmChatStore.push(dmChatData);
