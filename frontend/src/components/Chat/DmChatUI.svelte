@@ -58,7 +58,6 @@
 				dmData = JSON.parse(loadDmChat);
 			dmData[data._from]._dmChatStore.push(data);
 			localStorage.setItem(DM_KEY, JSON.stringify(dmData));
-			socket.emit("dm-chat-to-ui", data);
         }) 
       } catch (error) {
         console.log('DM loading error')
