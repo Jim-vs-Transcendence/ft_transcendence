@@ -78,14 +78,9 @@
         else if (opponentUserId in dmStoreData) { // TODO 이미 추가된 유저인지 확인 필요
           return alert('이미 ' + opponentUserId + '은(는) DM 대상으로 등록되었습니다.')
         }
-        console.log("opponentUserId : " + opponentUserId)
         let searchedUser : UserDTO | null = await getApi({ path: 'user/' + opponentUserId})
         if (typeof searchedUser === "string" || searchedUser === null || searchedUser === undefined)
-        {
-          console.log("searchedUser : ")
-          console.log(searchedUser)
           return alert(opponentUserId + ' user정보 찾을 수 없습니다')
-        }
         let newDmChatStore : DmUserInfoIF = {
             _userInfo: searchedUser,
             _dmChatStore: [],

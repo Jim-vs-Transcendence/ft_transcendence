@@ -3,6 +3,7 @@
     export let userInfo: UserDTO
     export let opponent : string
     export let dmStoreData: DmChatStoreIF
+    $: dmStoreData
 
     import { onMount } from 'svelte'
     import { Avatar } from '@skeletonlabs/skeleton'
@@ -31,34 +32,61 @@
     // $: msg_list
     
     onDestroy(() => {
-        unsubscribe;
+        unsubscribe();
         if (socket !== undefined)
 		{
 			socket.off('dm-chat-to-ui');
 		}
     });
+
+    let intervalId: NodeJS.Timer;
+
+    function dmDataLoad() {
+        console.log("dmDataLoad")
+        loadDmChat = localStorage.getItem(DM_KEY)
+        if (loadDmChat) {
+            dmStoreData = JSON.parse(loadDmChat)
+            dmUserInfo = dmStoreData[opponent]
+            scrollChatBottom('smooth')
+            console.log("dmUserInfo")
+            console.log(dmUserInfo)
+        //   dmUserInfo._dmChatStore = dmUserInfo._dmChatStore;
+        }
+    }
+
+    const startInterval = () => {
+        intervalId = setInterval(() => {
+            dmDataLoad();
+        }, 1000);
+    };
+
+    const stopInterval = () => {
+        clearInterval(intervalId);
+    };
+
+    onDestroy(() => {
+        stopInterval();
+    });
     
     // 데이터 수신때 사용
     onMount(async () => {
       try {
-        loadDmChat = localStorage.getItem(DM_KEY)
-        if (loadDmChat) {
-          dmStoreData = JSON.parse(loadDmChat)
-          dmUserInfo._dmChatStore = dmUserInfo._dmChatStore;
-        }
+        // dmDataLoad();
+        startInterval();
         //   ftUpdateDmList()
-        socket.on("dm-chat-to-ui", (data: DmChatIF) => {
-            console.log("dm-chat-to-ui in DmChatUI")
-            console.log(data)
-            dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
-            console.log(data)
-            const loadDmChat : string | null = localStorage.getItem(DM_KEY);
-			let dmData : DmChatStoreIF = {};
-			if (loadDmChat)
-				dmData = JSON.parse(loadDmChat);
-			dmData[data._from]._dmChatStore.push(data);
-			localStorage.setItem(DM_KEY, JSON.stringify(dmData));
-        }) 
+        // socket.on("dm-chat-to-ui", (data: DmChatIF) => {
+        //     console.log("dm-chat-to-ui in DmChatUI")
+        //     console.log(data)
+        //     dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+        //     console.log(data)
+        //     const loadDmChat : string | null = localStorage.getItem(DM_KEY);
+		// 	let dmData : DmChatStoreIF = {};
+		// 	if (loadDmChat)
+		// 		dmData = JSON.parse(loadDmChat);
+		// 	dmData[data._from]._dmChatStore.push(data);
+		// 	localStorage.setItem(DM_KEY, JSON.stringify(dmData));
+        // })
+        console.log("onMount DmChatUI")
       } catch (error) {
         console.log('DM loading error')
       }
@@ -106,9 +134,10 @@
 		// Update the message feed
         // opponent data
 		dmUserInfo._dmChatStore = [... dmUserInfo._dmChatStore, newMessage]
+        dmUserInfo._dmChatStore
 		// Clear prompt
 		currentMessage = ''
-        await sendDm(newMessage)
+        sendDm(newMessage)
 		// Smooth scroll to bottom
 		// Timeout prevents race condition
 		setTimeout(() => {
@@ -138,14 +167,17 @@
         둘다 켜야지만 되는가?
     */
     // async
-    async function sendDm(dmChatData : DmChatIF)
+    function sendDm(dmChatData : DmChatIF)
     {
         // dmStoreData._dmChatStore
         // msg_list
         try {
+            dmStoreData[opponent]._dmChatStore = dmUserInfo._dmChatStore
             localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
+            console.log("dmStoreData in sendDm()dmStoreData")
+            console.log(dmStoreData)
             if (dmChatData._msg.length && dmChatData._msg != '\n')
-            socket.emit('dm-chat', dmChatData);
+                socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
             alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')

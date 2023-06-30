@@ -32,13 +32,12 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				dmData = JSON.parse(loadDmChat);
 				dmData[data._from]._dmChatStore.push(data);
 				localStorage.setItem(DM_KEY, JSON.stringify(dmData));
-				console.log("before dm-received-msg ")
+				console.log("dm-chat in webSocketConnection")
 				console.log(data)
 				// event로 등록하여 Dm Chat UI에서 수신 받을 수 있게 처리한다.
 				// socket.emit("dm-received-msg", data);
 				// const e = new Event("dm-received-msg", data);
-				document.dispatchEvent(e);
-				console.log("after dm-received-msg ")
+				// document.dispatchEvent(e)`;
 			}
 			catch (error) {
 				alert('오류: 상대방의 생사유무를 확인할 수 없습니다. \n상대방이 메시지를 받을 수 없습니다.')

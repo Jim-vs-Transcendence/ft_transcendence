@@ -30,7 +30,7 @@
 			if (gameSocket === undefined)
 				await CreateGameSocket(gameSocketStore);
 
-			/* ===== room-refresh ===== */
+			/* ===== rostartIntervalom-refresh ===== */
 			socket.on('room-refresh', (data) => {
 				rooms_list = [...data];
 			});
