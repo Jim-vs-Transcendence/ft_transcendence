@@ -1,9 +1,18 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { TwoFactorService } from './two-factor.service';
 import RequestWithUser from '../interfaces/RequestWithUserDTO.interface';
 import twoFactorDTO from './two-factor.dto';
 import { TokenGuard } from '../token/token.guard';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @Controller('two-factor')
 @ApiTags('Two-Factor API')
@@ -40,10 +49,12 @@ export class TwoFactorController {
   async authentication(
     @Param('id') id: string,
     @Body() twoFactorDTO: twoFactorDTO,
+    @Res() res: Response,
   ): Promise<boolean> {
     return await this.twoFactorService.twoFactorLogin(
       id,
       twoFactorDTO.twoFactorCode,
+      res,
     );
   }
 

@@ -5,6 +5,7 @@ import { toDataURL } from 'qrcode';
 import { TokenService } from '../token/token.service';
 import userDTO from 'src/users/user.dto';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 
 @Injectable()
 export class TwoFactorService {
@@ -49,10 +50,19 @@ export class TwoFactorService {
     });
   }
 
-  async twoFactorLogin(id: string, twoFactorCode: string): Promise<boolean> {
+  async twoFactorLogin(
+    id: string,
+    twoFactorCode: string,
+    res: Response,
+  ): Promise<boolean> {
     const isCodeValidated = await this.isTwoFactorCodeValid(id, twoFactorCode);
+    let token: string;
 
-    if (isCodeValidated == true) await this.tokenServiece.createToken(id);
+    if (isCodeValidated == true)
+      token = await this.tokenServiece.createToken(id);
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+    });
 
     return isCodeValidated;
   }

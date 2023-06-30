@@ -12,13 +12,13 @@ export class typeOrmConfigService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions | Promise<TypeOrmModuleOptions> {
     return {
       type: 'postgres',
-      host: this.configService.get<string>('DB_HOST'),
-      port: this.configService.get<number>('DB_PORT'),
-      username: this.configService.get<string>('DB_USERNAME'),
-      password: this.configService.get<string>('DB_PASSWORD'),
-      database: this.configService.get<string>('DB_DATABASE'),
-      synchronize: this.configService.get<boolean>('DB_SYNC'),
-      logging: this.configService.get<boolean>('DB_LOG'),
+      host: this.configService.get('DB_HOST'),
+      port: this.configService.get('DB_PORT'),
+      username: this.configService.get('DB_USERNAME'),
+      password: this.configService.get('DB_PASSWORD'),
+      database: this.configService.get('DB_DATABASE'),
+      synchronize: this.configService.get('DB_SYNC') === 'true',
+      logging: this.configService.get('DB_LOG') === 'true',
       entities: [User, Friend, MatchHistory],
     };
   }

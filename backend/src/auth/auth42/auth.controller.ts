@@ -11,7 +11,7 @@ import { AuthGuard42 } from './auth42.guard';
 import { AuthService } from './auth.service';
 import { AuthFilter42 } from './auth42.filter';
 import RequestWithUserDTO from '../interfaces/RequestWithUserDTO.interface';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -35,7 +35,7 @@ export class AuthController {
 
   // token 기반 -> id 기반
   @Get('logout')
-  async logout(@Headers('authtoken') token: string): Promise<void> {
-    await this.authService.logout(token);
+  async logout(@Req() req: Request, @Res() res: Response): Promise<void> {
+    await this.authService.logout(req, res);
   }
 }

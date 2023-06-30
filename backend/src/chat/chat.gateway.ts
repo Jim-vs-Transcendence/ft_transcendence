@@ -78,12 +78,13 @@ export class ChatGateway
 		console.log('\x1b[38;5;196m Disconnect: ', userid, " : ", client.id, "\x1b[0m");
 		if (typeof userid === 'string')
 			socket_list.delete(userid);
+		this.userService.updateUserStatus(client.handshake.query._userId as string, 0);
 		client.emit('room-refresh', this.ft_room_list());
 	}
 
 	// ================================================================================ //
 	/* =                                                                              =
-									room                                     
+									room
 	   =                                                                              = */
 	// ================================================================================ //
 	/* ================================================================================
@@ -121,10 +122,10 @@ export class ChatGateway
 
 	/**
 	 * @name ft_channel_room_create
-	 * @param payload 
-	 * @param userid 
-	 * @brief 방만들기 세팅용 
-	 * @returns 
+	 * @param payload
+	 * @param userid
+	 * @brief 방만들기 세팅용
+	 * @returns
 	 */
 	async ft_channel_room_create(payload: ChatRoomJoinDTO, userid: string) {
 		let room: ChatRoomDTO = {
@@ -223,7 +224,7 @@ export class ChatGateway
 	}
 
 	/* ================================================================================
-									room refresh                                    
+									room refresh
 	   ================================================================================ */
 	/**
 	 * @name ft_room_refresh
@@ -313,9 +314,9 @@ export class ChatGateway
 	}
 
 	/**
-	 * 
-	 * @param client 
-	 * @param payload 
+	 *
+	 * @param client
+	 * @param payload
 	 */
 	@SubscribeMessage("chat-auth-user")
 	ft_chat_auth_user(
@@ -404,9 +405,9 @@ export class ChatGateway
 	   ================================================================================ */
 
 	/**
-	 * 
-	 * @param client 
-	 * @param payload 
+	 *
+	 * @param client
+	 * @param payload
 	 */
 	@SubscribeMessage("chat-kick-user")
 	ft_chat_kick_user(
@@ -437,9 +438,9 @@ export class ChatGateway
 	   ================================================================================ */
 
 	/**
-	 * 
-	 * @param client 
-	 * @param payload 
+	 *
+	 * @param client
+	 * @param payload
 	 */
 	@SubscribeMessage("chat-mute-user")
 	ft_chat_mute_user(
@@ -499,9 +500,9 @@ export class ChatGateway
 	   ================================================================================ */
 
 	/**
-	 * 
-	 * @param client 
-	 * @param payload 
+	 *
+	 * @param client
+	 * @param payload
 	 */
 	@SubscribeMessage("chat-ban-user")
 	ft_chat_ban_user(
@@ -536,7 +537,7 @@ export class ChatGateway
 
 	// ================================================================================ //
 	/* =                                                                              =
-									chat                                    
+									chat
 	   =                                                                              = */
 	// ================================================================================ //
 
@@ -545,9 +546,9 @@ export class ChatGateway
 	   ================================================================================ */
 
 	/**
-	 * 
-	 * @param client 
-	 * @param payload 
+	 *
+	 * @param client
+	 * @param payload
 	 */
 	@SubscribeMessage('chat-refresh')
 	ft_chat_refresh(
@@ -659,7 +660,7 @@ export class ChatGateway
 
 	// ================================================================================ //
 	/* =                                                                              =
-									dm                                    
+									dm
 	   =                                                                              = */
 	// ================================================================================ //
 

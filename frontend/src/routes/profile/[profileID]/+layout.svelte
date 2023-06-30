@@ -7,10 +7,6 @@
         authToken.logout()
     };
 
-    const goback = () => {
-        history.back();
-    };
-
     const goHome = () => {
         goto('/main');
     }
@@ -34,9 +30,6 @@
             --><span on:click={goHome} style="cursor: alias;">&nbsp;Transcendence</span>
         </span>
     </h1>
-    <div slot="trail" class="flex items-center space-x-6">
-        <button type="button" class="btn-icon btn variant-filled width-8" on:click={goback}>뒤로</button>
-    </div>
   </AppBar>
 
   <slot />
