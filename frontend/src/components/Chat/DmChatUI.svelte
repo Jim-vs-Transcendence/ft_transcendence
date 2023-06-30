@@ -12,16 +12,47 @@
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
     import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
+        
+    // Socket
+    import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
+	import type { Socket } from 'socket.io-client';
+	import { onDestroy } from 'svelte';
+
+	let socket: Socket;
     
-    let loadDmChat : string | null
+    let loadDmChat : string | null;
+    
+    const unsubscribe = socketStore.subscribe((_socket: Socket) => {
+        socket = _socket;
+	});
+
+    // let msg_list : DmChatIF[] = [];
+    // $: msg_list
+    
+    onDestroy(unsubscribe);
     // 데이터 수신때 사용
     onMount(async () => {
       try {
         loadDmChat = localStorage.getItem(DM_KEY)
         if (loadDmChat) {
           dmStoreData = JSON.parse(loadDmChat)
-        //   ftUpdateDmList()
+          dmUserInfo._dmChatStore = dmUserInfo._dmChatStore;
         }
+        //   ftUpdateDmList()
+        socket.on("dm-received-msg", (data: DmChatIF) => {
+            console.log("dm-received-msg in DmChatUI")
+            console.log(data)
+            dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+            console.log(data)
+            // const loadDmChat : string | null = localStorage.getItem(DM_KEY);
+			// let dmData : DmChatStoreIF = {};
+			// if (loadDmChat)
+			// 	dmData = JSON.parse(loadDmChat);
+			// dmData[data._from]._dmChatStore.push(data);
+			// localStorage.setItem(DM_KEY, JSON.stringify(dmData));
+			// socket.emit("dm-received-msg", data);
+        }) 
+        
       } catch (error) {
         console.log('DM loading error')
       }
@@ -64,7 +95,7 @@
         elemChat.scrollTo({ top: elemChat.scrollHeight, behavior })
     }
 
-    function addMessage(): void {
+    async function addMessage(): Promise<void> {
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
             _to: opponent,
@@ -75,7 +106,7 @@
 		dmUserInfo._dmChatStore = [... dmUserInfo._dmChatStore, newMessage]
 		// Clear prompt
 		currentMessage = ''
-        sendDm(opponent)
+        await sendDm(newMessage)
 		// Smooth scroll to bottom
 		// Timeout prevents race condition
 		setTimeout(() => {
@@ -95,19 +126,6 @@
                                 from dmPageFile
     ================================================================================ */
     
-    
-    import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
-	import type { Socket } from 'socket.io-client';
-	import { onDestroy } from 'svelte';
-
-	let socket: Socket;
-    let dmChatData : DmChatIF;
-    
-    const unsubscribe = socketStore.subscribe((_socket: Socket) => {
-        socket = _socket;
-	});
-    
-    onDestroy(unsubscribe);
 
     /*
         동시에 여러 사용자와의DM으로 꼬일 일은 없다
@@ -117,21 +135,28 @@
         socket이 연결 되는가?
         둘다 켜야지만 되는가?
     */
-    function sendDm(opponent : string)
+    // async
+    function sendDm(dmChatData : DmChatIF)
     {
-        dmUserInfo._dmChatStore.push(dmChatData);
-        localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
-        if (dmChatData._msg.length && dmChatData._msg != '\n')
+        // dmStoreData._dmChatStore
+        // msg_list
+        try {
+            localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
+            if (dmChatData._msg.length && dmChatData._msg != '\n')
             socket.emit('dm-chat', dmChatData);
+        }
+        catch (error) {
+            alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
+        }
     }
 
-    function receiveDm(opponent : string)
-    {
-        socket.on('dm-chat', (data: ChatMsgIF) => {
-            console.log("dm-chat : ", data);
-            // msg_list = [...msg_list, data];
-        });
-    }
+    // function receiveDm(opponent : string)
+    // {
+    //     socket.on('dm-received-msg', (data: ChatMsgIF) => {
+    //         console.log("dm-received-msg : ", data);
+    //         // msg_list = [...msg_list, data];
+    //     });
+    // }
    /*  */
 
 </script>
