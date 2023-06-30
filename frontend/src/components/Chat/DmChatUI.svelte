@@ -17,19 +17,27 @@
     import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy } from 'svelte';
+	import type { Unsubscriber } from 'svelte/store';
 
 	let socket: Socket;
     
     let loadDmChat : string | null;
     
-    const unsubscribe = socketStore.subscribe((_socket: Socket) => {
+    const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
         socket = _socket;
 	});
 
     // let msg_list : DmChatIF[] = [];
     // $: msg_list
     
-    onDestroy(unsubscribe);
+    onDestroy(() => {
+        unsubscribe;
+        if (socket !== undefined)
+		{
+			socket.off('dm-received-msg');
+		}
+    });
+    
     // 데이터 수신때 사용
     onMount(async () => {
       try {
@@ -44,15 +52,14 @@
             console.log(data)
             dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
             console.log(data)
-            // const loadDmChat : string | null = localStorage.getItem(DM_KEY);
-			// let dmData : DmChatStoreIF = {};
-			// if (loadDmChat)
-			// 	dmData = JSON.parse(loadDmChat);
-			// dmData[data._from]._dmChatStore.push(data);
-			// localStorage.setItem(DM_KEY, JSON.stringify(dmData));
-			// socket.emit("dm-received-msg", data);
+            const loadDmChat : string | null = localStorage.getItem(DM_KEY);
+			let dmData : DmChatStoreIF = {};
+			if (loadDmChat)
+				dmData = JSON.parse(loadDmChat);
+			dmData[data._from]._dmChatStore.push(data);
+			localStorage.setItem(DM_KEY, JSON.stringify(dmData));
+			socket.emit("dm-received-msg", data);
         }) 
-        
       } catch (error) {
         console.log('DM loading error')
       }
@@ -82,10 +89,6 @@
 	// 	if (e.keyCode != 13) return
 	// 	ft_chat_send_msg()
 	// }
-
-    // Base Classes
-	const cBase = 'card p-4 w-modal shadow-xl space-y-4'
-	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token'
 
     // chat 
     let currentMessage = ''
@@ -136,7 +139,7 @@
         둘다 켜야지만 되는가?
     */
     // async
-    function sendDm(dmChatData : DmChatIF)
+    async function sendDm(dmChatData : DmChatIF)
     {
         // dmStoreData._dmChatStore
         // msg_list
