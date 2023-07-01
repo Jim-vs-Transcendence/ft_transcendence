@@ -7,10 +7,7 @@ import type { DmChatIF, DmChatStoreIF } from '$lib/interface';
 
 export const ENDPOINT : string = backUrl + '/chat';
 export let DM_KEY : string = "dmdata_"
-export let customEventElement : any;
-$: customEventElement
 export const socketStore : Writable<Socket> = writable();
-//const ENDPOINT = 'http://localhost:3000/chat';
 
 export async function CreateSocket (socketStore : Writable<Socket>) {
 
@@ -37,22 +34,18 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				console.log("dm-chat in webSocketConnection")
 				console.log(data)
 				// event로 등록하여 Dm Chat UI에서 수신 받을 수 있게 처리한다.
-				// socket.emit("dm-received-msg", data);
-				// try {
-				// 	customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))
-				// }
-				// catch (error) {
-				// 	alert('오류: customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))')	
-				// }
-
-
-				// const customEvent = new CustomEvent("dm-received-msg", {detail: {msg: data}});
-				// const element = document.getElementById('myElement')
-				// element?.dispatchEvent(customEvent)
-				// document.dispatchEvent(e)`;
+				/*
+				socket.emit("dm-received-msg", data);
+				try {
+					customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))
+				}
+				catch (error) {
+					alert('오류: customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))')	
+				}
+				 */
 			}
 			catch (error) {
-				alert('오류: 상대방의 생사유무를 확인할 수 없습니다. \n상대방이 메시지를 받을 수 없습니다. in websocket')
+				alert('오류: 상대방의 생사유무를 확인할 수 없습니다. \n상대방이 메시지를 받을 수 없습니다. ')
 			}
 		}
 	})

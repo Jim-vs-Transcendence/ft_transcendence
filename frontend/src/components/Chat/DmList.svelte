@@ -10,15 +10,12 @@
 
   let opponentUserId= ''
   let loadDmChat : string | null
-  $: loadDmChat // OnMount할때 하면 굳이 반응형 변수로 할 필요 없는가?
-  // 컴포넌트가 DOM에 마운트될 때이니 굳이 인가?
   let dmStoreData : DmChatStoreIF = {}
   $: dmStoreData
 
   /**
    * 실제로  dmStoreData[key]._userInfo = curUserInfo 코드가 동작하는지 확인이 필요하다
    * 유저가 프로필이나 닉네임을 바꾸어보고 적용되는지 확인해야한다.
-   * 
    */
   // feat GPT for .. each solution detach from Ojbect
   async function ftUpdateDmList(): Promise<void> {
@@ -44,7 +41,7 @@
           ftUpdateDmList()
         }
       } catch (error) {
-        console.log('DM loading error')
+        return alert('DM list loading error')
       }
   })
 

@@ -3,25 +3,19 @@
     export let userInfo: UserDTO
     export let opponent : string
     export let dmStoreData: DmChatStoreIF
-    $: dmUserInfo._dmChatStore
 
     import { onMount } from 'svelte'
     import { Avatar } from '@skeletonlabs/skeleton'
-    // dm인데 그대로 갈것인가?
-    // import { page } from '$app/stores'
 
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
     import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
         
     // Socket
-    import { DM_KEY, socketStore, customEventElement } from '$lib/webSocketConnection_chat';
+    import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
-	import { element } from 'svelte/internal';
-    // for test
-    import { browser } from '$app/environment';
 
 	let socket: Socket;
     
@@ -31,9 +25,6 @@
         socket = _socket;
 	});
 
-    // let msg_list : DmChatIF[] = [];
-    // $: msg_list
-    
     onDestroy(() => {
         unsubscribe();
         if (socket !== undefined)
@@ -42,84 +33,36 @@
 		}
     });
 
-    let intervalId: NodeJS.Timer;
-
     function dmDataLoad() {
-        console.log("dmDataLoad")
         loadDmChat = localStorage.getItem(DM_KEY)
         if (loadDmChat) {
             dmStoreData = JSON.parse(loadDmChat)
             dmUserInfo = dmStoreData[opponent]
-            scrollChatBottom('smooth')
-            console.log("dmUserInfo")
-            console.log(dmUserInfo)
-            // dmUserInfo._dmChatStore = dmUserInfo._dmChatStore;
+            setTimeout(() => {
+			    scrollChatBottom('smooth')
+		    }, 0)
         }
     }
-
-    const startInterval = () => {
-        intervalId = setInterval(() => {
-            dmDataLoad();
-        }, 500);
-    };
-
-    const stopInterval = () => {
-        clearInterval(intervalId);
-    };
-
-    onDestroy(() => {
-        stopInterval();
-    });
     
     // 데이터 수신때 사용
-    onMount(async () => {
+    onMount(() => {
       try {
         dmDataLoad();
-        // startInterval();
-        //   ftUpdateDmList()
-        // customEventElement.addEventListner("dm-received-msg", function(event: any) {
-        //     dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, event.detail.msg]
-        // })
 
         socket.on("dm-chat-to-ui", (data: DmChatIF) => {
             dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
-            console.log("dm-chat-to-ui in DmChatUI")
             setTimeout(() => {
 			    scrollChatBottom('smooth')
 		    }, 0)
         })
-        console.log("onMount DmChatUI")
       } catch (error) {
-        console.log('DM loading error')
+        return alert('DM loading error')
       }
-  })
-    // let socket: Socket
-    // let userid: string
-    // let msg_list: ChatMsgIF[] = []
-    // let chat_data: ChatMsgIF = {
-	// 	_msg: '',
-	// 	_user_name: '',
-	// 	_room_name: $page.params['chat_room']
-	// }
+    })
 
     /* ================================================================================
-                                chat msg
+                                chat interface
     ================================================================================ */
-    // chat room에도 있어서 통합 필요. 별도 ts로 만들거나 등등
-
-    // function ft_chat_send_msg() {
-	// 	if (chat_data._msg.length && chat_data._msg != '\n')
-	// 		socket.emit('chat-msg-event', chat_data)
-	// 	chat_data._msg = ''
-	// 	console.log(userid)
-	// }
-
-	// function ft_chat_send_msg_keydown(e: KeyboardEvent) {
-	// 	if (e.keyCode != 13) return
-	// 	ft_chat_send_msg()
-	// }
-
-    // chat 
     let currentMessage = ''
     let elemChat: HTMLElement
     
@@ -133,8 +76,6 @@
             _to: opponent,
             _msg: currentMessage,
 		}
-		// Update the message feed
-        // opponent data
 		dmUserInfo._dmChatStore = [... dmUserInfo._dmChatStore, newMessage]
 		// Clear prompt
 		currentMessage = ''
@@ -153,12 +94,6 @@
 			    addMessage()
 		}
 	}
-    
-
-    /* ================================================================================
-                                from dmPageFile
-    ================================================================================ */
-    
 
     /*
         동시에 여러 사용자와의DM으로 꼬일 일은 없다
@@ -171,18 +106,14 @@
     // async
     function sendDm(dmChatData : DmChatIF)
     {
-        // dmStoreData._dmChatStore
-        // msg_list
         try {
             dmStoreData[opponent]._dmChatStore = dmUserInfo._dmChatStore
             localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
-            console.log("dmStoreData in sendDm()dmStoreData")
-            console.log(dmStoreData)
             if (dmChatData._msg.length && dmChatData._msg != '\n')
                 socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
-            alert('오류: 상대방의 생사유무를 확인할 수 없습니다. in dm chat')
+            alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
         }
     }
 </script>
