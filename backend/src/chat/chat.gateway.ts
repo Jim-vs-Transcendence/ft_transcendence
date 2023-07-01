@@ -683,6 +683,7 @@ export class ChatGateway
 			return;
 		}
 		socket_list.get(payload._to).emit('dm-chat', payload);
+		socket_list.get(payload._to).emit('dm-chat-to-ui', payload);
 		// client.emit("chat-msg-event",payload._msg );
 	}
 }

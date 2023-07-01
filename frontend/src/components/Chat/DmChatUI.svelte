@@ -3,7 +3,7 @@
     export let userInfo: UserDTO
     export let opponent : string
     export let dmStoreData: DmChatStoreIF
-    $: dmStoreData
+    $: dmUserInfo._dmChatStore
 
     import { onMount } from 'svelte'
     import { Avatar } from '@skeletonlabs/skeleton'
@@ -20,6 +20,8 @@
 	import { onDestroy } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
 	import { element } from 'svelte/internal';
+    // for test
+    import { browser } from '$app/environment';
 
 	let socket: Socket;
     
@@ -51,7 +53,7 @@
             scrollChatBottom('smooth')
             console.log("dmUserInfo")
             console.log(dmUserInfo)
-        //   dmUserInfo._dmChatStore = dmUserInfo._dmChatStore;
+            // dmUserInfo._dmChatStore = dmUserInfo._dmChatStore;
         }
     }
 
@@ -75,19 +77,17 @@
         dmDataLoad();
         // startInterval();
         //   ftUpdateDmList()
-        customEventElement.addEventListner("dm-received-msg", function(event) {
-            dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, event.detail.msg]
-        })
-        // socket.on("dm-chat-to-ui", (data: DmChatIF) => {
-        //     console.log("dm-chat-to-ui in DmChatUI")
-        //     console.log(data)
-        //     // const loadDmChat : string | null = localStorage.getItem(DM_KEY);
-		// 	// let dmData : DmChatStoreIF = {};
-		// 	// if (loadDmChat)
-		// 	// 	dmData = JSON.parse(loadDmChat);
-		// 	// dmData[data._from]._dmChatStore.push(data);
-		// 	// localStorage.setItem(DM_KEY, JSON.stringify(dmData));
+        // customEventElement.addEventListner("dm-received-msg", function(event: any) {
+        //     dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, event.detail.msg]
         // })
+
+        socket.on("dm-chat-to-ui", (data: DmChatIF) => {
+            dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+            console.log("dm-chat-to-ui in DmChatUI")
+            setTimeout(() => {
+			    scrollChatBottom('smooth')
+		    }, 0)
+        })
         console.log("onMount DmChatUI")
       } catch (error) {
         console.log('DM loading error')
@@ -136,7 +136,6 @@
 		// Update the message feed
         // opponent data
 		dmUserInfo._dmChatStore = [... dmUserInfo._dmChatStore, newMessage]
-        dmUserInfo._dmChatStore
 		// Clear prompt
 		currentMessage = ''
         sendDm(newMessage)
@@ -186,16 +185,6 @@
             alert('오류: 상대방의 생사유무를 확인할 수 없습니다. in dm chat')
         }
     }
-
-    // function receiveDm(opponent : string)
-    // {
-    //     socket.on('dm-chat-to-ui', (data: ChatMsgIF) => {
-    //         console.log("dm-chat-to-ui : ", data);
-    //         // msg_list = [...msg_list, data];
-    //     });
-    // }
-   /*  */
-
 </script>
 
 
