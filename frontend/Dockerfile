@@ -9,5 +9,3 @@ RUN chown -R node:node /app && npm ci && npm cache clean --force
 # 이 때 음성파일 cp 됨
 COPY --chown=node:node . .
 RUN chown -R node:node /app && npm run build
-
-CMD [ "npm", "run", "dev" ]

@@ -22,8 +22,7 @@ services:
     networks:
       - network-transcendence
 
-  backend:
-    image: nest
+  backend: # nest
     restart: always
     build:
       context: backend
@@ -36,20 +35,22 @@ services:
       - .env
     expose:
       - 3000
+    command: node dist/main.js
     networks:
       - network-transcendence
     volumes: # 백엔드에서 이미지 저장할 때 필요한 볼륨
       - volume_backend:${IMAGE_SAVE_PATH} # TODO build 하고 mount 하면 빌드할 때 copy 한 게 없어질 것 같긴함
 
-  frontend:
-    image: svelte
+  frontend: # svelte
     restart: always
     build: frontend
     depends_on:
       - backend
     ports:
       - 5173:5173
+    command: npm run dev
     environment:
       VITE_API_URL: ${VITE_API_URL?}
     networks:
       - network-transcendence
+      - default

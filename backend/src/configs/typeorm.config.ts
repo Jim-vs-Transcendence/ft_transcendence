@@ -12,7 +12,7 @@ export class typeOrmConfigService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions | Promise<TypeOrmModuleOptions> {
     return {
       type: 'postgres',
-      host: this.configService.get<string>('POSTGRES_HOST'),
+      host: this.configService.get<string>('POSTGRES_HOST_BACKEND'),
       port: this.configService.get<number>('POSTGRES_PORT'),
       username: this.configService.get<string>('POSTGRES_USER'),
       password: this.configService.get<string>('POSTGRES_PASSWORD'),

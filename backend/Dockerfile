@@ -11,5 +11,3 @@ RUN chown -R node:node /app && npm run build
 
 # 사진 data cp
 COPY --chown=node:node data/profile $IMAGE_SAVE_PATH
-
-CMD [ "node", "dist/main.js" ]
