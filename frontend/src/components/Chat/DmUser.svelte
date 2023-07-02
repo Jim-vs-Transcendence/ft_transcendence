@@ -4,8 +4,6 @@
     export let userInfo: UserDTO
     export let dmStoreData: DmChatStoreIF
     
-    $: dmUserInfo
-
     import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
     import DmChatUI from "./DmChatUI.svelte"
     import { Avatar, modalStore } from '@skeletonlabs/skeleton'
