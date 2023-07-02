@@ -51,7 +51,8 @@
 
         socket.on("dm-chat-to-ui", (data: DmChatIF) => {
             try {
-                dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+                if (data._from === dmUserInfo._userInfo.id)
+                    dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
                 setTimeout(() => {
                     scrollChatBottom('smooth')
                 }, 0)
@@ -76,6 +77,8 @@
     }
 
     async function addMessage(): Promise<void> {
+        if (currentMessage.trim() === null)
+            return 
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
             _to: opponent,
@@ -95,8 +98,7 @@
     function onPromptKeyPress(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
 			event.preventDefault()
-            if (currentMessage.trim())
-			    addMessage()
+            addMessage()
 		}
 	}
 

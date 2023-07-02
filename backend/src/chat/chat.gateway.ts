@@ -678,12 +678,10 @@ export class ChatGateway
 	) {
 		if (!socket_list.has(payload._to)) {
 			console.log("\x1b[38;5;196m Error :: \x1b[0m socket is not enable");
-			// client.emit('dm-chat-to-ui', payload);
 			client.emit('dm-chat', payload);
 			return;
 		}
 		socket_list.get(payload._to).emit('dm-chat', payload);
 		socket_list.get(payload._to).emit('dm-chat-to-ui', payload);
-		// client.emit("chat-msg-event",payload._msg );
 	}
 }
