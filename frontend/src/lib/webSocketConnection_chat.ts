@@ -31,8 +31,8 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				const loadDmChat : string | null = localStorage.getItem(DM_KEY);
 				let dmData : DmChatStoreIF = {};
 				if (loadDmChat)
-				dmData = JSON.parse(loadDmChat);
-				if (!dmData.hasOwnProperty(data._from))
+					dmData = JSON.parse(loadDmChat);
+				if (!(dmData.hasOwnProperty(data._from)))
 				{
 					let searchedUser : UserDTO | null = await getApi({ path: 'user/' + data._from})
         			if (typeof searchedUser === "string" || searchedUser === null || searchedUser === undefined)
