@@ -7,19 +7,12 @@
   import DmUser from './DmUser.svelte'
   import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
   import { getApi } from '../../service/api'
-	import type { Socket } from 'socket.io-client';
-	import type { Unsubscriber } from 'svelte/store';
 
   let opponentUserId= ''
   let loadDmChat : string | null
   let dmStoreData : DmChatStoreIF = {}
   $: dmStoreData
 
-  /**
-   * 실제로  dmStoreData[key]._userInfo = curUserInfo 코드가 동작하는지 확인이 필요하다
-   * 유저가 프로필이나 닉네임을 바꾸어보고 적용되는지 확인해야한다.
-   */
-  // feat GPT for .. each solution detach from Ojbect
   async function ftUpdateDmList(): Promise<void> {
     try {
       for (const key of Object.keys(dmStoreData)) {
@@ -35,16 +28,6 @@
     }
   }
 
-  let socket: Socket;
-    
-  const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
-    socket = _socket;
-	});
-
-  // await가 필요한 케이스인가?, 함수호출에만 쓰는가?
-  // 브라우저 local storage에서 바로 가져오니 필요 없는가?
-  // 이미 이 순간에 업데이트 하게 한다.
-  // tab이 선택되는 순간에 mount되는것인가? 그러하다
   onMount(async () => {
       try {
         loadDmChat = localStorage.getItem(DM_KEY)
@@ -56,14 +39,6 @@
         return alert('DM list loading error')
       }
   })
-
-  onDestroy(() => {
-      unsubscribe();
-      if (socket !== undefined)
-  {
-    socket.off('dm-chat-to-dmlist');
-  }
-  });
 
   async function ftUpdateChatLocalStorage(userId: string, newDmChatStore : DmUserInfoIF) {
     let curloadDmChat  : string | null = localStorage.getItem(DM_KEY)

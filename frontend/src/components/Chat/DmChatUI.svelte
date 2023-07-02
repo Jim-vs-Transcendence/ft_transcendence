@@ -44,7 +44,6 @@
         }
     }
     
-    // 데이터 수신때 사용
     onMount(() => {
       try {
         dmDataLoad();
@@ -102,15 +101,6 @@
 		}
 	}
 
-    /*
-        동시에 여러 사용자와의DM으로 꼬일 일은 없다
-        한번에 1명의 사용자와만 통신한다.
-        고려해야할 것은
-        나는 DM창을 안켰는데 상대방만 킨 경우 어떻게 되는가?
-        socket이 연결 되는가?
-        둘다 켜야지만 되는가?
-    */
-    // async
     function sendDm(dmChatData : DmChatIF)
     {
         try {
