@@ -10,10 +10,4 @@ RUN chown -R node:node /app && npm ci && npm cache clean --force
 COPY --chown=node:node . .
 RUN chown -R node:node /app && npm run build
 
-# --------------------
-
-FROM nginx:1.19-alpine
-COPY --from=build /app/public /usr/share/nginx/html
-
-ENV NODE_ENV production
-USER node
+CMD [ "npm", "run", "dev" ]
