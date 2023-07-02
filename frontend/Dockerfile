@@ -1,12 +1,19 @@
-FROM node:12 AS build
-
+FROM node:18.16.1-alpine AS build
 WORKDIR /app
 
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm install
-COPY . ./
-RUN npm run build
+# install dependancy -> node_modules
+COPY --chown=node:node package*.json .
+RUN chown -R node:node /app && npm ci && npm cache clean --force
+
+# build code -> dist
+# 이 때 음성파일 cp 됨
+COPY --chown=node:node . .
+RUN chown -R node:node /app && npm run build
+
+# --------------------
 
 FROM nginx:1.19-alpine
 COPY --from=build /app/public /usr/share/nginx/html
+
+ENV NODE_ENV production
+USER node

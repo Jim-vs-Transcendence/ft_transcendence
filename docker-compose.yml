@@ -1,5 +1,13 @@
 version: "3"
 
+volumes:
+  volume_postgres:
+  volume_backend: # 백엔드에서 이미지 저장할 때 필요한 볼륨
+
+networks:
+  network-transcendence:
+    driver: bridge
+
 services:
 
   postgresql:
@@ -29,28 +37,19 @@ services:
     expose:
       - 3000
     networks:
-      - network-inception
+      - network-transcendence
     volumes: # 백엔드에서 이미지 저장할 때 필요한 볼륨
       - volume_backend:${IMAGE_SAVE_PATH} # TODO build 하고 mount 하면 빌드할 때 copy 한 게 없어질 것 같긴함
 
   frontend:
     image: svelte
     restart: always
-    build: front
+    build: frontend
     depends_on:
-      - nest
+      - backend
     ports:
       - 5173:5173
     environment:
       VITE_API_URL: ${VITE_API_URL?}
     networks:
-      - network-inception
-
-  volumes:
-    volume_postgres:
-
-    volume_backend: # 백엔드에서 이미지 저장할 때 필요한 볼륨
-
-  networks:
-    network-inception:
-      driver: bridge
+      - network-transcendence

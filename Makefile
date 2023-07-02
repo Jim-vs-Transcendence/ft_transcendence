@@ -1,19 +1,19 @@
-DOCKER_COMPOSE_FILE = docker-compose.yml
+DOCKER_COMPOSE_FILE := docker-compose.yml
 
+
+.PHONY: up
 up:
-	VOLUME_PATH=$(shell cat srcs/.env | grep ^VOLUME_PATH= | awk '{split($$1, arr, "="); printf "%s", arr[2];}')
-	mkdir -p ${VOLUME_PATH}/data/db ${VOLUME_PATH}/data/wp
-	docker-compose -f $(DOCKER_COMPOSE_FILE_PATH) up --build # TODO -d
+	docker-compose -f $(DOCKER_COMPOSE_FILE) up --build
 
+.PHONY: down
 down:
-	docker-compose -f $(DOCKER_COMPOSE_FILE_PATH) down
+	docker-compose -f $(DOCKER_COMPOSE_FILE) down
 
+.PHONY: ps
 ps:
-	docker-compose -f $(DOCKER_COMPOSE_FILE_PATH) ps -a
+	docker-compose -f $(DOCKER_COMPOSE_FILE) ps -a
 
+.PHONY: rm
 rm:
 	- docker volume rm $(docker volume ls -q)
 	- docker network rm $(docker network ls -q)
-	- rm -rf data
-
-.PHONY:		up down ps

@@ -1,20 +1,20 @@
 FROM node:18.16.1-alpine as build
-WORKDIR /usr/src/app
-
-ENV NODE_ENV production
-USER node
+WORKDIR /app
 
 # install dependancy -> node_modules
 COPY --chown=node:node package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN chown -R node:node /app && npm ci && npm cache clean --force
 
 # build code -> dist
 COPY --chown=node:node . .
-RUN npm run build
+RUN chown -R node:node /app && npm run build
 
+# --------------------
 
 FROM node:18.16.1-alpine as production
-WORKDIR /usr/src/app
+WORKDIR /app
+
+ENV NODE_ENV production
 
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
