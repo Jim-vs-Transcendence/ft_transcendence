@@ -74,10 +74,13 @@ interface DmChatIF {
 }
 
 interface DmUserInfoIF {
-	_avatar: string;
+	// _avatar: string; // to be removed
+	_userInfo: userDTO; // avatar, nickname
 	_dmChatStore: DmChatIF[];
 }
 
+// 브라우저에 로그인한 나 자신의 데이터는 넣지 않는다. onMount로 그때 그때 가져와서 해당 컴포넌트의 변수로 가지고 있는다.
+// 이런식으로 profile정보 바뀐 것도 갱신되어서 쓸수 있게 한다.
 interface DmChatStoreIF {
 	[opponent: string]: DmUserInfoIF;
 }

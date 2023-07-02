@@ -240,8 +240,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody() gameInvitation: GameInvitation,
 	) {
 		let gameUser: Socket = this.findGameUserSocket(gameInvitation.opponentPlayer);
+		const userId: string | string[] = client.handshake.query._userId;
+		let realUserId: string;
+		if (typeof userId === 'string' && userId !== null) {
+			realUserId = userId;
+		}
 		if (gameInvitation.acceptFlag === true) {
 			this.handleInvitation(client, gameUser);
+			this.usersService.updateUserStatus(gameInvitation.opponentPlayer, 2);
+			this.usersService.updateUserStatus(realUserId, 2);
 		}
 		else {
 			gameUser.emit('Invite Denied');

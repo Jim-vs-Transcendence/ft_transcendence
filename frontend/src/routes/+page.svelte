@@ -38,8 +38,6 @@
  
 </script>
 
-
-
 {#if isLoading}
   <LoadingMessage />
 {:else}

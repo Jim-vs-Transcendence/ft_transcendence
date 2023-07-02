@@ -20,77 +20,72 @@
   // tab
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
-  //DM component
-  import DmUser from '../Chat/DmUser.svelte';
-  // DM dummy
-  import {dmDummyList} from '../Auth/dmDummy';
+	import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface';
+	import DmList from '../Chat/DmList.svelte';
 
-  // Autocomplete
-  import { Autocomplete } from '@skeletonlabs/skeleton';
-  import type { AutocompleteOption } from '@skeletonlabs/skeleton';
+  const logout = () => {
+    authToken.logout()
+  };
 
-const logout = () => {
-  authToken.logout()
-};
+  //상대경로가 아닌 절대경로 프로필로 이동하도록 설정
+  const goProfile = (name: string) => {
+    goto('/profile/' + name, { replaceState: true });
+  };
 
-//상대경로가 아닌 절대경로 프로필로 이동하도록 설정
-const goProfile = (name: string) => {
-	goto('/profile/' + name, { replaceState: true });
-};
+  const goHome = () => {
+          goto('/main');
+      }
 
-const goHome = () => {
-        goto('/main');
-    }
-
-const goGame = () => {
-    goto('/game');
-}
-
-const openDrawer = () => {
-  drawerStore.open();
-};
-
-let tabSet: number = 0;
-
-const updateFriend = async (): Promise<void> => {
-    if (toggleRefresh)
-	{
-		friendList = await getApi({
-        	path: 'friends/',
-    	});
-		console.log("done");
-	}
-};
-
-let intervalId: NodeJS.Timer;
-
-const startInterval = () => {
-	intervalId = setInterval(() => {
-	updateFriend();
-	}, 5000);
-};
-
-const stopInterval = () => {
-  clearInterval(intervalId);
-};
-
-onMount(() => {
-  startInterval();
-});
-
-onDestroy(() => {
-  stopInterval();
-});
-
-let toggleRefresh: boolean = false;
-
-drawerStore.subscribe((state) => {
-  if (state.open) {
-    toggleRefresh = true;
-  } else {
-    toggleRefresh = false;
+  const goGame = () => {
+      goto('/game');
   }
-});
+
+  const openDrawer = () => {
+    drawerStore.open();
+  };
+
+  let tabSet: number = 0
+  const updateFriend = async (): Promise<void> => {
+    if (toggleRefresh)
+    {
+      friendList = await getApi({
+            path: 'friends/',
+        });
+      console.log("done");
+    }
+  };
+
+  let intervalId: NodeJS.Timer;
+
+  const startInterval = () => {
+    intervalId = setInterval(() => {
+    updateFriend();
+    }, 5000);
+  };
+
+  const stopInterval = () => {
+    clearInterval(intervalId);
+  };
+
+  onMount(() => {
+    startInterval();
+  });
+
+  onDestroy(() => {
+    stopInterval();
+  });
+
+  let toggleRefresh: boolean = false;
+
+  drawerStore.subscribe((state) => {
+    if (state.open) {
+      toggleRefresh = true;
+    } else {
+      toggleRefresh = false;
+    }
+  });
+
+
 
 </script>
 
@@ -106,24 +101,10 @@ drawerStore.subscribe((state) => {
   <!-- Tab Panels --->
   <svelte:fragment slot="panel">
     {#if tabSet === 0}
-      <div>
-        <header class="card-footer  top-0 w-full">
-          <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-            <input type="search" placeholder="Search..." />
-            <button type="button" class="variant-filled-surface">Add</button>
-          </div>
-        </header>
-        <main>
-          <div class="overflow-y-scroll">
-            <dl class="list-dl">
-              {#each dmDummyList as dmUser}
-                <DmUser dmChatStore={dmUser}/>
-              {/each}
-            </dl>
-          </div>
-        </main>
-      </div>
+      <!-- To be DM list component -->
+      <DmList userInfo={userInfo} />
     {:else if tabSet === 1}
+      <!-- Friend list -->
         <dl class="list-dl">
           {#each friendList as friend}
             <FriendsList friend={friend} userInfo={userInfo} />

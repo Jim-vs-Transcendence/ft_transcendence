@@ -17,11 +17,11 @@ export class UsersService {
 
   // User part
   async findAll(): Promise<userDTO[]> {
-    return this.userRepository.find();
+    return await this.userRepository.find();
   }
 
   async findOne(id: string): Promise<userDTO> {
-    return this.userRepository.findOne({ where: { id: id } });
+    return await this.userRepository.findOne({ where: { id: id } });
   }
 
   async updateUser(id: string, user: userDTO): Promise<boolean> {
