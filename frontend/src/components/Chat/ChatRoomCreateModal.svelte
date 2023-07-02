@@ -24,11 +24,20 @@
 		_room_password: '',
 		_is_passworded: false,
 		_pass: false,
+		_ban: false,
 	};
+
+	function onRoomDataSubmitKeyDown(event: KeyboardEvent): void {
+		if (['Enter'].includes(event.code)) {
+			event.preventDefault()
+			onRoomDataSubmit()
+		}
+	}
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onRoomDataSubmit(): void {
-		if (!roomData._room_name) {
+		roomData._room_name = roomData._room_name.trim()
+		if (!(roomData._room_name)) {
 			alert('방이름을 입력하세요');
 		}
 		else {
@@ -52,11 +61,11 @@
 		<form class="modal-form {cForm}">
 			<label class="label">
 				<span>대화방 이름</span>
-				<input class="input" type="text" bind:value={roomData._room_name} placeholder="대화방 이름" />
+				<input class="input" type="text" on:keydown={onRoomDataSubmitKeyDown} bind:value={roomData._room_name} placeholder="대화방 이름" />
 			</label>
 			<label class="label">
 				<span>대화방 비밀번호</span>
-				<input class="input" type="tel" bind:value={roomData._room_password} placeholder="대화방 비밀번호" />
+				<input class="input" type="tel" on:keydown={onRoomDataSubmitKeyDown} bind:value={roomData._room_password} placeholder="대화방 비밀번호" />
 			</label>
 		</form>
 		<!-- prettier-ignore -->

@@ -12,7 +12,10 @@
 	let io_game: Socket;
 
 	const main = async () => {
-		io_game.emit('gameQuit');
+		let gameStatus: boolean = false;
+		if (status === 1)
+			gameStatus = true;
+		io_game.emit('gameQuit', gameStatus);
 		console.log('in game back button clicked');
 		await goto('/main');
 	};
@@ -21,7 +24,7 @@
 		io_game = _gameSocket;
 	});
 
-	let cnt: number = 0;
+	let readyCnt: number = 0;
 
 	let canvas: HTMLCanvasElement;
 	let width: number;
@@ -57,7 +60,7 @@
 
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
-			cnt = -10;
+			readyCnt = -10;
 			alert('👆👆👆👆👆👆 멈춰 👆👆👆👆👆👆👆👆👆');
 		}
 	}
@@ -144,10 +147,10 @@
 
 	function handleKeyPress(event: any) {
 		if (event.key === 'Enter') {
-			cnt++;
+			readyCnt++;
 			console.log('enter press');
-			if (cnt < 0) {
-			} else if (cnt === 1 && rdyFlag === false) {
+			if (readyCnt < 0) {
+			} else if (readyCnt === 1 && rdyFlag === false) {
 				rdyFlag = true;
 				status = 1;
 				io_game.emit('gameReady', gameClientOption._roomName);
@@ -249,22 +252,20 @@
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
 		return () => {
+			io_game.off('gameReady');
+			io_game.off('gameDraw');
+			io_game.off('ballMove');
+			io_game.off('oneSetEnd');
+			io_game.off('gotoMain');
+			io_game.off('restart');
+			io_game.off('gameEnd');
+			window.removeEventListener('resize', resizeCanvas);
+			window.removeEventListener('keydown', handleKeyPress);
+			unsubscribeGame();
 			window.removeEventListener('beforeunload', handleBeforeUnload);
 		};
 	});
 
-	onDestroy(() => {
-		io_game.off('gameReady');
-		io_game.off('gameDraw');
-		io_game.off('ballMove');
-		io_game.off('oneSetEnd');
-		io_game.off('gotoMain');
-		io_game.off('restart');
-		io_game.off('gameEnd');
-		window.removeEventListener('resize', resizeCanvas);
-		window.removeEventListener('keydown', handleKeyPress);
-		unsubscribeGame();
-	});
 
 </script>
 
@@ -276,10 +277,16 @@
 	</div>
 	<div class="button-container">
 		{#if status === 0}
-			준비하려면 Enter 누르세요
+			<div class="text-secondary-500">
+				준비하려면 Enter 누르세요
+			</div>
 		{:else if status === 1}
-			<div class="player-container">{leftPlayer}</div>
-			<div class="player-container">{rightPlayer}</div>
+			<div class="text-secondary-900">
+				<div class="player-container">{leftPlayer}</div>
+			</div>
+			<div class="text-secondary-900">
+				<div class="player-container">{rightPlayer}</div>
+			</div>
 		{:else if status === 2}
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"

@@ -27,7 +27,7 @@
 
 	function sendDm(opponent : string)
 	{
-		dmStoreData[opponent].push(dmChatData);
+		dmStoreData[opponent]._dmChatStore.push(dmChatData);
 		localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
 		if (dmChatData._msg.length && dmChatData._msg != '\n')
 			socket.emit('dm-chat', dmChatData);

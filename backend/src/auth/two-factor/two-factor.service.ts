@@ -5,6 +5,7 @@ import { toDataURL } from 'qrcode';
 import { TokenService } from '../token/token.service';
 import userDTO from 'src/users/user.dto';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 
 @Injectable()
 export class TwoFactorService {
@@ -14,7 +15,7 @@ export class TwoFactorService {
     private readonly tokenServiece: TokenService,
   ) {}
 
-  async generateTwoFactorSecret(userId: string) {
+  async generateTwoFactorSecret(userId: string): Promise<any> {
     const secret = authenticator.generateSecret();
 
     const user: userDTO = await this.userService.findOne(userId);
@@ -38,7 +39,10 @@ export class TwoFactorService {
     return await toDataURL(otpauthUrl);
   }
 
-  async isTwoFactorCodeValid(userId: string, twoFactorCode: string) {
+  async isTwoFactorCodeValid(
+    userId: string,
+    twoFactorCode: string,
+  ): Promise<any> {
     const user: userDTO = await this.userService.findOne(userId);
     return authenticator.verify({
       token: twoFactorCode,
@@ -46,10 +50,19 @@ export class TwoFactorService {
     });
   }
 
-  async twoFactorLogin(id: string, twoFactorCode: string) {
+  async twoFactorLogin(
+    id: string,
+    twoFactorCode: string,
+    res: Response,
+  ): Promise<boolean> {
     const isCodeValidated = await this.isTwoFactorCodeValid(id, twoFactorCode);
+    let token: string;
 
-    if (isCodeValidated == true) await this.tokenServiece.createToken(id);
+    if (isCodeValidated == true)
+      token = await this.tokenServiece.createToken(id);
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+    });
 
     return isCodeValidated;
   }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-42';
-import { User } from 'src/users/entities/user.entity';
+import userDTO from 'src/users/user.dto';
 
 @Injectable()
 export class auth42Strategy extends PassportStrategy(Strategy, '42') {
@@ -25,8 +25,8 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42') {
     refreshToken: string,
     profile: any,
     cb: any,
-  ) {
-    const user: User = {
+  ): Promise<any> {
+    const user: userDTO = {
       id: profile.nickname,
       nickname: profile.nickname,
       email: profile.email,
@@ -40,7 +40,6 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42') {
       two_factor: false,
       two_factor_secret: 'none',
     };
-    // console.log(user);
     cb(null, user);
   }
 }

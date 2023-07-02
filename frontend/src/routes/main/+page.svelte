@@ -30,7 +30,7 @@
 			if (gameSocket === undefined)
 				await CreateGameSocket(gameSocketStore);
 
-			/* ===== room-refresh ===== */
+			/* ===== rostartIntervalom-refresh ===== */
 			socket.on('room-refresh', (data) => {
 				rooms_list = [...data];
 			});
@@ -44,9 +44,11 @@
 			/* ===== room-join ===== */
 			socket.on('room-join', (data: ChatRoomJoinIF) => {
 				console.log('check trigger');
+				if (data._ban)
+				 	return alert("추방되셨습니다");
 				if (!data._room_name)
 					return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
-				if (!data._pass) 
+				if (!data._pass)
 					return alert("비밀번호가 일치하지 않습니다.");
 				modalStore.close();
 				goto('/main/' + data._room_name);
@@ -85,6 +87,7 @@
 
 	function JoinRoom(room_select: ChatRoomJoinIF) {
 		room_select._pass = false;
+		room_select._ban = true;
 		if (room_select._is_passworded)
 			ft_room_join_modal_trigger(room_select);
 		else
@@ -125,15 +128,8 @@
 	}
 </script>
 
-<!-- -------------------------------------------------------------------  -->
-<!-- -------------------------------------------------------------------  -->
-<!-- -------------------------------------------------------------------  -->
-
-<!-- <ExampleComponent background="bg-secondary-500 md:bg-primary-500">Skeleton</ExampleComponent> -->
-<!-- background 투명하게 변경할 것 -->
-<!-- <AppShell class=""> -->
 <div class="button-container">
-	<button type="button" class="btn variant-filled-surface centered-button" on:click={ft_room_create_modal_trigger}>방 만들기</button>
+	<button type="button" class="btn variant-filled-surface m-1 mt-3" on:click={ft_room_create_modal_trigger}>방 만들기</button>
 </div>
 <div class="max-h-[80%] grid grid-cols-5 gap-3 overflow-auto">
 	{#each rooms_list as room}
@@ -146,7 +142,6 @@
 		</div>
 	{/each}
 </div>
-<!-- </AppShell> -->
 
 <style>
   .button-container {
@@ -155,7 +150,4 @@
 	/* margin: 1px; */
   }
 
-  .centered-button {
-    margin:  4px;
-  }
 </style>

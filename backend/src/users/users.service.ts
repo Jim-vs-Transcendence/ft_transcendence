@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
+import RequestWithUser from 'src/auth/interfaces/RequestWithUserID.interface';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import userDTO from './user.dto';
@@ -17,11 +17,11 @@ export class UsersService {
 
   // User part
   async findAll(): Promise<userDTO[]> {
-    return this.userRepository.find();
+    return await this.userRepository.find();
   }
 
   async findOne(id: string): Promise<userDTO> {
-    return this.userRepository.findOne({ where: { id: id } });
+    return await this.userRepository.findOne({ where: { id: id } });
   }
 
   async updateUser(id: string, user: userDTO): Promise<boolean> {
@@ -44,7 +44,10 @@ export class UsersService {
     return true;
   }
 
-  async uploadImage(req: RequestWithUser, file: Express.Multer.File) {
+  async uploadImage(
+    req: RequestWithUser,
+    file: Express.Multer.File,
+  ): Promise<{ url: string }> {
     const user = await this.findOne(req.user);
 
     if (
