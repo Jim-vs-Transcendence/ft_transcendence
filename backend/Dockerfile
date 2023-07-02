@@ -1,67 +1,24 @@
 FROM node:18.16.1-alpine as build
 WORKDIR /usr/src/app
-COPY --chown=node:node package*.json ./
-RUN npm ci
-COPY --chown=node:node . .
-USER node
-
-#//# TODO 여기 하던 중
-COPY package*.json ./
-RUN npm install
-COPY . .
-# TODO 사진 data cp 해야 됨
-RUN npm run build
-CMD [ "node", "dist/main.js" ]
-
-
-
-
-
-###################
-# BUILD FOR LOCAL DEVELOPMENT
-###################
-
-FROM node:18-alpine As development
-
-WORKDIR /usr/src/app
-
-COPY --chown=node:node package*.json ./
-
-RUN npm ci
-
-COPY --chown=node:node . .
-
-USER node
-
-###################
-# BUILD FOR PRODUCTION
-###################
-
-FROM node:18-alpine As build
-
-WORKDIR /usr/src/app
-
-COPY --chown=node:node package*.json ./
-
-COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
-
-COPY --chown=node:node . .
-
-RUN npm run build
 
 ENV NODE_ENV production
-
-RUN npm ci --only=production && npm cache clean --force
-
 USER node
 
-###################
-# PRODUCTION
-###################
+# install dependancy -> node_modules
+COPY --chown=node:node package*.json ./
+RUN npm ci --only=production && npm cache clean --force
 
-FROM node:18-alpine As production
+# build code -> dist
+COPY --chown=node:node . .
+RUN npm run build
+
+
+FROM node:18.16.1-alpine as production
+WORKDIR /usr/src/app
 
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+# 사진 data cp
+COPY --chown=node:node data/profile $IMAGE_SAVE_PATH
 
 CMD [ "node", "dist/main.js" ]

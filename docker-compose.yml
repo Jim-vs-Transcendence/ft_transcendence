@@ -17,7 +17,11 @@ services:
   backend:
     image: nest
     restart: always
-    build: backend
+    build:
+      context: backend
+      dockerfile: Dockerfile
+      args:
+        IMAGE_SAVE_PATH: ${IMAGE_SAVE_PATH?}
     depends_on:
       - postgresql
     env_file:
@@ -27,7 +31,7 @@ services:
     networks:
       - network-inception
     volumes: # 백엔드에서 이미지 저장할 때 필요한 볼륨
-      - volume_backend:${IMAGE_SAVE_PATH}
+      - volume_backend:${IMAGE_SAVE_PATH} # TODO build 하고 mount 하면 빌드할 때 copy 한 게 없어질 것 같긴함
 
   frontend:
     image: svelte
