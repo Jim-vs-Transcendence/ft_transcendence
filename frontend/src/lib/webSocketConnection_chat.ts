@@ -4,6 +4,8 @@ import { browser } from '$app/environment';
 import ioClient, { Socket } from 'socket.io-client';
 import { writable, type Writable } from 'svelte/store';
 import type { DmChatIF, DmChatStoreIF } from '$lib/interface';
+import { authToken } from '../service/store';
+import { goto } from '$app/navigation';
 
 export const ENDPOINT : string = backUrl + '/chat';
 export let DM_KEY : string = "dmdata_"
@@ -48,6 +50,10 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				alert('오류: 상대방의 생사유무를 확인할 수 없습니다. \n상대방이 메시지를 받을 수 없습니다. ')
 			}
 		}
+	})
+	
+	socket.on("disconnect", () => {
+		goto("/exitPage");
 	})
 	socketStore.set(socket);
 }
