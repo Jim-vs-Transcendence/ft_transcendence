@@ -28,20 +28,22 @@
  </script>
 
 <div class="card">
-    <header class="card-header text-center">싸운 흔적</header>
+    <header class="card-header text-center text-4xl" style="font-weight: 700;">싸운 흔적</header><br>
     {#each matchHistory as history }
         <section class="p-4 text-center flex flex-col">
             {#if history.winLose }
-                <span>이김</span>
+                <span class="text-2xl" style="font-weight: 700;">이김</span>
             {:else}
-                <span>JIM</span>
+                <span class="text-2xl"  style="font-weight: 700;">JIM</span>
             {/if}
-            {history.player1} {history.player1_score} vs {history.player2_score} {history.player2}
+            <span style="font-weight: 500">
+                {history.player1} {history.player1_score} vs {history.player2_score} {history.player2}
+            </span>
 
         </section>
     {/each}
 
-    <footer class="card-footer text-center">전적 조회는 최근 5회만 지원됩니다. 자세한 내용은 고개를 돌려 고객센터에 문의하세요.</footer>
+    <br><footer class="card-footer text-center">전적 조회는 최근 5회만 지원됩니다. 자세한 내용은 고개를 돌려 고객센터에 문의하세요.</footer>
 </div>
 
 <!-- <svg on:mousemove="{e => {
