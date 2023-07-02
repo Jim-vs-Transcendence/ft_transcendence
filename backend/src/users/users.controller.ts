@@ -167,7 +167,7 @@ export class UsersController {
     @Param('filename') filename: string,
     @Res() res: Response,
   ): Promise<void> {
-    res.sendFile(filename, { root: '../data/profile' });
+    res.sendFile(filename, { root: IMAGE_SAVE_PATH });
   }
 
   @Delete('uploads/:filename')

@@ -2,7 +2,6 @@ version: "3"
 
 volumes:
   volume_postgres:
-  volume_backend: # 백엔드에서 이미지 저장할 때 필요한 볼륨
 
 networks:
   network-transcendence:
@@ -41,8 +40,6 @@ services:
     networks:
       - network-transcendence
       - default
-    volumes: # 백엔드에서 이미지 저장할 때 필요한 볼륨
-      - volume_backend:${IMAGE_SAVE_PATH} # TODO build 하고 mount 하면 빌드할 때 copy 한 게 없어질 것 같긴함
 
   frontend: # svelte
     restart: always
