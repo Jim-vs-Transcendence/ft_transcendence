@@ -26,6 +26,8 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 		if (browser)
 		{
 			try {
+				if (userId === data._from)
+					throw console.log("userId === data._from")
 				const loadDmChat : string | null = localStorage.getItem(DM_KEY);
 				let dmData : DmChatStoreIF = {};
 				if (loadDmChat)

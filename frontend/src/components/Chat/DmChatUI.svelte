@@ -50,10 +50,15 @@
         dmDataLoad();
 
         socket.on("dm-chat-to-ui", (data: DmChatIF) => {
-            dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
-            setTimeout(() => {
-			    scrollChatBottom('smooth')
-		    }, 0)
+            try {
+                dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+                setTimeout(() => {
+                    scrollChatBottom('smooth')
+                }, 0)
+            }
+            catch {
+                alert('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.') 
+            }
         })
       } catch (error) {
         return alert('DM loading error')
@@ -133,7 +138,7 @@
                                 <Avatar src="{userInfo.avatar}" width="w-12" />
                                 <div class="card p-4 variant-soft rounded-tl-none space-y-2">
                                     <header class="flex justify-between items-center">
-                                        <p class="font-bold">{bubble._from}</p>
+                                        <p class="font-bold">{bubble._from} | {userInfo.nickname} </p>
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>
@@ -142,7 +147,7 @@
                             <div class="grid grid-cols-[1fr_auto] gap-2">
                                 <div class="card p-4 rounded-tr-none space-y-2 variant-soft-primary">
                                     <header class="flex justify-between items-center">
-                                        <p class="font-bold">{bubble._from}</p>
+                                        <p class="font-bold">{bubble._from} | {dmUserInfo._userInfo.nickname}</p>
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>

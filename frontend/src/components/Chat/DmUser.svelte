@@ -4,8 +4,6 @@
     export let userInfo: UserDTO
     export let dmStoreData: DmChatStoreIF
     
-    $: dmUserInfo
-
     import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
     import DmChatUI from "./DmChatUI.svelte"
     import { Avatar, modalStore } from '@skeletonlabs/skeleton'
@@ -61,7 +59,7 @@
 
         const modal: ModalSettings = {
             type: 'component',
-            component: modalComponent
+            component: modalComponent,
             // response: (r: string) => console.log('response:', r),
             /*
                 response로 call back함수를 주어서 
