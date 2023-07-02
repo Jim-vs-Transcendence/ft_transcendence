@@ -116,9 +116,6 @@
 		ft_chat_send_msg();
 	}
 
-	function ft_exit_chat_room() {
-		goto('/');
-	}
 </script>
 
 <svelte:window on:popstate={() => goto("/main")}/>
@@ -178,9 +175,6 @@
 			/>
 			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
 		</div>
-	</div>
-	<div>
-		<button type="button" on:click={ () => { ft_exit_chat_room()}}   >  뒤로가기 </button>
 	</div>
 </div>
 {/if}

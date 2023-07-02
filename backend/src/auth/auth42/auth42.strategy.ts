@@ -25,7 +25,7 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42') {
     refreshToken: string,
     profile: any,
     cb: any,
-  ) {
+  ): Promise<any> {
     const user: User = {
       id: profile.nickname,
       nickname: profile.nickname,
@@ -40,7 +40,6 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42') {
       two_factor: false,
       two_factor_secret: 'none',
     };
-    // console.log(user);
     cb(null, user);
   }
 }

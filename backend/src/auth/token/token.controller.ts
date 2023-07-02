@@ -4,6 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { TokenGuard } from './token.guard';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import userDTO from 'src/users/user.dto';
+import RequestWithUser from '../interfaces/RequestWithUserID.interface';
 
 @Controller('token')
 @ApiTags('토큰 API')
@@ -25,7 +26,7 @@ export class TokenController {
   })
   @Get()
   @UseGuards(TokenGuard)
-  async verifyToken(@Req() req: any): Promise<boolean | userDTO> {
+  async verifyToken(@Req() req: RequestWithUser): Promise<boolean | userDTO> {
     if (!req.user) return false;
 
     // const test = req.cookies['authToken'];

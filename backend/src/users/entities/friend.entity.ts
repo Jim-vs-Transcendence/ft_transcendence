@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 export enum FriendRequestStatus {
