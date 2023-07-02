@@ -10,7 +10,33 @@
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
 	import { modalStore } from '@skeletonlabs/skeleton';
 
+	/* ================================================================================
+									on
+	   ================================================================================ */
 
+	onMount(async () => {
+		try {
+			if (socket === undefined) await CreateSocket(socketStore);
+			if (gameSocket === undefined) await CreateGameSocket(gameSocketStore);
+			ft_onMount_room_refresh();
+			ft_onMount_room_create();
+			ft_onMount_room_join();
+		} catch (error) {
+			console.log('socket loading error.');
+		}
+	});
+
+	onDestroy(() => {
+		socket.off('room-refresh');
+		socket.off('room-create');
+		socket.off('room-join');
+		unsubscribe();
+		unsubscribeGame();
+	});
+
+	/* ================================================================================
+									socket
+	   ================================================================================ */
 	let socket: Socket;
 	let gameSocket: Socket;
 
@@ -20,78 +46,49 @@
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		gameSocket = _gameSocket;
-	})
-
-	onMount(async () => {
-		try {
-			if (socket === undefined)
-				await CreateSocket(socketStore);
-
-			if (gameSocket === undefined)
-				await CreateGameSocket(gameSocketStore);
-
-			/* ===== rostartIntervalom-refresh ===== */
-			socket.on('room-refresh', (data) => {
-				rooms_list = [...data];
-			});
-			socket.emit('room-refresh', 'page load chat list');
-
-			/* ===== room-create ===== */
-			socket.on('room-create', (data: ChatRoomJoinIF) => {
-				goto('/main/' + data._room_name);
-			});
-
-			/* ===== room-join ===== */
-			socket.on('room-join', (data: ChatRoomJoinIF) => {
-				console.log('check trigger');
-				if (data._ban)
-				 	return alert("추방되셨습니다");
-				if (!data._room_name)
-					return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
-				if (!data._pass)
-					return alert("비밀번호가 일치하지 않습니다.");
-				modalStore.close();
-				goto('/main/' + data._room_name);
-			});
-		} catch (error) {
-			console.log('socket loading error.');
-		}
-	});
-
-	onDestroy(() => {
-		/* ===== room-refresh ===== */
-		socket.off('room-refresh');
-		/* ===== room-create ===== */
-		socket.off('room-create');
-		/* ===== room-join ===== */
-		socket.off('room-join');
-		unsubscribe();
-		unsubscribeGame();
 	});
 
 	/* ================================================================================
-									room list
+									room refresh
 	   ================================================================================ */
 	let rooms_list: ChatRoomJoinIF[] = [];
+	function ft_onMount_room_refresh() {
+		socket.on('room-refresh', (data) => {
+			rooms_list = [...data];
+		});
+		socket.emit('room-refresh', 'page load chat list');
+	}
 
 	/* ================================================================================
 									room create
 	   ================================================================================ */
-	function CreateRoom(room_join_data : ChatRoomJoinIF) {
+	function ft_onMount_room_create() {
+		socket.on('room-create', (data: ChatRoomJoinIF) => {
+			goto('/main/' + data._room_name);
+		});
+	}
+	function CreateRoom(room_join_data: ChatRoomJoinIF) {
 		socket.emit('room-create', room_join_data);
 	}
 
 	/* ================================================================================
 									room join
 	   ================================================================================ */
+	function ft_onMount_room_join() {
+		socket.on('room-join', (data: ChatRoomJoinIF) => {
+			console.log('check trigger');
+			if (data._ban) return alert('추방되셨습니다');
+			if (!data._room_name)
+				return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
+			if (!data._pass) return alert('비밀번호가 일치하지 않습니다.');
+			modalStore.close(); // 이거의 역활??
+			goto('/main/' + data._room_name);
+		});
+	}
 
 	function JoinRoom(room_select: ChatRoomJoinIF) {
-		room_select._pass = false;
-		room_select._ban = true;
-		if (room_select._is_passworded)
-			ft_room_join_modal_trigger(room_select);
-		else
-			socket.emit('room-join', room_select);
+		if (room_select._is_passworded) ft_room_join_modal_trigger(room_select);
+		else socket.emit('room-join', room_select);
 	}
 
 	/* ================================================================================
@@ -100,13 +97,13 @@
 
 	function ft_room_join_modal_trigger(room_select: ChatRoomJoinIF) {
 		const modalComponent: ModalComponent = {
-			ref: RoomJoinModal,
+			ref: RoomJoinModal
 		};
 		const modal: ModalSettings = {
 			type: 'component',
 			// Pass the component directly:
 			component: modalComponent,
-			response: (_passwd : string) => { 
+			response: (_passwd: string) => {
 				room_select._room_password = _passwd;
 				socket.emit('room-join', room_select);
 			}
@@ -116,7 +113,7 @@
 
 	function ft_room_create_modal_trigger() {
 		const modalComponent: ModalComponent = {
-			ref: RoomCreateModal,
+			ref: RoomCreateModal
 		};
 		const modal: ModalSettings = {
 			type: 'component',
@@ -133,12 +130,17 @@
 </div>
 <div class="max-h-[80%] grid grid-cols-5 gap-3 overflow-auto">
 	{#each rooms_list as room}
-		<div class="col-start-2 col-span-3 logo-item m-1 variant-filled-surface cursor-pointer" id="room"
-			on:mousedown={() => { JoinRoom(room); }}>
-				{room._room_name}
-				{#if room._is_passworded}
-					🔒︎
-				{/if}
+		<div
+			class="col-start-2 col-span-3 logo-item m-1 variant-filled-surface cursor-pointer"
+			id="room"
+			on:mousedown={() => {
+				JoinRoom(room);
+			}}
+		>
+			{room._room_name}
+			{#if room._is_passworded}
+				🔒︎
+			{/if}
 		</div>
 	{/each}
 </div>

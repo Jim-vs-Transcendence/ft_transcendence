@@ -97,8 +97,8 @@
 
     function onPromptKeyPress(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
-			event.preventDefault()
-            addMessage()
+	  	  event.preventDefault()
+        addMessage()
 		}
 	}
 
