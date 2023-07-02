@@ -9,15 +9,6 @@ RUN chown -R node:node /app && npm ci && npm cache clean --force
 COPY --chown=node:node . .
 RUN chown -R node:node /app && npm run build
 
-# --------------------
-
-FROM node:18.16.1-alpine as production
-WORKDIR /app
-
-ENV NODE_ENV production
-
-COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 # 사진 data cp
 COPY --chown=node:node data/profile $IMAGE_SAVE_PATH
 
