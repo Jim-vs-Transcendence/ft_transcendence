@@ -160,7 +160,7 @@
 					class="cursor-pointer font-sans md:font-serif"
 					on:click={() => {
 						ft_appoint_user('unappoint');
-					}}>부방장 임명</button
+					}}>부방장 해고</button
 				>
 			</div>
 		{/if}
