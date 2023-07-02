@@ -72,7 +72,10 @@ export class UsersService {
   async deleteImage(filename: string): Promise<string> {
     const lastSlashIndex = filename.lastIndexOf('/');
     const imagename = filename.substring(lastSlashIndex + 1);
-    const filePath = join('../data/profile/', imagename);
+    const filePath = join(
+      this.configService.get<string>('IMAGE_SAVE_PATH'),
+      imagename,
+    );
 
     try {
       await fs.unlink(filePath);

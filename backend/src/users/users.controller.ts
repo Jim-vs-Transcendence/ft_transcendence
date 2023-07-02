@@ -19,8 +19,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Express, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import RequestWithUser from 'src/auth/interfaces/RequestWithUser.interface';
 import userDTO from './user.dto';
+
+// fileInterceptor 안에서 this 참조가 안 돼서 어쩔 수 없이...
+const configService = new ConfigService();
+const IMAGE_SAVE_PATH = configService.get<string>('IMAGE_SAVE_PATH');
 
 @Controller('user')
 // @UseGuards(TokenGuard)
@@ -130,7 +135,7 @@ export class UsersController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: '../data/profile',
+        destination: IMAGE_SAVE_PATH,
         filename(_, file, callback): void {
           const randomName = Array(32)
             .fill(null)
@@ -159,7 +164,9 @@ export class UsersController {
     type: String,
   })
   async getImage(@Param('filename') filename: string, @Res() res: Response) {
-    res.sendFile(filename, { root: '../data/profile' });
+    res.sendFile(filename, {
+      root: IMAGE_SAVE_PATH,
+    });
   }
 
   @Delete('uploads/:filename')

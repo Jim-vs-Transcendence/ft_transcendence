@@ -5,20 +5,48 @@ services:
   postgresql:
     image: postgres
     restart: always
-    container_name: postgresql
     expose:
-      - 6000
-    ports:
-      - "127.0.0.1:6000:5432"
+      - 5432
     env_file:
       - .env
-#     volumes:
-#       - postgresDB:/var/lib/postgresql/data
+    volumes:
+      - volume_postgres:/var/lib/postgresql/data
+    networks:
+      - network-transcendence
 
-# volumes:
-#   postgresDB:
-#     driver_opts:
-#       type: none
-#       o: bind
-#       device: /home/ubuntu/ft_transcendence/data/postgresql
-#     name: postgresDB
+  backend:
+    image: nest
+    restart: always
+    build: backend
+    depends_on:
+      - postgresql
+    env_file:
+      - .env
+    expose:
+      - 3000
+    networks:
+      - network-inception
+    volumes: # 백엔드에서 이미지 저장할 때 필요한 볼륨
+      - volume_backend:${IMAGE_SAVE_PATH}
+
+  frontend:
+    image: svelte
+    restart: always
+    build: front
+    depends_on:
+      - nest
+    ports:
+      - 5173:5173
+    environment:
+      VITE_API_URL: ${VITE_API_URL?}
+    networks:
+      - network-inception
+
+  volumes:
+    volume_postgres:
+
+    volume_backend: # 백엔드에서 이미지 저장할 때 필요한 볼륨
+
+  networks:
+    network-inception:
+      driver: bridge
