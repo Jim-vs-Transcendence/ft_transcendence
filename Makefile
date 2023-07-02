@@ -17,3 +17,7 @@ ps:
 rm:
 	- docker volume rm $(docker volume ls -q)
 	- docker network rm $(docker network ls -q)
+
+.PHONY: front
+front:
+	cd frontend && npm run dev
