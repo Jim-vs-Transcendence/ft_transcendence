@@ -7,6 +7,8 @@
   import DmUser from './DmUser.svelte'
   import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
   import { getApi } from '../../service/api'
+	import type { Socket } from 'socket.io-client';
+	import type { Unsubscriber } from 'svelte/store';
 
   let opponentUserId= ''
   let loadDmChat : string | null
