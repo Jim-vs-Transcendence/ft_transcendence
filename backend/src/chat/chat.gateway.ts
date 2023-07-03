@@ -635,10 +635,13 @@ export class ChatGateway
 		if (channel_list.get(payload._room_name)._users.get(userid as string)._is_muted) {
 			return;
 		}
-		client.to(payload._room_name).emit('chat-msg-event', payload);
 		if (typeof userid === "string") {
 			payload._user_name = userid;
+			payload._user_avatar = channel_list.get(payload._room_name)._users.get(userid as string)._user_info.avatar;
+			console.log(channel_list.get(payload._room_name)._users.get(userid as string));
+			console.log(payload);
 			client.emit("chat-msg-event", payload);
+			client.to(payload._room_name).emit('chat-msg-event', payload);
 		}
 	}
 

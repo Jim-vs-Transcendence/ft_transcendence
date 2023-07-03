@@ -23,6 +23,7 @@
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_user_name: '',
+		_user_avatar: '',
 		_room_name: $page.params['chat_room']
 	};
 	let tabSet: number = 0;
@@ -150,7 +151,7 @@
 		{#each msg_list as msg}
 			{#if (msg._user_name == user_self._user_info.id)}
 				<div class="grid grid-cols-[auto_1fr] gap-5">
-					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
+					<Avatar src="{msg._user_avatar}" width="w-12" />
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{msg._user_name}</p>
@@ -159,8 +160,6 @@
 					</div>
 				</div>
 			{:else}
-
-
 				<div class="grid grid-cols-[1fr_auto] gap-2">
 					<div class="card p-4 rounded-tr-none space-y-2 {'bubble.color'}">
 						<header class="flex justify-between items-center">
@@ -168,7 +167,7 @@
 						</header>
 						<p class="font-bold">{msg._msg}</p>
 					</div>
-					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
+					<Avatar src="{msg._user_avatar}" width="w-12" />
 				</div>
 			{/if}
 		{/each}
