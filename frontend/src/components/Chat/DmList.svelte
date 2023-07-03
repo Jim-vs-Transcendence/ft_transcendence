@@ -42,14 +42,12 @@
 
   async function ftUpdateChatLocalStorage(userId: string, newDmChatStore : DmUserInfoIF) {
     let curloadDmChat  : string | null = localStorage.getItem(DM_KEY)
-    
     let curDmStoreData : DmChatStoreIF
     if (curloadDmChat) {
       curDmStoreData = JSON.parse(curloadDmChat)
       if (curDmStoreData[userId])
         newDmChatStore._dmChatStore = curDmStoreData[userId]._dmChatStore
     }
-    console.log("ftUpdateChatLocalStorage")
     dmStoreData[userId] = newDmChatStore
     localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData))
   }
@@ -57,7 +55,7 @@
   async function ftDmSearchKeyDown(event: KeyboardEvent): Promise<void> {
     if (['Enter'].includes(event.code)) {
       event.preventDefault()
-      ftDmSearch()
+      await ftDmSearch()
     }
   }
 
@@ -87,7 +85,6 @@
           alert('오류 : ' + opponentUserId + ' user정보를 가져올 수 없습니다.')
       }
   }
-
 </script>
 
 <div>
@@ -95,7 +92,6 @@
     <header class="card-footer  top-0 w-full">
       <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
         <input type="search" placeholder="Search!!" bind:value={opponentUserId} on:keydown={ftDmSearchKeyDown} />
-        <button type="button" class="variant-filled-surface" on:click={ftDmSearch}>Add</button>
       </div>
     </header>
     <!-- DM list -->

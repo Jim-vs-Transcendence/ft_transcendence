@@ -9,7 +9,7 @@
 
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
-    import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
+    import type { DmUserInfoIF, DmChatIF, DmChatStoreIF } from '$lib/interface'
         
     // Socket
     import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
