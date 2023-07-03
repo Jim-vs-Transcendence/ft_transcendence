@@ -12,6 +12,9 @@
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
 	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	import type { Unsubscriber } from 'svelte/store';
+	import { gameSocketStore } from '$lib/webSocketConnection_game';
+	import { gameClientOption } from '$lib/gameData';
+
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -23,10 +26,18 @@
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_user_name: '',
+		_user_avatar: '',
 		_room_name: $page.params['chat_room']
 	};
 	let tabSet: number = 0;
 	let chatUserList : Map<string, UserDTO>;
+	let game_socket: Socket;
+	let pop_game: boolean = false;
+	let game_inv_user :string; 
+
+	const gameUnsubscribe: Unsubscriber = gameSocketStore.subscribe((_socket: Socket) => {
+		game_socket = _socket;
+	});
 
 	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
@@ -85,21 +96,44 @@
 					return alert("권한 설정 실패");
 				/// 권한 변경 
 			});
+
+			game_socket.on("youGotInvite",(userid : string) => {
+				game_inv_user = userid;
+				pop_game = true;
+			})
+
+			game_socket.on('roomName', (roomName: string) => {
+			gameClientOption._roomName = roomName;
+			console.log('got message from : ', roomName);
+			goto('/game/option');
+		});
 		}
 		catch {
 			console.log("error");
 		}
 	});
-
+	function ft_pop_invite_game()
+	{
+		pop_game = false;
+		console.log("ft_pop_invite_game : ", game_inv_user);
+		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: true});
+	}
+	function ft_pop_uninvite_game()
+	{
+		pop_game = false;
+		console.log("ft_pop_uninvite_game : ", game_inv_user);
+		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: false});
+	}
 	onDestroy(() => {
 		unsubscribe();
+		gameUnsubscribe();
 		if (socket !== undefined)
 		{
 			socket.off('chat-connect');
 			socket.off('chat-refresh');
 			socket.off('chat-msg-event');
 			socket.off('chat-set-admin');
-			socket.emit('chat-exit-room', chat_data);
+			// socket.emit('chat-exit-room', chat_data);
 		}
 	});
 
@@ -127,7 +161,12 @@
 
 
 </script>
-
+{#if  pop_game}
+<div>
+	<button on:click={ ft_pop_invite_game } >확인</button>
+	<button on:click={ ()=>{ ft_pop_uninvite_game } }> 닫기</button>
+</div>
+{/if}
 <svelte:window on:popstate={() => goto("/main")}/>
 {#if room !== undefined}
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
@@ -150,7 +189,7 @@
 		{#each msg_list as msg}
 			{#if (msg._user_name == user_self._user_info.id)}
 				<div class="grid grid-cols-[auto_1fr] gap-5">
-					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
+					<Avatar src="{msg._user_avatar}" width="w-12" />
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{msg._user_name}</p>
@@ -159,8 +198,6 @@
 					</div>
 				</div>
 			{:else}
-
-
 				<div class="grid grid-cols-[1fr_auto] gap-2">
 					<div class="card p-4 rounded-tr-none space-y-2 {'bubble.color'}">
 						<header class="flex justify-between items-center">
@@ -168,7 +205,7 @@
 						</header>
 						<p class="font-bold">{msg._msg}</p>
 					</div>
-					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
+					<Avatar src="{msg._user_avatar}" width="w-12" />
 				</div>
 			{/if}
 		{/each}
