@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
-    import { authToken } from '../../../../service/store';
+    import { auth, authToken } from '../../../../service/store';
     import { page } from '$app/stores';
 	import music from "./great_short_music.mp3";
 
@@ -25,14 +25,27 @@
 
 		setTimeout(async () => {
 			audio.pause();
-            goMain();
+            await goMain();
         }, 280.00);
         // Set an interval to remove itself
         return () => clearInterval(interval);
     }
 
 	let audio: HTMLAudioElement;
-    onMount(() => {
+    let userInfo: UserDTO;
+    let isLoading: boolean = true;
+    onMount(async () => {
+            try {
+              userInfo = await auth.isLogin();
+              if (userInfo) {
+                goto('/main');
+              }
+              else {
+                isLoading = false;
+              }
+          }catch
+          {
+          }
 		audio = new Audio(music);
 
         window.addEventListener('keydown', async function(event) {
@@ -78,6 +91,7 @@
         will-change: transform;
     }
 </style>
+{#if isLoading === false}
 
 <div class="h-screen flex flex-col items-center justify-center">
     {#if !isScrolling}
@@ -104,7 +118,7 @@
 		</p>
 </div>
 
-		<button type="button" class="btn variant-filled"
+		<button type="button" class="btn variant-filled mt-4"
 		    on:click={() => {
 		        startScrolling();
 		    }}
@@ -178,3 +192,9 @@ yolee
         </div>
     {/if}
 </div>
+
+
+{/if}
+
+
+
