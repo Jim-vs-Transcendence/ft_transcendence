@@ -19,11 +19,11 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 		userId = localStorage.getItem("userid");
 		DM_KEY += userId
 	}
-	const socket : Socket = ioClient(ENDPOINT, { 
+	const socket : Socket = ioClient(ENDPOINT, {
 		query: {
 			_userId : userId
 	}});
-	
+
 	socket.on("dm-chat", async (data : DmChatIF) => {
 		if (browser)
 		{
@@ -56,7 +56,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 					customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))
 				}
 				catch (error) {
-					alert('오류: customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))')	
+					alert('오류: customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))')
 				}
 				 */
 			}
@@ -65,9 +65,10 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 			}
 		}
 	})
-	
+
 	socket.on("disconnect", () => {
-		goto("/exitPage");
+		sessionStorage.removeItem("isLogin");
+		goto("/");
 	})
 	socketStore.set(socket);
 }

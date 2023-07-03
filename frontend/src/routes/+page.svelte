@@ -7,7 +7,7 @@
 
   import '../service/userDTO';
   import LoadingMessage from "../components/Auth/LoadingMessage.svelte"
-  
+
   //1. store.ts에 만들어질 isLogin함수 활용해서 로그인 여부 확인
   let userInfo : UserDTO; //여기 any는 나중에 타입 정해지면 바꿔야 함
   let isLoading = true;
@@ -26,6 +26,10 @@
           isLoading = false;
           console.log(localStorage.getItem('authToken'));
           console.log("user no login");
+          if (sessionStorage.getItem('isLogin')) {
+            sessionStorage.removeItem('isLogin');
+            alert("중복 로그인이 감지되었습니다, 다시 로그인 해주세요");
+          }
       }
     }
   );
@@ -35,7 +39,7 @@
   const login = async () => {
     await goto(backUrl + "/auth/login");
   };
- 
+
 </script>
 
 {#if isLoading}
@@ -48,5 +52,5 @@
   </div>
 {/if}
 <style>
-  
+
 </style>

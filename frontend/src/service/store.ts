@@ -33,14 +33,21 @@ function setAuthToken() {
     const login = async (id: string) => {
         try {
             const response = await getApi({ path: 'token/' + id });
-            token = response;
+            // token = response;
 
-            // console.log(token); 
+            const loginResponse: loginDTO = response;
+            token = loginResponse.token;
+            const isLogin = loginResponse.islogin;
+
+            console.log(loginResponse);
+
+            // console.log(token);
             // // debug
 
-            if (browser && token) {
-                localStorage.setItem('authToken', token);
+            if (browser && token && isLogin) {
+                localStorage.setItem('authToken_' + id, token);
                 localStorage.setItem('userid', id);
+                sessionStorage.setItem('isLogin', isLogin);
             }
             else {
                 throw new Error('로그인 실패');
