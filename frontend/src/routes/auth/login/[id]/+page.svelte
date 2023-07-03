@@ -25,8 +25,8 @@
 
 		setTimeout(async () => {
 			audio.pause();
-            await goMain();
-        }, 280.00);
+            goMain();
+        }, 28000);
         // Set an interval to remove itself
         return () => clearInterval(interval);
     }
@@ -127,7 +127,7 @@
 
     {/if}
     {#if isScrolling}
-<div class="container">
+<div class="container" style="font-weight: 700;">
     <div
         class="text"
         style={`transform: rotateX(30deg) translateY(${position}%)`}
