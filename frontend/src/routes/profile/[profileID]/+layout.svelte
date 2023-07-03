@@ -7,10 +7,6 @@
         authToken.logout()
     };
 
-    const goback = () => {
-        history.back();
-    };
-
     const goHome = () => {
         goto('/main');
     }
@@ -21,7 +17,7 @@
 
 </script>
 
-<AppBar slot="headline" class="h-16">
+<AppBar gridColumns="grid-cols-3" slot="headline" class="h-16">
     <div slot="lead" class="flex items-center space-x-6">
       <!-- 로그아웃, 다크모드 -->
       <button on:click={logout}>기록 밖으로</button>
@@ -34,9 +30,7 @@
             --><span on:click={goHome} style="cursor: alias;">&nbsp;Transcendence</span>
         </span>
     </h1>
-    <div slot="trail" class="flex items-center space-x-6">
-        <button type="button" class="btn-icon btn variant-filled width-8" on:click={goback}>뒤로</button>
-    </div>
+    <div></div>
   </AppBar>
 
   <slot />

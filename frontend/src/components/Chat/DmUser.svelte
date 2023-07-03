@@ -1,92 +1,40 @@
 <script lang="ts">
-    import type { DmChatStoreIF } from '$lib/interface';
+    export let opponent: string
+    export let dmUserInfo: DmUserInfoIF
+    export let userInfo: UserDTO
+    export let dmStoreData: DmChatStoreIF
+    
+    import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
+    import DmChatUI from "./DmChatUI.svelte"
+    import { Avatar, modalStore } from '@skeletonlabs/skeleton'
+    import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton'
 
-    export let dmChatStore: DmChatStoreIF;
-    export let userInfo: UserDTO;
-    // export let userInfo: UserDTO; // 실제로 api요청해서 데이터 가져올때 필요 
-    // $: userInfo;
-    import ChatUI from "./ChatUI.svelte"
-    import { Avatar, modalStore } from '@skeletonlabs/skeleton';
-    import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton';
-	import { goto } from '$app/navigation';
-    import { getApi } from '../../service/api';
-
-    const opponent : string = Object.keys(dmChatStore)[0];
-
-    /**
-     * 실제로 api요청해서 데이터 가져올때 필요 
-     */
-    // async function getUserInfo(): Promise<void> {
-    //     userInfo = await getApi({
-    //         path: 'user/' + DmChatStore.opponent,
-    //     });
-    // }
-
-    /*
-        - click했을때 DM창 뿌려주게 처리 필요
-            DmChatStore data 를 user id를 가지고 가져올 필요가 있다.
-    */
-
-    //DM에서도 프로필 보게 할지는 미정
-    //프로필 팝업
-    // import { storePopup } from '@skeletonlabs/skeleton';
-    // import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-
-    // DM chat popup
-    import { popup } from '@skeletonlabs/skeleton';
-    import type { PopupSettings } from '@skeletonlabs/skeleton';
-
-    // storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-    /*
-        - dummy data 
-    */
-    // const userInfo: UserDTO =
-    // {modalComponent jim",
-    //     avatar: "https://cdn.intra.42.fr/users/0deac2fad263069699a587baaf629266/jim.JPG",
-    //     email: "email",
-    //     level: 0,
-    //     win: 0,
-    //     lose: 0,
-    //     two_factor: false,
-    //     user_status: 0,
-    // };
-
-    const dmPopupFeatured: PopupSettings = {
-		// Represents the type of event that opens/closed the popup
-		event: 'click',
-		// Matches the data-popup value on your popup element
-		target: "dmPopup" + dmChatStore.opponent,
-		// Defines which side of your trigger the popup will appear
-		placement: 'left',
-	};
-
-    function ft_dm_chat(dmChatStore :DmChatStoreIF) {
+    function ftDmChat() {
         const modalComponent: ModalComponent = {
-            ref: ChatUI,
-            props: {dmChatStore: dmChatStore,
-                    userInfo: userInfo},
-        };
+            ref: DmChatUI,
+            props: {opponent: opponent,
+                    dmUserInfo: dmUserInfo,
+                    userInfo: userInfo,
+                    dmStoreData: dmStoreData}
+        }
 
-        const modal: ModalSettings = {
-            type: 'component',
-            component: modalComponent,
-            response: (r: string) => console.log('response:', r),
-        };
-        modalStore.trigger(modal);
+       const modal: ModalSettings = {
+           type: 'component',
+           component: modalComponent
+        }
+        modalStore.trigger(modal)
     }
-
-
 </script>
 
-<div class="cursor-pointer hover:variant-glass-surface" on:click={ft_dm_chat(dmChatStore)} >
+<div class="cursor-pointer hover:variant-glass-surface" on:keypress={()=>{console.log("keypress")}} on:click={ftDmChat} >
     <Avatar
-        src={dmChatStore[opponent]._userInfo.avatar}
+        bind:src={dmUserInfo._userInfo.avatar}
         width="w-7"
         rounded="rounded-full"
-        />
+    />
     <span class="flex-auto">
         <dt>
-            {opponent}
+            {opponent} | {dmUserInfo._userInfo.nickname}
         </dt>
     </span>
 </div>

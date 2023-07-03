@@ -20,14 +20,8 @@
   // tab
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
-  //DM component
-  import DmUser from '../Chat/DmUser.svelte';
-  // DM dummy
-  import { dmDummyList } from '../Auth/dmDummy';
-
-  // Autocomplete
-  import { Autocomplete } from '@skeletonlabs/skeleton';
-  import type { AutocompleteOption } from '@skeletonlabs/skeleton';
+	import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface';
+	import DmList from '../Chat/DmList.svelte';
 
   const logout = () => {
     authToken.logout()
@@ -50,9 +44,9 @@
     drawerStore.open();
   };
 
-  let tabSet: numbdmstore
+  let tabSet: number = 0
   const updateFriend = async (): Promise<void> => {
-      if (toggleRefresh)
+    if (toggleRefresh)
     {
       friendList = await getApi({
             path: 'friends/',
@@ -91,6 +85,8 @@
     }
   });
 
+
+
 </script>
 
 <!-- UserLayout.svelte -->
@@ -105,24 +101,10 @@
   <!-- Tab Panels --->
   <svelte:fragment slot="panel">
     {#if tabSet === 0}
-      <div>
-        <header class="card-footer  top-0 w-full">
-          <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-            <input type="search" placeholder="Search..." />
-            <button type="button" class="variant-filled-surface">Add</button>
-          </div>
-        </header>
-        <main>
-          <div class="overflow-y-scroll">
-            <dl class="list-dl">
-              {#each dmDummyList as dmUser}
-                <DmUser dmChatStore={dmUser} userInfo={userInfo}/>
-              {/each}
-            </dl>
-          </div>
-        </main>
-      </div>
+      <!-- To be DM list component -->
+      <DmList userInfo={userInfo} />
     {:else if tabSet === 1}
+      <!-- Friend list -->
         <dl class="list-dl">
           {#each friendList as friend}
             <FriendsList friend={friend} userInfo={userInfo} />
@@ -135,20 +117,20 @@
 </Drawer>
 
 <!-- 상단바 -->
-<AppBar slot="headline" class="h-16">
+<AppBar gridColumns="grid-cols-3" slotTrail="place-content-end" slot="headline" class="h-16">
 
   <div slot="lead" class="flex items-center space-x-6">
     <!-- 로그아웃, 다크모드 -->
     <button on:click={logout}>기록 밖으로</button>
   </div>
-    <h1 class="h1 text-center -mt-3 col-span-3">
-      <!-- 메인 로고 -->
-      <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">
-          <span on:click={goHome} style="cursor: alias;">Jim&nbsp;</span><!--
-          --><span on:click={goGame} style="cursor: progress;">vs</span><!--
-          --><span on:click={goHome} style="cursor: alias;">&nbsp;Transcendence</span>
-      </span>
-    </h1>
+  <h1 class="h1 text-center -mt-3 col-span-3">
+    <!-- 메인 로고 -->
+    <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">
+        <span on:click={goHome} style="cursor: alias;">Jim&nbsp;</span><!--
+        --><span on:click={goGame} style="cursor: progress;">vs</span><!--
+        --><span on:click={goHome} style="cursor: alias;">&nbsp;Transcendence</span>
+    </span>
+  </h1>
   <div slot="trail" class="flex items-center space-x-6">
     <!-- 아바타, 친구목록 -->
     <Avatar src={userInfo.avatar} on:click={ () => {goProfile(userInfo.id)}} width="w-8" rounded="rounded-full" style="cursor: pointer;" />
