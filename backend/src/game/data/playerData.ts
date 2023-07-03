@@ -5,7 +5,6 @@ export class GameRoom {
     dataFrame: any;
 
     gameType: boolean;
-    isHitPaddle: boolean = false;
     leftPlayer: GamePlayerData;
     rightPlayer: GamePlayerData;
 
