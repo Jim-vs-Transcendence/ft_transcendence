@@ -23,6 +23,7 @@ const send = async (method : string = '', path : string = '', data : any = {}, h
     url,
     headers: finalHeaders,
     data,
+    withCredentials: true,
   };
 
   try {

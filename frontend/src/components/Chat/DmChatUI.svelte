@@ -2,64 +2,72 @@
     export let dmUserInfo: DmUserInfoIF
     export let userInfo: UserDTO
     export let opponent : string
+    export let dmStoreData: DmChatStoreIF
 
-    import { Avatar, ListBox, ListBoxItem } from '@skeletonlabs/skeleton'
-    import type { Socket } from 'socket.io-client'
-    // dm인데 그대로 갈것인가?
-    import { page } from '$app/stores'
+    import { onMount } from 'svelte'
+    import { Avatar } from '@skeletonlabs/skeleton'
 
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
-    import type { DmUserInfoIF, DmChatIF } from '$lib/interface'
-    
-    // api
-    import { getApi } from '../../service/api'
-	import { onMount } from 'svelte'
-    
-    onMount (async () => {
-        try {
-            // dmUserInfo._userInfo = await getApi({
-            //     path: 'user/' + opponent,
-            // })
+    import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
+        
+    // Socket
+    import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
+	import type { Socket } from 'socket.io-client';
+	import { onDestroy } from 'svelte';
+	import type { Unsubscriber } from 'svelte/store';
 
-        } catch (error )
-        {
-            alert('오류 : ' + opponent + ' user정보를 가져올 수 없습니다.')
-            // await goto('/main')k
+	let socket: Socket;
+    
+    let loadDmChat : string | null;
+    
+    const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
+        socket = _socket;
+	});
+
+    onDestroy(() => {
+        unsubscribe();
+        if (socket !== undefined)
+		{
+			socket.off('dm-chat-to-ui');
+		}
+    });
+
+    function dmDataLoad() {
+        loadDmChat = localStorage.getItem(DM_KEY)
+        if (loadDmChat) {
+            dmStoreData = JSON.parse(loadDmChat)
+            dmUserInfo = dmStoreData[opponent]
+            setTimeout(() => {
+			    scrollChatBottom('smooth')
+		    }, 0)
         }
+    }
+    
+    onMount(() => {
+      try {
+        dmDataLoad();
+
+        socket.on("dm-chat-to-ui", (data: DmChatIF) => {
+            try {
+                if (data._from === dmUserInfo._userInfo.id)
+                    dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+                setTimeout(() => {
+                    scrollChatBottom('smooth')
+                }, 0)
+            }
+            catch {
+                alert('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.') 
+            }
+        })
+      } catch (error) {
+        return alert('DM loading error')
+      }
     })
 
-    // let socket: Socket
-    // let userid: string
-    // let msg_list: ChatMsgIF[] = []
-    // let chat_data: ChatMsgIF = {
-	// 	_msg: '',
-	// 	_user_name: '',
-	// 	_room_name: $page.params['chat_room']
-	// }
-
     /* ================================================================================
-                                chat msg
+                                chat interface
     ================================================================================ */
-    // chat room에도 있어서 통합 필요. 별도 ts로 만들거나 등등
-
-    // function ft_chat_send_msg() {
-	// 	if (chat_data._msg.length && chat_data._msg != '\n')
-	// 		socket.emit('chat-msg-event', chat_data)
-	// 	chat_data._msg = ''
-	// 	console.log(userid)
-	// }
-
-	// function ft_chat_send_msg_keydown(e: KeyboardEvent) {
-	// 	if (e.keyCode != 13) return
-	// 	ft_chat_send_msg()
-	// }
-
-    // Base Classes
-	const cBase = 'card p-4 w-modal shadow-xl space-y-4'
-	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token'
-
-    // chat 
     let currentMessage = ''
     let elemChat: HTMLElement
     
@@ -67,17 +75,18 @@
         elemChat.scrollTo({ top: elemChat.scrollHeight, behavior })
     }
 
-    function addMessage(): void {
+    async function addMessage(): Promise<void> {
+        if (currentMessage.trim() === null)
+            return 
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
             _to: opponent,
             _msg: currentMessage,
 		}
-		// Update the message feed
-        // opponent data
 		dmUserInfo._dmChatStore = [... dmUserInfo._dmChatStore, newMessage]
 		// Clear prompt
 		currentMessage = ''
+        sendDm(newMessage)
 		// Smooth scroll to bottom
 		// Timeout prevents race condition
 		setTimeout(() => {
@@ -85,49 +94,25 @@
 		}, 0)
 	}
 
-    function onPromptKeydown(event: KeyboardEvent): void {
+    function onPromptKeyPress(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
-			event.preventDefault()
-			addMessage()
+	  	  event.preventDefault()
+        addMessage()
 		}
 	}
-    
-    /* ================================================================================
-                                from dmPageFile
-    ================================================================================ */
-    
-    /* 
-    import { socketStore } from '$lib/webSocketConnection_chat';
-	import type { Socket } from 'socket.io-client';
-	import { onDestroy, onMount } from 'svelte';
-	import type { DmChatIF } from '$lib/interface';
 
-	let socket: Socket;
-    let dmChatData : DmChatIF;
-    
-    const unsubscribe = socketStore.subscribe((_socket: Socket) => {
-        socket = _socket;
-	});
-    
-    onDestroy(unsubscribe);
-
-    function sendDm(opponent : string)
+    function sendDm(dmChatData : DmChatIF)
     {
-        dmStoreData[opponent]._dmUserInfo.push(dmChatData);
-        localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
-        if (dmChatData._msg.length && dmChatData._msg != '\n')
-            socket.emit('dm-chat', dmChatData);
+        try {
+            dmStoreData[opponent]._dmChatStore = dmUserInfo._dmChatStore
+            localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
+            if (dmChatData._msg.length && dmChatData._msg != '\n')
+                socket.emit('dm-chat', dmChatData);
+        }
+        catch (error) {
+            alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
+        }
     }
-
-    function receiveDm(opponent : string)
-    {
-        socket.on('dm-chat', (data: ChatMsgIF) => {
-            console.log("dm-chat : ", data);
-            // msg_list = [...msg_list, data];
-        });
-    }
-    */
-
 </script>
 
 
@@ -145,7 +130,7 @@
                                 <Avatar src="{userInfo.avatar}" width="w-12" />
                                 <div class="card p-4 variant-soft rounded-tl-none space-y-2">
                                     <header class="flex justify-between items-center">
-                                        <p class="font-bold">{bubble._from}</p>
+                                        <p class="font-bold">{bubble._from} | {userInfo.nickname} </p>
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>
@@ -154,7 +139,7 @@
                             <div class="grid grid-cols-[1fr_auto] gap-2">
                                 <div class="card p-4 rounded-tr-none space-y-2 variant-soft-primary">
                                     <header class="flex justify-between items-center">
-                                        <p class="font-bold">{bubble._from}</p>
+                                        <p class="font-bold">{bubble._from} | {dmUserInfo._userInfo.nickname}</p>
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>
@@ -174,7 +159,7 @@
                             id="prompt"
                             placeholder="Write a message..."
                             rows="1"
-                            on:keydown={onPromptKeydown}
+                            on:keypress={onPromptKeyPress}
                         />
                         <button class={currentMessage ? 'variant-filled-primary' : 'input-group-shim'} on:click={addMessage}>
                             <i class="fa-solid fa-paper-plane" />

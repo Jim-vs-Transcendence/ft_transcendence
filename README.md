@@ -18,3 +18,7 @@ npm install @nestjs/platform-socket.io
 
 # npm install frontend
 socket.io-client
+
+
+#rebase 
+ f7bb319502c4c69f0eef6f4bdf801b124b977fbd

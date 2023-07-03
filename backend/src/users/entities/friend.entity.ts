@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from './user.entity';
 
 export enum FriendRequestStatus {
   BLOCKED = 'blocked',
@@ -10,13 +11,16 @@ export enum FriendRequestStatus {
 
 @Entity('friend')
 export class Friend {
-  @PrimaryColumn()
-  @ApiProperty({ description: '인트라 내부 id1' })
-  user_from: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @PrimaryColumn()
+  @ManyToOne(() => User, { eager: true })
+  @ApiProperty({ description: '인트라 내부 id1' })
+  user_from: User;
+
+  @ManyToOne(() => User, { eager: true })
   @ApiProperty({ description: '인트라 내부 id2' })
-  user_to: string;
+  user_to: User;
 
   @Column({
     type: 'enum',

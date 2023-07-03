@@ -26,7 +26,7 @@
 		setTimeout(async () => {
 			audio.pause();
             goMain();
-        }, 280.00);
+        }, 28000);
         // Set an interval to remove itself
         return () => clearInterval(interval);
     }
@@ -68,7 +68,7 @@
     }
 
     .text {
-        font-family: 'Jua', sans-serif;
+        /* font-family: 'Jua', sans-serif; */
         transform-origin: 50% 100%;
         transform-style: preserve-3d;
         white-space: pre;
@@ -111,10 +111,10 @@
 		>
             동의
         </button>
-		
+
     {/if}
     {#if isScrolling}
-<div class="container">
+<div class="container" style="font-weight: 700;">
     <div
         class="text"
         style={`transform: rotateX(30deg) translateY(${position}%)`}

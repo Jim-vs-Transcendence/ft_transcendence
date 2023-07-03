@@ -23,26 +23,19 @@ export class FriendsService {
   async findFriend(user_to: string): Promise<friendDTO[]> {
     const friendEntities = await this.friendRepository.find({
       where: {
-        user_to: user_to,
+        user_to: { id: user_to },
         // friend_status: In([FriendRequestStatus.PENDING, FriendRequestStatus.ACCEPTED]),
       },
     });
+    // console.log(friendEntities);
 
     const ret: friendDTO[] = await Promise.all(
       friendEntities.map(async (friend) => {
-        const userFrom = await this.usersService.findOne(friend.user_from);
-
-        if (!userFrom) {
-          throw new NotFoundException(
-            `User with id ${friend.user_from} not found`,
-          );
-        }
-
         return {
-          id: friend.user_from,
-          nickname: userFrom.nickname,
-          avatar: userFrom.avatar,
-          status: userFrom.user_status,
+          id: friend.user_from.id,
+          nickname: friend.user_from.nickname,
+          avatar: friend.user_from.avatar,
+          status: friend.user_from.user_status,
           friendStatus: friend.friend_status,
         };
       }),
@@ -54,8 +47,8 @@ export class FriendsService {
   async findOneFriend(user_from: string, user_to: string): Promise<friendDTO> {
     const friend = await this.friendRepository.findOne({
       where: {
-        user_from: user_from,
-        user_to: user_to,
+        user_from: { id: user_from },
+        user_to: { id: user_to },
       },
     });
 
@@ -86,8 +79,8 @@ export class FriendsService {
     // Check if user_from is blocked by user_to
     const blocked = await this.friendRepository.findOne({
       where: {
-        user_from: user_to,
-        user_to: user_from,
+        user_from: { id: user_to },
+        user_to: { id: user_from },
         friend_status: FriendRequestStatus.BLOCKED,
       },
     });
@@ -97,8 +90,8 @@ export class FriendsService {
     }
 
     const friendRequest = this.friendRepository.create({
-      user_from,
-      user_to,
+      user_from: { id: user_from },
+      user_to: { id: user_to },
     });
     this.friendRepository.save(friendRequest);
     return true;
@@ -111,8 +104,8 @@ export class FriendsService {
   ): Promise<boolean> {
     const request = await this.friendRepository.findOne({
       where: {
-        user_to: user_to,
-        user_from: user_from,
+        user_to: { id: user_to },
+        user_from: { id: user_from },
       },
     });
 
@@ -129,8 +122,8 @@ export class FriendsService {
 
     // user_from create
     const friendship = this.friendRepository.create({
-      user_from: user_to,
-      user_to: user_from,
+      user_from: { id: user_to },
+      user_to: { id: user_from },
       friend_status: FriendRequestStatus.ACCEPTED,
     });
     await this.friendRepository.save(friendship);
@@ -140,10 +133,11 @@ export class FriendsService {
 
   async deleteFriend(user_from: string, user_to: string): Promise<boolean> {
     // Fetch the friend entities from the database
+
     const friendEntities = await this.friendRepository.find({
       where: [
-        { user_from: user_to, user_to: user_from },
-        { user_from: user_from, user_to: user_to },
+        { user_from: { id: user_to }, user_to: { id: user_from } },
+        { user_from: { id: user_from }, user_to: { id: user_to } },
       ],
     });
 
@@ -166,8 +160,8 @@ export class FriendsService {
   async blockUser(user_from: string, user_to: string): Promise<boolean> {
     const blocked = await this.friendRepository.findOne({
       where: {
-        user_from: user_to,
-        user_to: user_from,
+        user_from: { id: user_to },
+        user_to: { id: user_from },
         friend_status: FriendRequestStatus.BLOCKED,
       },
     });
@@ -177,8 +171,8 @@ export class FriendsService {
     }
 
     const blockship = this.friendRepository.create({
-      user_from: user_from,
-      user_to: user_to,
+      user_from: { id: user_from },
+      user_to: { id: user_to },
       friend_status: FriendRequestStatus.BLOCKED,
     });
     await this.friendRepository.save(blockship);

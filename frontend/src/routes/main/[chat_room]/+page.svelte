@@ -23,6 +23,7 @@
 	let chat_data: ChatMsgIF = {
 		_msg: '',
 		_user_name: '',
+		_user_avatar: '',
 		_room_name: $page.params['chat_room']
 	};
 	let tabSet: number = 0;
@@ -75,6 +76,9 @@
 			socket.on('chat-msg-event', (data: ChatMsgIF) => {
 				console.log("chat-msg-event : ", data);
 				msg_list = [...msg_list, data];
+				setTimeout(() => {
+					scrollChatBottom('smooth');
+				}, 0);
 			});
 			/* ===== chat-set-admin ===== */
 			socket.on('chat-set-admin', (data: ChatAuthDTO) => {
@@ -116,6 +120,13 @@
 		ft_chat_send_msg();
 	}
 
+	let elemChat: HTMLElement;
+
+	function scrollChatBottom(behavior?: ScrollBehavior): void {
+		elemChat.scrollTo({ top: elemChat.scrollHeight, behavior });
+	}
+
+
 </script>
 
 <svelte:window on:popstate={() => goto("/main")}/>
@@ -136,11 +147,11 @@
 			</svelte:fragment>
 		</TabGroup>
 	</div>
-	<div class="bg-surface-500/30 p-4">
+	<div bind:this={elemChat} class="max-h-[700px] p-4 overflow-y-auto space-y-4">
 		{#each msg_list as msg}
 			{#if (msg._user_name == user_self._user_info.id)}
 				<div class="grid grid-cols-[auto_1fr] gap-5">
-					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
+					<Avatar src="{msg._user_avatar}" width="w-12" />
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{msg._user_name}</p>
@@ -153,11 +164,10 @@
 					<div class="card p-4 rounded-tr-none space-y-2 {'bubble.color'}">
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{ msg._user_name}</p>
-							<small class="opacity-50">{msg._user_name}</small>
 						</header>
 						<p class="font-bold">{msg._msg}</p>
 					</div>
-					<Avatar src="https://i.pravatar.cc/?img={'bubble.avatar'}" width="w-12" />
+					<Avatar src="{msg._user_avatar}" width="w-12" />
 				</div>
 			{/if}
 		{/each}
