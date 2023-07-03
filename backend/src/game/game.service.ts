@@ -12,9 +12,9 @@ export class GameService {
 		gameGateway: GameGateway
 	) { this.myGameGateway = gameGateway }
 
-	private readonly fps: number = 1000 / 30;
-	private readonly canvasWidth: number = 1000;
-	private readonly canvasHeight: number = 500;
+	private readonly fps: number = 1000 / 60;
+	private readonly canvasWidth: number = 1200;
+	private readonly canvasHeight: number = 600;
 
 	private readonly initBallX: number = this.canvasWidth / 2;
 	private readonly initBallY: number = this.canvasHeight / 2;
@@ -22,14 +22,12 @@ export class GameService {
 	private readonly ballSpeed: number = 15;
 
 	private readonly paddleWidth: number = this.canvasWidth * 0.02;
-	private readonly paddleHeight: number = this.canvasHeight;// * 0.2;
+	private readonly paddleHeight: number = this.canvasHeight * 0.2;
 	private readonly paddleMargin: number = this.canvasWidth * 0.05;
 
 	private readonly initLeftPaddleX: number = this.paddleMargin;
 	private readonly initRightPaddleX: number = this.canvasWidth - (this.paddleWidth + this.paddleMargin);
 	private readonly initPaddleY: number = this.canvasHeight / 2 - this.paddleHeight / 2;
-
-
 
 	async initPlayer(player: GamePlayerData, client: Socket) {
 		player.socketId = client.id;
@@ -107,6 +105,7 @@ export class GameService {
 		console.log('reset Game called');
 		room.rightPlayer.updateData.leftScore = room.leftPlayer.updateData.rightScore;
 		room.rightPlayer.updateData.rightScore = room.leftPlayer.updateData.leftScore;
+		room.isHitPaddle = false;
 
 		this.myGameGateway.server.to(room.leftPlayer.socketId).emit('oneSetEnd', room.leftPlayer.updateData);
 		this.myGameGateway.server.to(room.rightPlayer.socketId).emit('oneSetEnd', room.rightPlayer.updateData);
@@ -167,11 +166,6 @@ export class GameService {
 		if (!room.isEnd) {
 			let blinkMoveLeft: number = (room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius) - (this.initLeftPaddleX + this.paddleWidth);
 			let blinkMoveRight: number = (this.initRightPaddleX) - (room.leftPlayer.updateData.moveData.ballX + room.leftPlayer.ballRadius);
-			let blinkMoveUp: number = room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius;
-			let blinkMoveDown: number = room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius;
-
-			
-
 
 			if (room.leftPlayer.updateData.moveData.ballMoveY === true) {
 				room.leftPlayer.updateData.moveData.ballY -= room.leftPlayer.ballSpeed;
@@ -189,114 +183,93 @@ export class GameService {
 				room.leftPlayer.updateData.moveData.ballX += room.leftPlayer.ballSpeed;
 				room.rightPlayer.updateData.moveData.ballX -= room.leftPlayer.ballSpeed;
 			}
-			console.log("ball speed: ", room.leftPlayer.ballSpeed);
-			console.log("ball location : ", room.leftPlayer.updateData.moveData.ballX, room.leftPlayer.updateData.moveData.ballY, room.leftPlayer.updateData.moveData.ballMoveX, room.leftPlayer.updateData.moveData.ballMoveY);
-			console.log('blink : ', blinkMoveLeft, blinkMoveRight, blinkMoveUp, blinkMoveDown);
 			
-			if (room.leftPlayer.ballSpeed > blinkMoveLeft && room.leftPlayer.updateData.moveData.ballMoveX === true) {
-				if (room.leftPlayer.updateData.moveData.ballMoveY) {
-					room.leftPlayer.updateData.moveData.ballY -= blinkMoveLeft;
-					room.rightPlayer.updateData.moveData.ballY -= blinkMoveLeft;
-				}
-				else {
-					room.leftPlayer.updateData.moveData.ballY += blinkMoveLeft;
-					room.rightPlayer.updateData.moveData.ballY += blinkMoveLeft;
-				}
-				room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
-				room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
-				console.log('left player hit', room.leftPlayer.updateData.moveData.ballX);
-				if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.leftPaddleY) {
-					room.leftPlayer.updateData.moveData.ballMoveX = false;
-					room.rightPlayer.updateData.moveData.ballMoveX = true;
-					console.log('fast speed left hit and speed up');
-					room.leftPlayer.ballSpeed += 0.2;
-				}
-			}
-			else if (room.leftPlayer.ballSpeed > blinkMoveRight && room.leftPlayer.updateData.moveData.ballMoveX === false) {
-				if (room.leftPlayer.updateData.moveData.ballMoveY) {
-					room.leftPlayer.updateData.moveData.ballY -= blinkMoveRight;
-					room.rightPlayer.updateData.moveData.ballY -= blinkMoveRight;
-				}
-				else {
-					room.leftPlayer.updateData.moveData.ballY += blinkMoveRight;
-					room.rightPlayer.updateData.moveData.ballY += blinkMoveRight;
-				}
-				room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
-				room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
-				console.log('right player hit', room.leftPlayer.updateData.moveData.ballX);
-				if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.rightPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.rightPaddleY) {
-					room.leftPlayer.updateData.moveData.ballMoveX = true;
-					room.rightPlayer.updateData.moveData.ballMoveX = false;
-					console.log('fast speed right hit and speed up');
-					room.leftPlayer.ballSpeed += 0.2;
-				}
-			}
-			else if (room.leftPlayer.ballSpeed <= blinkMoveLeft || room.leftPlayer.ballSpeed <= blinkMoveRight) {
-				if (room.leftPlayer.updateData.moveData.ballX - (room.leftPlayer.ballRadius) <= this.initLeftPaddleX + this.paddleWidth && room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius >= this.initLeftPaddleX) {
-					if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.leftPaddleY) {
-						console.log('left player hit', room.leftPlayer.updateData.moveData.ballX);
-						room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
+			if (room.isHitPaddle === false) {
+				if (room.leftPlayer.ballSpeed > blinkMoveLeft && room.leftPlayer.updateData.moveData.ballMoveX === true) {
+					if (room.leftPlayer.updateData.moveData.ballMoveY) {
+						room.leftPlayer.updateData.moveData.ballY -= blinkMoveLeft;
+						room.rightPlayer.updateData.moveData.ballY -= blinkMoveLeft;
+					}
+					else {
+						room.leftPlayer.updateData.moveData.ballY += blinkMoveLeft;
+						room.rightPlayer.updateData.moveData.ballY += blinkMoveLeft;
+					}
+					room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
+					room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
+					console.log('left hit ball location : ', room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.leftPaddleY, room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight)
+					if (room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius >= room.leftPlayer.updateData.moveData.leftPaddleY) {
 						room.leftPlayer.updateData.moveData.ballMoveX = false;
-						room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
 						room.rightPlayer.updateData.moveData.ballMoveX = true;
-						console.log('slow speed left hit and speed up');
-						room.leftPlayer.ballSpeed += 0.2;
+						room.leftPlayer.ballSpeed += 1;
+					}
+					else {
+						room.isHitPaddle = true;
 					}
 				}
-				if (room.leftPlayer.updateData.moveData.ballX + (room.leftPlayer.ballRadius) >= this.initRightPaddleX && room.leftPlayer.updateData.moveData.ballX + room.leftPlayer.ballRadius <= this.initRightPaddleX + this.paddleWidth) {
-					if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.updateData.moveData.rightPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY >= room.leftPlayer.updateData.moveData.rightPaddleY) {
-						room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
+				else if (room.leftPlayer.ballSpeed > blinkMoveRight && room.leftPlayer.updateData.moveData.ballMoveX === false) {
+					if (room.leftPlayer.updateData.moveData.ballMoveY) {
+						room.leftPlayer.updateData.moveData.ballY -= blinkMoveRight;
+						room.rightPlayer.updateData.moveData.ballY -= blinkMoveRight;
+					}
+					else {
+						room.leftPlayer.updateData.moveData.ballY += blinkMoveRight;
+						room.rightPlayer.updateData.moveData.ballY += blinkMoveRight;
+					}
+					room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
+					room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
+					console.log('right hit ball location : ', room.leftPlayer.updateData.moveData.ballY, room.leftPlayer.updateData.moveData.leftPaddleY, room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight)
+					if (room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius <= room.leftPlayer.updateData.moveData.rightPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius >= room.leftPlayer.updateData.moveData.rightPaddleY) {
 						room.leftPlayer.updateData.moveData.ballMoveX = true;
-						room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
 						room.rightPlayer.updateData.moveData.ballMoveX = false;
-						console.log('slow speed right hit and speed up');
-						room.leftPlayer.ballSpeed += 0.2;
+						room.leftPlayer.ballSpeed += 1;
+					}
+					else {
+						room.isHitPaddle = true;
+					}
+				}
+				else if (room.leftPlayer.ballSpeed <= blinkMoveLeft || room.leftPlayer.ballSpeed <= blinkMoveRight) {
+					if (room.leftPlayer.updateData.moveData.ballX - (room.leftPlayer.ballRadius) <= this.initLeftPaddleX + this.paddleWidth && room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius >= this.initLeftPaddleX) {
+						console.log('slow left hit ball location : ', room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.leftPaddleY, room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight)
+						if (room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius >= room.leftPlayer.updateData.moveData.leftPaddleY) {
+							room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
+							room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
+							room.leftPlayer.updateData.moveData.ballMoveX = false;
+							room.rightPlayer.updateData.moveData.ballMoveX = true;
+							room.leftPlayer.ballSpeed += 1;
+						}
+						else {
+							room.isHitPaddle = true;
+						}
+					}
+					if (room.leftPlayer.updateData.moveData.ballX + (room.leftPlayer.ballRadius) >= this.initRightPaddleX && room.leftPlayer.updateData.moveData.ballX + room.leftPlayer.ballRadius <= this.initRightPaddleX + this.paddleWidth) {
+						console.log('slow left hit ball location : ', room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.leftPaddleY, room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight)
+						if (room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius <= room.leftPlayer.updateData.moveData.rightPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius >= room.leftPlayer.updateData.moveData.rightPaddleY) {
+							room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
+							room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
+							room.leftPlayer.updateData.moveData.ballMoveX = true;
+							room.rightPlayer.updateData.moveData.ballMoveX = false;
+							room.leftPlayer.ballSpeed += 1;
+						}
+						else {
+							room.isHitPaddle = true;
+						}
 					}
 				}
 			}
 
-			if (blinkMoveUp <= 0 && room.leftPlayer.updateData.moveData.ballMoveY === true) {
+			if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.ballRadius) {
 				room.leftPlayer.updateData.moveData.ballY = room.leftPlayer.ballRadius;
 				room.rightPlayer.updateData.moveData.ballY = room.leftPlayer.ballRadius;
-				if (room.leftPlayer.updateData.moveData.ballMoveX === true) {
-					room.leftPlayer.updateData.moveData.ballX += blinkMoveUp;
-					room.rightPlayer.updateData.moveData.ballX -= blinkMoveUp;
-				}
-				else {
-					room.leftPlayer.updateData.moveData.ballX -= blinkMoveUp;
-					room.rightPlayer.updateData.moveData.ballX += blinkMoveUp;
-				}
 				room.leftPlayer.updateData.moveData.ballMoveY = false;
 				room.rightPlayer.updateData.moveData.ballMoveY = false;
 			}
-			else if (blinkMoveDown >= this.canvasHeight && room.leftPlayer.updateData.moveData.ballMoveY === false) {
+			else if (room.leftPlayer.updateData.moveData.ballY >= this.canvasHeight - room.leftPlayer.ballRadius) {
 				room.leftPlayer.updateData.moveData.ballY = this.canvasHeight - room.leftPlayer.ballRadius;
 				room.rightPlayer.updateData.moveData.ballY = this.canvasHeight - room.leftPlayer.ballRadius;
-				if (room.leftPlayer.updateData.moveData.ballMoveX === true) {
-					room.leftPlayer.updateData.moveData.ballX +=  this.canvasHeight - blinkMoveDown;
-					room.rightPlayer.updateData.moveData.ballX -= this.canvasHeight - blinkMoveDown;
-				}
-				else {
-					room.leftPlayer.updateData.moveData.ballX -= this.canvasHeight - blinkMoveDown;
-					room.rightPlayer.updateData.moveData.ballX += this.canvasHeight - blinkMoveDown;
-				}
 				room.leftPlayer.updateData.moveData.ballMoveY = true;
 				room.rightPlayer.updateData.moveData.ballMoveY = true;
 			}
-			else {
-				if (room.leftPlayer.updateData.moveData.ballY <= room.leftPlayer.ballRadius) {
-					room.leftPlayer.updateData.moveData.ballY = room.leftPlayer.ballRadius;
-					room.rightPlayer.updateData.moveData.ballY = room.leftPlayer.ballRadius;
-					room.leftPlayer.updateData.moveData.ballMoveY = false;
-					room.rightPlayer.updateData.moveData.ballMoveY = false;
-				}
-				if (room.leftPlayer.updateData.moveData.ballY >= this.canvasHeight - room.leftPlayer.ballRadius) {
-					room.leftPlayer.updateData.moveData.ballY = this.canvasHeight - room.leftPlayer.ballRadius;
-					room.rightPlayer.updateData.moveData.ballY = this.canvasHeight - room.leftPlayer.ballRadius;
-					room.leftPlayer.updateData.moveData.ballMoveY = true;
-					room.rightPlayer.updateData.moveData.ballMoveY = true;
-				}
-			}
+			room.leftPlayer.ballSpeed > 40 ? room.leftPlayer.ballSpeed = 40 : room.leftPlayer.ballSpeed;
 			this.myGameGateway.server.to(room.leftPlayer.socketId).emit('ballMove', room.leftPlayer.updateData.moveData);
 			this.myGameGateway.server.to(room.rightPlayer.socketId).emit('ballMove', room.rightPlayer.updateData.moveData);
 		}
