@@ -10,6 +10,10 @@
     import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton'
 
     function ftDmChat() {
+        
+        /*
+            update userInfo 
+        */
         const modalComponent: ModalComponent = {
             ref: DmChatUI,
             props: {opponent: opponent,
@@ -33,6 +37,7 @@
         rounded="rounded-full"
     />
     <span class="flex-auto">
+        <!-- 프로필에서 변경한 nickname이 잘 적용되는지 확인 필요-->
         <dt>
             {opponent} | {dmUserInfo._userInfo.nickname}
         </dt>

@@ -76,7 +76,8 @@
     }
 
     async function addMessage(): Promise<void> {
-        if (currentMessage.trim() === null)
+        currentMessage = currentMessage.trim()
+        if (!(currentMessage))
             return 
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
@@ -96,8 +97,8 @@
 
     function onPromptKeyPress(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
-	  	  event.preventDefault()
-        addMessage()
+	  	    event.preventDefault()
+            addMessage()
 		}
 	}
 

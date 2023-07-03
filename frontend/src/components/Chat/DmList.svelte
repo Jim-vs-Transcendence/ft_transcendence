@@ -1,14 +1,11 @@
 <script lang="ts">
   export let userInfo: UserDTO
 
-  import { onDestroy, onMount } from 'svelte'
-
+  import { onMount } from 'svelte'
   import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
   import DmUser from './DmUser.svelte'
-  import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
+  import { DM_KEY } from '$lib/webSocketConnection_chat';
   import { getApi } from '../../service/api'
-	import type { Socket } from 'socket.io-client';
-	import type { Unsubscriber } from 'svelte/store';
 
   let opponentUserId= ''
   let loadDmChat : string | null
@@ -19,6 +16,7 @@
     try {
       for (const key of Object.keys(dmStoreData)) {
         const curUserInfo: UserDTO | null = await getApi({ path: 'user/' + key })
+        dmStoreData[key]._userInfo = curUserInfo
         let newDmChatStore : DmUserInfoIF = {
           _userInfo: curUserInfo,
           _dmChatStore: dmStoreData[key]._dmChatStore,
@@ -35,7 +33,7 @@
         loadDmChat = localStorage.getItem(DM_KEY)
         if (loadDmChat) {
           dmStoreData = JSON.parse(loadDmChat)
-          await ftUpdateDmList()
+          ftUpdateDmList()
         }
       } catch (error) {
         return alert('DM list loading error')
@@ -48,7 +46,8 @@
     let curDmStoreData : DmChatStoreIF
     if (curloadDmChat) {
       curDmStoreData = JSON.parse(curloadDmChat)
-      newDmChatStore._dmChatStore = curDmStoreData[userId]._dmChatStore
+      if (curDmStoreData[userId])
+        newDmChatStore._dmChatStore = curDmStoreData[userId]._dmChatStore
     }
     console.log("ftUpdateChatLocalStorage")
     dmStoreData[userId] = newDmChatStore
