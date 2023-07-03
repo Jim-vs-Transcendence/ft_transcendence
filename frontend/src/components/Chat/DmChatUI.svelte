@@ -44,10 +44,18 @@
         }
     }
     
-    onMount(() => {
+    // function handleCustomEvent(event: CustomEvent<any>) {
+    //  console.log(event.detail.message);
+    // }
+
+
+    onMount(async() => {
       try {
         dmDataLoad();
-
+        // window.addEventListener('receivedMsgToDmUI', handleCustomEvent as EventListener);
+        // return () => {
+        //   window.removeEventListener('receivedMsgToDmUI', handleCustomEvent as EventListener);
+        // };
         socket.on("dm-chat-to-ui", (data: DmChatIF) => {
             try {
                 if (data._from === dmUserInfo._userInfo.id)
@@ -76,7 +84,7 @@
     }
 
     async function addMessage(): Promise<void> {
-        if (currentMessage.trim() === null)
+        if (!(currentMessage.trim()))
             return 
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
@@ -106,8 +114,8 @@
         try {
             dmStoreData[opponent]._dmChatStore = dmUserInfo._dmChatStore
             localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData));
-            if (dmChatData._msg.length && dmChatData._msg != '\n')
-                socket.emit('dm-chat', dmChatData);
+            // if (dmChatData._msg.length && dmChatData._msg != '\n')
+            //     socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
             alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')

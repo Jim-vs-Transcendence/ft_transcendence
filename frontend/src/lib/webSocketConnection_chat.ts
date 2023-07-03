@@ -4,9 +4,10 @@ import { browser } from '$app/environment';
 import ioClient, { Socket } from 'socket.io-client';
 import { writable, type Writable } from 'svelte/store';
 import type { DmChatIF, DmChatStoreIF, DmUserInfoIF } from '$lib/interface';
-import { authToken } from '../service/store';
 import { goto } from '$app/navigation';
 import { getApi } from '../service/api';
+import { createEventDispatcher } from 'svelte';
+
 
 export const ENDPOINT : string = backUrl + '/chat';
 export let DM_KEY : string = "dmdata_"
@@ -49,16 +50,9 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				localStorage.setItem(DM_KEY, JSON.stringify(dmData));
 				console.log("dm-chat in webSocketConnection")
 				console.log(data)
+				// const dispatch = createEventDispatcher();
+				// dispatch('receivedMsgToDmUI', { msg: data });
 				// event로 등록하여 Dm Chat UI에서 수신 받을 수 있게 처리한다.
-				/*
-				socket.emit("dm-received-msg", data);
-				try {
-					customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))
-				}
-				catch (error) {
-					alert('오류: customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))')
-				}
-				 */
 			}
 			catch (error) {
 				alert('오류: 상대방의 생사유무를 확인할 수 없습니다. \n상대방이 메시지를 받을 수 없습니다. ')
