@@ -77,6 +77,7 @@ export class ChatGateway
 				
 			// }
 		}
+
 		console.log('\x1b[38;5;154m Chat Connection: ', userid, " : ", client.id + "\x1b[0m");
 		client.emit('room-refresh', this.ft_room_list());
 	}
@@ -113,6 +114,8 @@ export class ChatGateway
 		@MessageBody() payload: ChatRoomJoinDTO,
 	) {
 		console.log('\x1b[38;5;226m room-create \x1b[0m : ');
+		if (!payload._room_name)
+			return;
 		if (this.server.adapter.rooms.has(payload._room_name)) {
 			payload._pass = false; client.emit('room-create', payload); return;
 		}
