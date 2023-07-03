@@ -49,7 +49,6 @@
       if (curDmStoreData[userId])
         newDmChatStore._dmChatStore = curDmStoreData[userId]._dmChatStore
     }
-    console.log("ftUpdateChatLocalStorage")
     dmStoreData[userId] = newDmChatStore
     localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData))
   }
@@ -81,7 +80,7 @@
             _userInfo: searchedUser,
             _dmChatStore: [],
         }
-        await ftUpdateChatLocalStorage(opponentUserId, newDmChatStore)
+        ftUpdateChatLocalStorage(opponentUserId, newDmChatStore)
       } catch (error )
       {
           alert('오류 : ' + opponentUserId + ' user정보를 가져올 수 없습니다.')

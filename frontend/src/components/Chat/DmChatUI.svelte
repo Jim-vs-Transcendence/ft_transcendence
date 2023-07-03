@@ -29,7 +29,7 @@
         unsubscribe();
         if (socket !== undefined)
 		{
-			socket.off('dm-chat-to-ui');
+			socket.off('dm-chat');
 		}
     });
 
@@ -43,15 +43,15 @@
 		    }, 0)
         }
     }
-    
+
     onMount(() => {
       try {
         dmDataLoad();
 
-        socket.on("dm-chat-to-ui", (data: DmChatIF) => {
+        socket.on("dm-chat", (data: DmChatIF) => {
             try {
                 if (data._from === dmUserInfo._userInfo.id)
-                    dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+                dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
                 setTimeout(() => {
                     scrollChatBottom('smooth')
                 }, 0)
@@ -111,6 +111,7 @@
                 socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
+            console.log(error)
             alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
         }
     }
