@@ -44,16 +44,21 @@
         }
     }
     
-    // 데이터 수신때 사용
     onMount(() => {
       try {
         dmDataLoad();
 
         socket.on("dm-chat-to-ui", (data: DmChatIF) => {
-            dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
-            setTimeout(() => {
-			    scrollChatBottom('smooth')
-		    }, 0)
+            try {
+                if (data._from === dmUserInfo._userInfo.id)
+                    dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+                setTimeout(() => {
+                    scrollChatBottom('smooth')
+                }, 0)
+            }
+            catch {
+                alert('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.') 
+            }
         })
       } catch (error) {
         return alert('DM loading error')
@@ -71,6 +76,8 @@
     }
 
     async function addMessage(): Promise<void> {
+        if (currentMessage.trim() === null)
+            return 
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
             _to: opponent,
@@ -89,21 +96,11 @@
 
     function onPromptKeyPress(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
-			event.preventDefault()
-            if (currentMessage.trim())
-			    addMessage()
+	  	  event.preventDefault()
+        addMessage()
 		}
 	}
 
-    /*
-        동시에 여러 사용자와의DM으로 꼬일 일은 없다
-        한번에 1명의 사용자와만 통신한다.
-        고려해야할 것은
-        나는 DM창을 안켰는데 상대방만 킨 경우 어떻게 되는가?
-        socket이 연결 되는가?
-        둘다 켜야지만 되는가?
-    */
-    // async
     function sendDm(dmChatData : DmChatIF)
     {
         try {
@@ -133,7 +130,7 @@
                                 <Avatar src="{userInfo.avatar}" width="w-12" />
                                 <div class="card p-4 variant-soft rounded-tl-none space-y-2">
                                     <header class="flex justify-between items-center">
-                                        <p class="font-bold">{bubble._from}</p>
+                                        <p class="font-bold">{bubble._from} | {userInfo.nickname} </p>
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>
@@ -142,7 +139,7 @@
                             <div class="grid grid-cols-[1fr_auto] gap-2">
                                 <div class="card p-4 rounded-tr-none space-y-2 variant-soft-primary">
                                     <header class="flex justify-between items-center">
-                                        <p class="font-bold">{bubble._from}</p>
+                                        <p class="font-bold">{bubble._from} | {dmUserInfo._userInfo.nickname}</p>
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>

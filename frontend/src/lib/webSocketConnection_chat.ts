@@ -3,7 +3,8 @@ const backUrl : string = import.meta.env.VITE_API_URL;
 import { browser } from '$app/environment';
 import ioClient, { Socket } from 'socket.io-client';
 import { writable, type Writable } from 'svelte/store';
-import type { DmChatIF, DmChatStoreIF } from '$lib/interface';
+import type { DmChatIF, DmChatStoreIF, DmUserInfoIF } from '$lib/interface';
+import { getApi } from '../service/api';
 
 export const ENDPOINT : string = backUrl + '/chat';
 export let DM_KEY : string = "dmdata_"
@@ -21,14 +22,27 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 			_userId : userId
 	}});
 	
-	socket.on("dm-chat", (data : DmChatIF) => {
+	socket.on("dm-chat", async (data : DmChatIF) => {
 		if (browser)
 		{
 			try {
+				if (userId === data._from)
+					throw console.log("userId === data._from")
 				const loadDmChat : string | null = localStorage.getItem(DM_KEY);
 				let dmData : DmChatStoreIF = {};
 				if (loadDmChat)
 				dmData = JSON.parse(loadDmChat);
+				if (!dmData.hasOwnProperty(data._from))
+				{
+					let searchedUser : UserDTO | null = await getApi({ path: 'user/' + data._from})
+        			if (typeof searchedUser === "string" || searchedUser === null || searchedUser === undefined)
+          				return alert(data._from + ' user정보 찾을 수 없습니다')
+					let newDmChatStore : DmUserInfoIF = {
+						_userInfo: searchedUser,
+						_dmChatStore: [],
+					}
+					dmData[data._from] = newDmChatStore;
+				}
 				dmData[data._from]._dmChatStore.push(data);
 				localStorage.setItem(DM_KEY, JSON.stringify(dmData));
 				console.log("dm-chat in webSocketConnection")
