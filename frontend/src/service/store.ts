@@ -11,7 +11,8 @@ function setAuth() {
         }
         catch(error)
         {
-            authToken.resetAuthToken();
+            // cookie로 대체해야함
+            // authToken.resetAuthToken();
         }
     }
     return {
@@ -78,6 +79,7 @@ function setAuthToken() {
         if (browser) {
             localStorage.removeItem('userid');
             localStorage.removeItem('authToken');
+            sessionStorage.removeItem('isLogin');
         }
     }
 

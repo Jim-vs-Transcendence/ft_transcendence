@@ -67,7 +67,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 	})
 
 	socket.on("disconnect", () => {
-		sessionStorage.removeItem("isLogin");
+		sessionStorage.setItem("isLogin", 'remove');
 		goto("/");
 	})
 	socketStore.set(socket);

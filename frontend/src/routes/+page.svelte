@@ -24,9 +24,7 @@
       }
       catch(error) {
           isLoading = false;
-          console.log(localStorage.getItem('authToken'));
-          console.log("user no login");
-          if (sessionStorage.getItem('isLogin')) {
+          if (sessionStorage.getItem('isLogin') === 'remove') {
             sessionStorage.removeItem('isLogin');
             alert("중복 로그인이 감지되었습니다, 다시 로그인 해주세요");
           }
