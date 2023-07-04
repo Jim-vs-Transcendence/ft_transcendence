@@ -691,10 +691,6 @@ export class ChatGateway
 			return;
 		}
 		socket_list.get(payload._to).emit('dm-chat', payload);
-<<<<<<< HEAD
-		socket_list.get(payload._to).emit('dm-chat-to-ui', payload);
-=======
->>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
 	}
 
 	// ================================================================================ //

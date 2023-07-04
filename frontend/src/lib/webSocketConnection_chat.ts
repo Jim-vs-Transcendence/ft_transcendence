@@ -33,11 +33,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				let dmData : DmChatStoreIF = {};
 				if (loadDmChat)
 					dmData = JSON.parse(loadDmChat);
-<<<<<<< HEAD
 				if (!(dmData.hasOwnProperty(data._from)))
-=======
-				if (!dmData.hasOwnProperty(data._from))
->>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
 				{
 					let searchedUser : UserDTO | null = await getApi({ path: 'user/' + data._from})
         			if (typeof searchedUser === "string" || searchedUser === null || searchedUser === undefined)
