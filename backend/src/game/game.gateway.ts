@@ -51,6 +51,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (typeof userid === 'string') {
 			if (!this.gameUsers.has(userid))
 				this.gameUsers.set(userid, client);
+			else{
+				let num: number = 0;
+				while (this.gameUsers.has(userid + "_" + num.toString()))
+					num++;
+				client.handshake.query._userId = userid + "_" + num.toString();
+				this.gameUsers.set(client.handshake.query._userId, client);
+			}
 		}
 		client.emit('gameSocketCreation',);
 	}
