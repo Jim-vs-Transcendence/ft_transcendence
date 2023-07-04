@@ -80,7 +80,7 @@
             _userInfo: searchedUser,
             _dmChatStore: [],
         }
-        ftUpdateChatLocalStorage(opponentUserId, newDmChatStore)
+        await ftUpdateChatLocalStorage(opponentUserId, newDmChatStore)
       } catch (error )
       {
           alert('오류 : ' + opponentUserId + ' user정보를 가져올 수 없습니다.')

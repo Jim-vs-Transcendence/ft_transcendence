@@ -133,7 +133,7 @@
 			socket.off('chat-refresh');
 			socket.off('chat-msg-event');
 			socket.off('chat-set-admin');
-			// socket.emit('chat-exit-room', chat_data);
+			socket.emit('chat-exit-room', chat_data);
 		}
 	});
 
