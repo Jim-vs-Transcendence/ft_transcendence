@@ -46,6 +46,7 @@ interface ChatMsgIF {
 	_msg: string;
 	_room_name: string;
 	_user_name: string;
+	_user_avatar: string;
 }
 
 interface ChatAuthDTO {

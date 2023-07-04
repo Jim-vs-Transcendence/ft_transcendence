@@ -95,6 +95,9 @@ export class ChatMsgDTO {
 
 	@IsString()
 	_user_name: string;
+
+	@IsString()
+	_user_avatar: string;
 }
 
 export class ChatAuthDTO {

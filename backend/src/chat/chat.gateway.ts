@@ -70,6 +70,7 @@ export class ChatGateway
 				socket_list.set(userid, client);
 			}
 		}
+
 		console.log('\x1b[38;5;154m Chat Connection: ', userid, " : ", client.id + "\x1b[0m");
 		client.emit('room-refresh', this.ft_room_list());
 	}
@@ -106,6 +107,8 @@ export class ChatGateway
 		@MessageBody() payload: ChatRoomJoinDTO,
 	) {
 		console.log('\x1b[38;5;226m room-create \x1b[0m : ');
+		if (!payload._room_name)
+			return;
 		if (this.server.adapter.rooms.has(payload._room_name)) {
 			payload._pass = false; client.emit('room-create', payload); return;
 		}
@@ -635,10 +638,13 @@ export class ChatGateway
 		if (channel_list.get(payload._room_name)._users.get(userid as string)._is_muted) {
 			return;
 		}
-		client.to(payload._room_name).emit('chat-msg-event', payload);
 		if (typeof userid === "string") {
 			payload._user_name = userid;
+			payload._user_avatar = channel_list.get(payload._room_name)._users.get(userid as string)._user_info.avatar;
+			console.log(channel_list.get(payload._room_name)._users.get(userid as string));
+			console.log(payload);
 			client.emit("chat-msg-event", payload);
+			client.to(payload._room_name).emit('chat-msg-event', payload);
 		}
 	}
 
@@ -681,12 +687,14 @@ export class ChatGateway
 	) {
 		if (!socket_list.has(payload._to)) {
 			console.log("\x1b[38;5;196m Error :: \x1b[0m socket is not enable");
-			// client.emit('dm-chat-to-ui', payload);
 			client.emit('dm-chat', payload);
 			return;
 		}
 		socket_list.get(payload._to).emit('dm-chat', payload);
+<<<<<<< HEAD
 		socket_list.get(payload._to).emit('dm-chat-to-ui', payload);
+=======
+>>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
 	}
 
 	// ================================================================================ //

@@ -21,6 +21,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 		query: {
 			_userId : userId
 	}});
+
 	
 	socket.on("dm-chat", async (data : DmChatIF) => {
 		if (browser)
@@ -32,7 +33,11 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				let dmData : DmChatStoreIF = {};
 				if (loadDmChat)
 					dmData = JSON.parse(loadDmChat);
+<<<<<<< HEAD
 				if (!(dmData.hasOwnProperty(data._from)))
+=======
+				if (!dmData.hasOwnProperty(data._from))
+>>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
 				{
 					let searchedUser : UserDTO | null = await getApi({ path: 'user/' + data._from})
         			if (typeof searchedUser === "string" || searchedUser === null || searchedUser === undefined)
@@ -45,18 +50,6 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				}
 				dmData[data._from]._dmChatStore.push(data);
 				localStorage.setItem(DM_KEY, JSON.stringify(dmData));
-				console.log("dm-chat in webSocketConnection")
-				console.log(data)
-				// event로 등록하여 Dm Chat UI에서 수신 받을 수 있게 처리한다.
-				/*
-				socket.emit("dm-received-msg", data);
-				try {
-					customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))
-				}
-				catch (error) {
-					alert('오류: customEventElement.dispatchEvent(new CustomEvent("dm-received-msg", {detail: {msg: data}}))')	
-				}
-				 */
 			}
 			catch (error) {
 				alert('오류: 상대방의 생사유무를 확인할 수 없습니다. \n상대방이 메시지를 받을 수 없습니다. ')

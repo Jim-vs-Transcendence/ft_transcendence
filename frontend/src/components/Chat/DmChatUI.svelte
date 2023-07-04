@@ -27,10 +27,6 @@
 
     onDestroy(() => {
         unsubscribe();
-        if (socket !== undefined)
-		{
-			socket.off('dm-chat-to-ui');
-		}
     });
 
     function dmDataLoad() {
@@ -43,15 +39,26 @@
 		    }, 0)
         }
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
     onMount(() => {
       try {
         dmDataLoad();
 
+<<<<<<< HEAD
         socket.on("dm-chat-to-ui", (data: DmChatIF) => {
             try {
                 if (data._from === dmUserInfo._userInfo.id)
                     dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+=======
+        socket.on("dm-chat", (data: DmChatIF) => {
+            try {
+                if (data._from === dmUserInfo._userInfo.id)
+                dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+>>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
                 setTimeout(() => {
                     scrollChatBottom('smooth')
                 }, 0)
@@ -76,7 +83,12 @@
     }
 
     async function addMessage(): Promise<void> {
+<<<<<<< HEAD
         if (currentMessage.trim() === null)
+=======
+        currentMessage = currentMessage.trim()
+        if (!(currentMessage))
+>>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
             return 
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
@@ -96,8 +108,13 @@
 
     function onPromptKeyPress(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
+<<<<<<< HEAD
 	  	  event.preventDefault()
         addMessage()
+=======
+	  	    event.preventDefault()
+            addMessage()
+>>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
 		}
 	}
 
@@ -110,6 +127,7 @@
                 socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
+            console.log(error)
             alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
         }
     }
