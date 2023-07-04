@@ -187,4 +187,10 @@
 		</div>
 	</div>
 </div>
+<div>
+	<p> 벤유저 입니다 ~~~</p>
+	{#each room._ban_user as ban_user}
+		<div> {ban_user} </div>
+	{/each}
+</div>
 {/if}
