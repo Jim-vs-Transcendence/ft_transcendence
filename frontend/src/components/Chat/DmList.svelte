@@ -1,18 +1,10 @@
 <script lang="ts">
   export let userInfo: UserDTO
 
-<<<<<<< HEAD
-  import { onDestroy, onMount } from 'svelte'
-
-  import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
-  import DmUser from './DmUser.svelte'
-  import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
-=======
   import { onMount } from 'svelte'
   import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
   import DmUser from './DmUser.svelte'
   import { DM_KEY } from '$lib/webSocketConnection_chat';
->>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
   import { getApi } from '../../service/api'
 
   let opponentUserId= ''
@@ -24,10 +16,7 @@
     try {
       for (const key of Object.keys(dmStoreData)) {
         const curUserInfo: UserDTO | null = await getApi({ path: 'user/' + key })
-<<<<<<< HEAD
-=======
         dmStoreData[key]._userInfo = curUserInfo
->>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
         let newDmChatStore : DmUserInfoIF = {
           _userInfo: curUserInfo,
           _dmChatStore: dmStoreData[key]._dmChatStore,
@@ -57,15 +46,9 @@
     let curDmStoreData : DmChatStoreIF
     if (curloadDmChat) {
       curDmStoreData = JSON.parse(curloadDmChat)
-<<<<<<< HEAD
-      newDmChatStore._dmChatStore = curDmStoreData[userId]._dmChatStore
-    }
-    console.log("ftUpdateChatLocalStorage")
-=======
       if (curDmStoreData[userId])
         newDmChatStore._dmChatStore = curDmStoreData[userId]._dmChatStore
     }
->>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
     dmStoreData[userId] = newDmChatStore
     localStorage.setItem(DM_KEY, JSON.stringify(dmStoreData))
   }
@@ -97,11 +80,7 @@
             _userInfo: searchedUser,
             _dmChatStore: [],
         }
-<<<<<<< HEAD
-        await ftUpdateChatLocalStorage(opponentUserId, newDmChatStore)
-=======
         ftUpdateChatLocalStorage(opponentUserId, newDmChatStore)
->>>>>>> 62bf77a10f3aa688f73b66378785c1232c6ff1f4
       } catch (error )
       {
           alert('오류 : ' + opponentUserId + ' user정보를 가져올 수 없습니다.')
