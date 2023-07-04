@@ -27,10 +27,6 @@
 
     onDestroy(() => {
         unsubscribe();
-        if (socket !== undefined)
-		{
-			socket.off('dm-chat');
-		}
     });
 
     function dmDataLoad() {
