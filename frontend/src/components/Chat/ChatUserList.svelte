@@ -15,38 +15,17 @@
 	export let userid_list: string;
 	export let channel_name: string;
 
+	$: user_self;
 	$: chatUser;
+	$: chatUser._user_info.id;
+	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
-	enum chatUserRequestStatus {
-		BLOCKED = 'blocked',
-		PENDING = 'pending',
-		ACCEPTED = 'accepted'
-	}
-
-	let isRefused = false;
-
-	const goProfile = (name: string) => {
-		goto('profile/' + name);
-	};
-
-	async function acceptchatUser(): Promise<void> {
-		await postApi({
-			path: 'chatUsers/requests/' + chatUser._user_info.id + '/accept',
-			data: {}
-		});
-		chatUser = await getApi({
-			path: 'chatUsers/' + chatUser._user_info.id
-		});
-	}
-
-	async function nochatUser(): Promise<void> {
-		await delApi({
-			path: 'chatUsers/requests/' + chatUser._user_info.id,
-			data: {}
-		});
-		isRefused = true;
-	}
+	// enum chatUserRequestStatus {
+	// 	BLOCKED = 'blocked',
+	// 	PENDING = 'pending',
+	// 	ACCEPTED = 'accepted'
+	// }
 
 	const popupFeatured: PopupSettings = {
 		// Represents the type of event that opens/closed the popup
@@ -83,6 +62,6 @@
 		</div>
 	</div>
 </dl>
-{#if userid_list !== user_self._user_info.id}
+<!-- {#if userid_list !== user_self._user_info.id} -->
 	<ChatUserOptions {user_self} {chatUser} {channel_name} />
-{/if}
+<!-- {/if} -->

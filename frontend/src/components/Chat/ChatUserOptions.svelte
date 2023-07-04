@@ -16,6 +16,7 @@
 	export let chatUser: ChatUserIF;
 	export let user_self: ChatUserIF;
 	export let channel_name: string;
+	$: user_self;
 	$: chatUser; // 어떤 차이가 있는지 확인 필요
 
 	let chat_socket: Socket;
@@ -29,9 +30,6 @@
 		game_socket = _socket;
 	});
 
-	function ft_show_profile(action: string) {
-		console.log(action);
-	}
 	function ft_invite_user(action: string) {
 		console.log(action);
 	}
@@ -84,8 +82,7 @@
 
     function ft_profile_view_in_chatroom(user_info :UserDTO) {
 
-
-        const modalComponent: ModalComponent = {
+		const modalComponent: ModalComponent = {
             ref: ChatRoomProfile,
 			props: {profile_info: user_info},
         };
@@ -105,7 +102,7 @@
 			class="cursor-pointer font-sans md:font-serif"
 			on:click={() => {ft_profile_view_in_chatroom(chatUser._user_info)}}
 		>
-			개인정보
+			개인정보 | chatUser._authority : {chatUser._authority}
 		</button>
 	</div>
 	<div class="hover:variant-filled-surface">
@@ -113,7 +110,7 @@
 			class="cursor-pointer font-sans md:font-serif"
 			on:click={() => {
 				ft_invite_user('invite');
-			}}>놀이 초대</button
+			}}>놀이 초대 | user_self._authority : {user_self._authority}</button
 		>
 	</div>
 	{#if user_self._authority < chatUser._authority}
@@ -145,7 +142,7 @@
 		</div>
 	{/if}
 	{#if user_self._authority === Authority.OWNER}
-		{#if chatUser._authority == Authority.USER}
+		{#if chatUser._authority === Authority.USER}
 			<div class="hover:variant-filled-surface">
 				<button
 					class="cursor-pointer font-sans md:font-serif"
@@ -165,15 +162,4 @@
 			</div>
 		{/if}
 	{/if}
-</div>
-
-<div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
-  <!-- <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_show_profile("show profile");}}> 개인정보 </button></div> -->
-  <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => ft_profile_view_in_chatroom(chatUser._user_info)}> 개인정보 </button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_invite_user("invite");}}>놀이 초대</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_mute_user("mute");}}>멈춰✋</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_kick_user("kick");}}>내보내기</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_ban_user("ban");}}>영구추방</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_appoint_user("appoint");}}>부방장 임명</button></div>
-	<div class="arrow bg-surface-100-800-token" />
 </div>

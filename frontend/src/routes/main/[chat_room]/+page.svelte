@@ -12,6 +12,10 @@
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
 	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	import type { Unsubscriber } from 'svelte/store';
+	import { gameSocketStore } from '$lib/webSocketConnection_game';
+	import { gameClientOption } from '$lib/gameData';
+	import { Authority } from '$lib/enum';
+
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -28,6 +32,13 @@
 	};
 	let tabSet: number = 0;
 	let chatUserList : Map<string, UserDTO>;
+	let game_socket: Socket;
+	let pop_game: boolean = false;
+	let game_inv_user :string; 
+
+	const gameUnsubscribe: Unsubscriber = gameSocketStore.subscribe((_socket: Socket) => {
+		game_socket = _socket;
+	});
 
 	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
@@ -86,14 +97,37 @@
 					return alert("권한 설정 실패");
 				/// 권한 변경 
 			});
+
+			game_socket.on("youGotInvite",(userid : string) => {
+				game_inv_user = userid;
+				pop_game = true;
+			})
+
+			game_socket.on('roomName', (roomName: string) => {
+			gameClientOption._roomName = roomName;
+			console.log('got message from : ', roomName);
+			goto('/game/option');
+		});
 		}
 		catch {
 			console.log("error");
 		}
 	});
-
+	function ft_pop_invite_game()
+	{
+		pop_game = false;
+		console.log("ft_pop_invite_game : ", game_inv_user);
+		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: true});
+	}
+	function ft_pop_uninvite_game()
+	{
+		pop_game = false;
+		console.log("ft_pop_uninvite_game : ", game_inv_user);
+		game_socket.emit("inviteResponse", {opponentPlayer : game_inv_user, acceptFlag: false});
+	}
 	onDestroy(() => {
 		unsubscribe();
+		gameUnsubscribe();
 		if (socket !== undefined)
 		{
 			socket.off('chat-connect');
@@ -128,69 +162,81 @@
 
 
 </script>
-
+{#if  pop_game}
+<div>
+	<button on:click={ ft_pop_invite_game } >확인</button>
+	<button on:click={ ()=>{ ft_pop_uninvite_game } }> 닫기</button>
+</div>
+{/if}
 <svelte:window on:popstate={() => goto("/main")}/>
 {#if room !== undefined}
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 	<div class="bg-surface-500/30 p-10">
 		<TabGroup>
 			<Tab bind:group={tabSet} name="tab1" value={0}> 채팅방 유저</Tab>
-				<!-- {#if } -->
-			<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
-				<!-- {/if} -->
+			{#if user_self._authority === Authority.OWNER 
+				|| user_self._authority === Authority.ADMIN}
+				<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
+			{/if}
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
 					{#each [... room._users] as [userid_list, chatUser]}
 						<ChatUserList {user_self} {userid_list} {chatUser}  {channel_name}/>
 					{/each}
 				{/if}
+				<!-- ban list가 안보이는 유저한테는 문제 없는가? -->
+				{#if tabSet === 1}
+					<div>
+						{#each room._ban_user as ban_user}
+							<div> {ban_user} </div>
+						{/each}
+					</div>
+				{/if}
 			</svelte:fragment>
 		</TabGroup>
 	</div>
-	<div bind:this={elemChat} class="max-h-[700px] p-4 overflow-y-auto space-y-4">
-		{#each msg_list as msg}
-			{#if (msg._user_name == user_self._user_info.id)}
-				<div class="grid grid-cols-[auto_1fr] gap-5">
-					<Avatar src="{msg._user_avatar}" width="w-12" />
-					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
-						<header class="flex justify-between items-center">
-							<p class="font-bold">{msg._user_name}</p>
-						</header>
-						<p class="font-bold">{msg._msg}</p>
+	<section class="card">
+		<section bind:this={elemChat} class="max-h-[700px] p-4 overflow-y-auto space-y-4">
+			{#each msg_list as msg}
+				{#if (msg._user_name === user_self._user_info.id)}
+					<div class="grid grid-cols-[auto_1fr] gap-5">
+						<Avatar src="{msg._user_avatar}" width="w-12" />
+						<div class="card p-4 variant-soft rounded-tl-none space-y-2">
+							<header class="flex justify-between items-center">
+								<p class="font-bold">{msg._user_name}</p>
+							</header>
+							<p class="font-bold">{msg._msg}</p>
+						</div>
 					</div>
-				</div>
-			{:else}
-				<div class="grid grid-cols-[1fr_auto] gap-2">
-					<div class="card p-4 rounded-tr-none space-y-2 {'bubble.color'}">
-						<header class="flex justify-between items-center">
-							<p class="font-bold">{ msg._user_name}</p>
-						</header>
-						<p class="font-bold">{msg._msg}</p>
+				{:else}
+					<div class="grid grid-cols-[1fr_auto] gap-2">
+						<div class="card p-4 rounded-tr-none space-y-2 {'bubble.color'}">
+							<header class="flex justify-between items-center">
+								<p class="font-bold">{ msg._user_name}</p>
+							</header>
+							<p class="font-bold">{msg._msg}</p>
+						</div>
+						<Avatar src="{msg._user_avatar}" width="w-12" />
 					</div>
-					<Avatar src="{msg._user_avatar}" width="w-12" />
-				</div>
-			{/if}
-		{/each}
+				{/if}
+			{/each}
+		</section>
+		<section class="border-t border-surface-700/30 p-4">
+			<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
+				<button class="input-group-shim">+</button>
+				<textarea
+					bind:value={chat_data._msg}
+					on:keyup={ft_chat_send_msg_keydown}
+					class="bg-transparent border-0 ring-0"
+					name="prompt"
+					id="prompt"
+					placeholder="Write a message..."
+					rows="1"
+				/>
+				<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
+			</div>
+		</section>
+	</section>
+</div>
 
-		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
-			<button class="input-group-shim">+</button>
-			<textarea
-				bind:value={chat_data._msg}
-				on:keyup={ft_chat_send_msg_keydown}
-				class="bg-transparent border-0 ring-0"
-				name="prompt"
-				id="prompt"
-				placeholder="Write a message..."
-				rows="1"
-			/>
-			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
-		</div>
-	</div>
-</div>
-<div>
-	<p> 벤유저 입니다 ~~~</p>
-	{#each room._ban_user as ban_user}
-		<div> {ban_user} </div>
-	{/each}
-</div>
 {/if}
