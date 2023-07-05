@@ -83,6 +83,4 @@
 		</div>
 	</div>
 </dl>
-{#if userid_list !== user_self._user_info.id}
 	<ChatUserOptions {user_self} {chatUser} {channel_name} />
-{/if}
