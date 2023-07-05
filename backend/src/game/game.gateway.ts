@@ -197,7 +197,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {
 		let userSocket = this.findGameUserSocket(opponentPlayer);
 		if (userSocket) {
-			userSocket.emit('youGotInvite', userSocket.handshake.query._userId);
+			userSocket.emit('you got invite', userSocket.handshake.query._userId);
 		}
 		else {
 			client.emit('gotoMain');
@@ -251,7 +251,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.usersService.updateUserStatus(realUserId, 2);
 		}
 		else {
-			gameUser.emit('InviteDenied');
+			gameUser.emit('Invite Denied');
 		}
 	}
 
