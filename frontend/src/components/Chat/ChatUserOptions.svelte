@@ -108,61 +108,64 @@
 			개인정보
 		</button>
 	</div>
-	<div class="hover:variant-filled-surface">
-		<button
-			class="cursor-pointer font-sans md:font-serif"
-			on:click={() => {
-				ft_invite_user('invite');
-			}}>놀이 초대</button
-		>
-	</div>
-	{#if user_self._authority < chatUser._authority}
-		{#if !chatUser._is_muted}
+
+	{#if chatUser._user_info.id !== user_self._user_info.id}
+		<div class="hover:variant-filled-surface">
+			<button
+				class="cursor-pointer font-sans md:font-serif"
+				on:click={() => {
+					ft_invite_user('invite');
+				}}>놀이 초대</button
+			>
+		</div>
+		{#if user_self._authority < chatUser._authority}
+			{#if !chatUser._is_muted}
+				<div class="hover:variant-filled-surface">
+					<button
+						class="cursor-pointer font-sans md:font-serif"
+						on:click={() => {
+							ft_mute_user('mute');
+						}}>멈춰✋</button
+					>
+				</div>
+			{/if}
 			<div class="hover:variant-filled-surface">
 				<button
 					class="cursor-pointer font-sans md:font-serif"
 					on:click={() => {
-						ft_mute_user('mute');
-					}}>멈춰✋</button
+						ft_kick_user('kick');
+					}}>내보내기</button
+				>
+			</div>
+			<div class="hover:variant-filled-surface">
+				<button
+					class="cursor-pointer font-sans md:font-serif"
+					on:click={() => {
+						ft_ban_user('ban');
+					}}>영구추방</button
 				>
 			</div>
 		{/if}
-		<div class="hover:variant-filled-surface">
-			<button
-				class="cursor-pointer font-sans md:font-serif"
-				on:click={() => {
-					ft_kick_user('kick');
-				}}>내보내기</button
-			>
-		</div>
-		<div class="hover:variant-filled-surface">
-			<button
-				class="cursor-pointer font-sans md:font-serif"
-				on:click={() => {
-					ft_ban_user('ban');
-				}}>영구추방</button
-			>
-		</div>
-	{/if}
-	{#if user_self._authority === Authority.OWNER}
-		{#if chatUser._authority == Authority.USER}
-			<div class="hover:variant-filled-surface">
-				<button
-					class="cursor-pointer font-sans md:font-serif"
-					on:click={() => {
-						ft_appoint_user('appoint');
-					}}>부방장 임명</button
-				>
-			</div>
-		{:else}
-			<div class="hover:variant-filled-surface">
-				<button
-					class="cursor-pointer font-sans md:font-serif"
-					on:click={() => {
-						ft_appoint_user('unappoint');
-					}}>부방장 해고</button
-				>
-			</div>
+		{#if user_self._authority === Authority.OWNER}
+			{#if chatUser._authority == Authority.USER}
+				<div class="hover:variant-filled-surface">
+					<button
+						class="cursor-pointer font-sans md:font-serif"
+						on:click={() => {
+							ft_appoint_user('appoint');
+						}}>부방장 임명</button
+					>
+				</div>
+			{:else}
+				<div class="hover:variant-filled-surface">
+					<button
+						class="cursor-pointer font-sans md:font-serif"
+						on:click={() => {
+							ft_appoint_user('unappoint');
+						}}>부방장 해고</button
+					>
+				</div>
+			{/if}
 		{/if}
 	{/if}
 </div>
