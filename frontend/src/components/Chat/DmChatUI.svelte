@@ -45,7 +45,7 @@
       }
     })
 
-    onDestroy(async () => {
+    onDestroy(() => {
         console.log("onDestroy() in DmChatUI.svelte");
         unsubscribe();
     });

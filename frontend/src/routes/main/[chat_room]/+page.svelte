@@ -91,7 +91,7 @@
 		}
 	});
 
-	onDestroy(async () => {
+	onDestroy(() => {
 		unsubscribe();
 		if (socket !== undefined)
 		{

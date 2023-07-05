@@ -27,7 +27,7 @@
 		game_socket = _socket;
 	});
 
-	onDestroy(async () => {
+	onDestroy(() => {
 		console.log("onDestroy() in ChatUserOptions.svelte");
 		chatUnsubscribe();
 		gameUnsubscribe();
