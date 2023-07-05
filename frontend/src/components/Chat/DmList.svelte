@@ -12,7 +12,7 @@
   let dmStoreData : DmChatStoreIF = {}
   $: dmStoreData
 
-  onMount( () => {
+  onMount( async () => {
       try {
         loadDmChat = localStorage.getItem(DM_KEY)
         if (loadDmChat) {
