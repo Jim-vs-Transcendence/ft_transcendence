@@ -25,7 +25,7 @@
         socket = _socket;
 	});
 
-    onMount(async() => {
+    onMount(() => {
       try {
         dmDataLoad();
         socket.on("dm-chat", (data: DmChatIF) => {
