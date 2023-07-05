@@ -1,16 +1,29 @@
 <script lang="ts">
-  export let userInfo: UserDTO
-
   import { onMount } from 'svelte'
   import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
   import DmUser from './DmUser.svelte'
   import { DM_KEY } from '$lib/webSocketConnection_chat';
   import { getApi } from '../../service/api'
+  
+  export let userInfo: UserDTO
 
   let opponentUserId= ''
   let loadDmChat : string | null
   let dmStoreData : DmChatStoreIF = {}
   $: dmStoreData
+
+  onMount(async () => {
+      try {
+        loadDmChat = localStorage.getItem(DM_KEY)
+        if (loadDmChat) {
+          dmStoreData = JSON.parse(loadDmChat)
+          await ftUpdateDmList()
+        }
+      } catch (error) {
+        console.log(error)
+        return alert('DM list loading error')
+      }
+  })
 
   async function ftUpdateDmList(): Promise<void> {
     try {
@@ -27,18 +40,6 @@
       alert('오류: 사용자 정보를 가져올 수 없습니다.')
     }
   }
-
-  onMount(async () => {
-      try {
-        loadDmChat = localStorage.getItem(DM_KEY)
-        if (loadDmChat) {
-          dmStoreData = JSON.parse(loadDmChat)
-          await ftUpdateDmList()
-        }
-      } catch (error) {
-        return alert('DM list loading error')
-      }
-  })
 
   async function ftUpdateChatLocalStorage(userId: string, newDmChatStore : DmUserInfoIF) {
     let curloadDmChat  : string | null = localStorage.getItem(DM_KEY)

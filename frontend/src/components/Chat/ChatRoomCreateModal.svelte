@@ -1,17 +1,15 @@
 <script lang="ts">
 	import type { ChatRoomJoinIF } from '$lib/interface';
-
-	// Props
-	/** Exposes parent props to this component. */
-	export let parent: any;
-
+	
 	// Stores
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy } from 'svelte';
-
-	// Form Data
+	
+	// Props
+	/** Exposes parent props to this component. */
+	export let parent: any;
 
 	let chat_socket : Socket;
 

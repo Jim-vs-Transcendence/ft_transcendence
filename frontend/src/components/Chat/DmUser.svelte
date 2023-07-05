@@ -1,13 +1,13 @@
 <script lang="ts">
-    export let opponent: string
-    export let dmUserInfo: DmUserInfoIF
-    export let userInfo: UserDTO
-    export let dmStoreData: DmChatStoreIF
-    
     import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface'
     import DmChatUI from "./DmChatUI.svelte"
     import { Avatar, modalStore } from '@skeletonlabs/skeleton'
     import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton'
+
+    export let opponent: string
+    export let dmUserInfo: DmUserInfoIF
+    export let userInfo: UserDTO
+    export let dmStoreData: DmChatStoreIF
 
     function ftDmChat() {
         const modalComponent: ModalComponent = {

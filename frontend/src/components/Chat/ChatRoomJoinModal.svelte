@@ -1,12 +1,10 @@
 <script lang="ts">
-	import type { ChatRoomJoinIF } from '$lib/interface';
-
+	// Stores
+	import { modalStore } from '@skeletonlabs/skeleton';
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
 
-	// Stores
-	import { modalStore } from '@skeletonlabs/skeleton';
 
 	// Form Data
 	let room_passwd : string;

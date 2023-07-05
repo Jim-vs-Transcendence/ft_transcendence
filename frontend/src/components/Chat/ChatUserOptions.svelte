@@ -8,30 +8,31 @@
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { onDestroy } from 'svelte';
 	import { Authority } from '$lib/enum';
-	import ChatRoomCreateModal from './ChatRoomCreateModal.svelte';
 	import ChatRoomProfile from './ChatRoomProfile.svelte';
-	// import { popup } from '@skeletonlabs/skeleton';
-	// import { storePopup } from '@skeletonlabs/skeleton';
 
 	export let chatUser: ChatUserIF;
 	export let user_self: ChatUserIF;
 	export let channel_name: string;
-	$: chatUser; // 어떤 차이가 있는지 확인 필요
+
+	$: chatUser;
 
 	let chat_socket: Socket;
 	let game_socket: Socket;
-
+	
 	const chatUnsubscribe: Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		chat_socket = _socket;
 	});
-
+	
 	const gameUnsubscribe: Unsubscriber = gameSocketStore.subscribe((_socket: Socket) => {
 		game_socket = _socket;
 	});
 
-	function ft_show_profile(action: string) {
-		console.log(action);
-	}
+	onDestroy(async () => {
+		console.log("onDestroy() in ChatUserOptions.svelte");
+		chatUnsubscribe();
+		gameUnsubscribe();
+	});
+
 	function ft_invite_user(action: string) {
 		console.log(action);
 	}
@@ -77,13 +78,7 @@
 		chat_socket.emit('chat-auth-user', send);
 	}
 
-	onDestroy(() => {
-		chatUnsubscribe();
-		gameUnsubscribe();
-	});
-
     function ft_profile_view_in_chatroom(user_info :UserDTO) {
-
 
         const modalComponent: ModalComponent = {
             ref: ChatRoomProfile,
@@ -92,7 +87,6 @@
 
         const modal: ModalSettings = {
             type: 'component',
-            // Data
             component: modalComponent,
         };
         modalStore.trigger(modal);
@@ -168,15 +162,4 @@
 			{/if}
 		{/if}
 	{/if}
-</div>
-
-<div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
-  <!-- <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_show_profile("show profile");}}> 개인정보 </button></div> -->
-  <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => ft_profile_view_in_chatroom(chatUser._user_info)}> 개인정보 </button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_invite_user("invite");}}>놀이 초대</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_mute_user("mute");}}>멈춰✋</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_kick_user("kick");}}>내보내기</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_ban_user("ban");}}>영구추방</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_appoint_user("appoint");}}>부방장 임명</button></div>
-	<div class="arrow bg-surface-100-800-token" />
 </div>

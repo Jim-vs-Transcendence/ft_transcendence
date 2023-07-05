@@ -10,8 +10,8 @@
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
-	import ChatUserOptions from '../../../components/Chat/ChatUserOptions.svelte';
 	import type { Unsubscriber } from 'svelte/store';
+	import { Authority } from '$lib/enum';
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -27,7 +27,6 @@
 		_room_name: $page.params['chat_room']
 	};
 	let tabSet: number = 0;
-	let chatUserList : Map<string, UserDTO>;
 
 	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
@@ -92,7 +91,7 @@
 		}
 	});
 
-	onDestroy(() => {
+	onDestroy(async () => {
 		unsubscribe();
 		if (socket !== undefined)
 		{
@@ -136,14 +135,22 @@
 	<div class="bg-surface-500/30 p-10">
 		<TabGroup>
 			<Tab bind:group={tabSet} name="tab1" value={0}> 채팅방 유저</Tab>
-				<!-- {#if } -->
-			<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
-				<!-- {/if} -->
+			{#if user_self._authority === Authority.OWNER 
+				|| user_self._authority === Authority.ADMIN}
+				<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
+			{/if}
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
 					{#each [... room._users] as [userid_list, chatUser]}
 						<ChatUserList {user_self} {userid_list} {chatUser}  {channel_name}/>
 					{/each}
+				{/if}
+				{#if tabSet === 1}
+					<div>
+						{#each room._ban_user as ban_user}
+							<div> {ban_user} </div>
+						{/each}
+					</div>
 				{/if}
 			</svelte:fragment>
 		</TabGroup>
@@ -187,11 +194,5 @@
 			<button class="variant-filled-primary text_input_btn" on:click={ft_chat_send_msg}>Send</button>
 		</div>
 	</div>
-</div>
-<div>
-	<p> 벤유저 입니다 ~~~</p>
-	{#each room._ban_user as ban_user}
-		<div> {ban_user} </div>
-	{/each}
 </div>
 {/if}

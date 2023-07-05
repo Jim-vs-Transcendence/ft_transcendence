@@ -4,8 +4,6 @@
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { goto } from '$app/navigation';
-	import { getApi, postApi, delApi } from '../../service/api';
 	import { Authority } from '$lib/enum';
 	import type { ChatUserIF } from '$lib/interface';
 	import ChatUserOptions from './ChatUserOptions.svelte';
@@ -16,37 +14,8 @@
 	export let channel_name: string;
 
 	$: chatUser;
+
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-
-	enum chatUserRequestStatus {
-		BLOCKED = 'blocked',
-		PENDING = 'pending',
-		ACCEPTED = 'accepted'
-	}
-
-	let isRefused = false;
-
-	const goProfile = (name: string) => {
-		goto('profile/' + name);
-	};
-
-	async function acceptchatUser(): Promise<void> {
-		await postApi({
-			path: 'chatUsers/requests/' + chatUser._user_info.id + '/accept',
-			data: {}
-		});
-		chatUser = await getApi({
-			path: 'chatUsers/' + chatUser._user_info.id
-		});
-	}
-
-	async function nochatUser(): Promise<void> {
-		await delApi({
-			path: 'chatUsers/requests/' + chatUser._user_info.id,
-			data: {}
-		});
-		isRefused = true;
-	}
 
 	const popupFeatured: PopupSettings = {
 		// Represents the type of event that opens/closed the popup
@@ -83,4 +52,4 @@
 		</div>
 	</div>
 </dl>
-	<ChatUserOptions {user_self} {chatUser} {channel_name} />
+<ChatUserOptions {user_self} {chatUser} {channel_name} />

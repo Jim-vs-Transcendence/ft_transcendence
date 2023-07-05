@@ -1,21 +1,21 @@
 <script lang="ts">
-    export let dmUserInfo: DmUserInfoIF
-    export let userInfo: UserDTO
-    export let opponent : string
-    export let dmStoreData: DmChatStoreIF
-
     import { onMount } from 'svelte'
     import { Avatar } from '@skeletonlabs/skeleton'
-
+    
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
     import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
-        
+    
     // Socket
     import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
+
+    export let dmUserInfo: DmUserInfoIF
+    export let userInfo: UserDTO
+    export let opponent : string
+    export let dmStoreData: DmChatStoreIF
 
 	let socket: Socket;
     
@@ -25,24 +25,9 @@
         socket = _socket;
 	});
 
-    onDestroy(() => {
-        unsubscribe();
-    });
-
-    function dmDataLoad() {
-        loadDmChat = localStorage.getItem(DM_KEY)
-        if (loadDmChat) {
-            dmStoreData = JSON.parse(loadDmChat)
-            dmUserInfo = dmStoreData[opponent]
-            setTimeout(() => {
-			    scrollChatBottom('smooth')
-		    }, 0)
-        }
-    }
-    onMount(() => {
+    onMount(async() => {
       try {
         dmDataLoad();
-        
         socket.on("dm-chat", (data: DmChatIF) => {
             try {
                 if (data._from === dmUserInfo._userInfo.id)
@@ -59,6 +44,22 @@
         return alert('DM loading error')
       }
     })
+
+    onDestroy(async () => {
+        console.log("onDestroy() in DmChatUI.svelte");
+        unsubscribe();
+    });
+
+    function dmDataLoad() {
+        loadDmChat = localStorage.getItem(DM_KEY)
+        if (loadDmChat) {
+            dmStoreData = JSON.parse(loadDmChat)
+            dmUserInfo = dmStoreData[opponent]
+            setTimeout(() => {
+			    scrollChatBottom('smooth')
+		    }, 0)
+        }
+    }
 
     /* ================================================================================
                                 chat interface
