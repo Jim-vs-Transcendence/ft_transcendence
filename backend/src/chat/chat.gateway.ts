@@ -582,6 +582,7 @@ export class ChatGateway
 		}
 		channel._users.forEach((val, key) => {
 			socket_list.get(key).emit("chat-refresh", send)
+			socket_list.get(key).emit("chat-self-update", channel_list.get(send._name)._users.get(key));
 		})
 	}
 

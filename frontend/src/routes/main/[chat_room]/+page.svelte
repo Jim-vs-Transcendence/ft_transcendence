@@ -100,6 +100,7 @@
 			socket.off('chat-refresh');
 			socket.off('chat-msg-event');
 			socket.off('chat-set-admin');
+			socket.off('chat-self-update');
 			socket.emit('chat-exit-room', chat_data);
 		}
 	});
