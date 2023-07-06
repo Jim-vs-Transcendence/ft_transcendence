@@ -6,7 +6,7 @@
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import type { ChatAuthDTO, ChatMsgIF, ChatRoomIF, ChatRoomSendIF, ChatUserIF, RoomCheckIF } from '$lib/interface';
+	import type { ChatAuthDTO, ChatMsgIF, ChatRoomSendIF, ChatUserIF, RoomCheckIF } from '$lib/interface';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
@@ -41,7 +41,7 @@
 			
 			socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
 			
-			await socket.on('chat-connect', (data: RoomCheckIF) => {
+			socket.on('chat-connect', (data: RoomCheckIF) => {
 				if (!data._check) {
 					alert("잘못된 접근입니다");
 					goto("/main");
@@ -92,6 +92,7 @@
 	});
 
 	onDestroy(() => {
+		console.log("onDestroy() in [chat_room] +page.svelte");
 		unsubscribe();
 		if (socket !== undefined)
 		{
@@ -109,6 +110,11 @@
 	   ================================================================================ */
 
 	function ft_chat_send_msg() {
+		chat_data._msg = chat_data._msg.trim()
+        if (!(chat_data._msg))
+            return 
+        else if (chat_data._msg.length >= 300)
+            return alert("300자 이상 입력하실 수 없습니다.")
 		if (chat_data._msg.length && chat_data._msg != '\n')
 			socket.emit('chat-msg-event', chat_data);
 		chat_data._msg = '';
@@ -181,7 +187,7 @@
 		{/each}
 
 		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
-			<button class="input-group-shim">+</button>
+			<button class="input-group-shim"></button>
 			<textarea
 				bind:value={chat_data._msg}
 				on:keyup={ft_chat_send_msg_keydown}

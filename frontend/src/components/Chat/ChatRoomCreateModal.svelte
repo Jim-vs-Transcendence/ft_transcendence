@@ -34,9 +34,14 @@
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onRoomDataSubmit(): void {
-		roomData._room_name = roomData._room_name.trim()
+		const chatRoomNameReg = /[\\\/?#%]/;
+	
+		roomData._room_name = roomData._room_name.trim();
 		if (!(roomData._room_name)) {
 			alert('방이름을 입력하세요');
+		}
+		else if (chatRoomNameReg.test(roomData._room_name)) {
+			alert('\\ / ? # % 같은 값은 채팅방 URL에 영향을 주므로 입력하실 수 없습니다. 다시 입력해주세요');
 		}
 		else {
 			if ($modalStore[0].response)
