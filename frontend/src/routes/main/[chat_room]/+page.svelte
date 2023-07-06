@@ -31,7 +31,6 @@
 	};
 	let tabSet: number = 0;
 	let chatUserList : Map<string, UserDTO>;
-	let game_invite_goto : boolean = false;
 	let invite_status: boolean = false;
 
 	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
@@ -78,8 +77,7 @@
 
 			socket.on("chat-leave", (data) => {
 				console.log("chat_leave",data);
-				if (!game_invite_goto)
-					goto("/main");
+				goto("/main");
 			})
 
 			/* ===== chat-msg-even ===== */
@@ -111,7 +109,6 @@
 					else
 					{
 						console.log("게임초대 거절");
-						game_invite_goto = false;
 					}
 					socket_game.emit("inviteResponsse", send_data);
 				}
@@ -119,7 +116,6 @@
 
 			socket_game.on("roomName", (data: string) => {
 				gameClientOption._roomName = data;
-				game_invite_goto = true;
 				goto('/game/option');
 			})
 		}
@@ -137,6 +133,7 @@
 			socket.off('chat-msg-event');
 			socket.off('chat-set-admin');
 			socket.off('chat-self-update');
+			socket.off('chat-leave');
 			socket.emit('chat-exit-room', chat_data);
 		}
 	});
