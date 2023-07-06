@@ -96,9 +96,12 @@
 			});
 
 			/* ===== game-invite ===== */
-			socket_game.on('youGotInvite', (data: string) => {
+			socket_game.on('youGotInvite', handleGameInvite);
+
+			function handleGameInvite(data: string) {
 				console.log('초대좀 받아라');
 				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data};
+				socket_game.off('youGotInvite');
 				if (!invite_status) {
 					invite_status = true;
 					if (confirm("게임초대"))
@@ -110,10 +113,11 @@
 					{
 						console.log("게임초대 거절");
 						invite_status = false;
+						socket_game.on('youGotInvite', handleGameInvite); // 이벤트 다시 등록
 					}
 					socket_game.emit("inviteResponsse", send_data);
 				}
-			})
+			}
 
 			socket_game.on("roomName", (data: string) => {
 				gameClientOption._roomName = data;
