@@ -8,6 +8,7 @@
     const id = $page.params.id;
     let position = 60;
     let isScrolling = false;
+    let timer: NodeJS.Timer;
 
     let skip = function(event: KeyboardEvent) {
         if (event.code === 'KeyX') {
@@ -19,6 +20,7 @@
 		audio.pause();
         await authToken.login(id);
         window.removeEventListener('keydown', skip);
+        clearTimeout(timer);
         goto('/main');
     }
 
@@ -30,7 +32,7 @@
             position -= 0.2;
         }, 40);
 
-		setTimeout(async () => {
+		timer = setTimeout(async () => {
             goMain();
         }, 28000);
         // Set an interval to remove itself
