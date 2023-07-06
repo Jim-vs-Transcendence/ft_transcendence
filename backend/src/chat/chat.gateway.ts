@@ -12,6 +12,7 @@ import { Namespace, Server, Socket } from 'socket.io';
 import { ConnectionClosedEvent } from 'typeorm';
 import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, ChatAuthDTO, RoomCheckDTO, ChatRoomJoinDTO, ChatUserDTO, Authority, ChatRoomSendDTO, ChatActionDTO } from './dto/chat.dto';
 import { UsersService } from 'src/users/users.service';
+import { TokenService } from 'src/auth/token/token.service';
 import userDTO from 'src/users/user.dto';
 import { userInfo } from 'os';
 import { channel } from 'diagnostics_channel';
@@ -27,7 +28,7 @@ let socket_list: Map<string, Socket> = new Map<string, Socket>();
 export class ChatGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
-	constructor(private readonly userService: UsersService) { }
+	constructor(private readonly userService: UsersService, private readonly tokenService: TokenService) { }
 
 	@WebSocketServer() server: Namespace;
 
@@ -58,17 +59,23 @@ export class ChatGateway
 		let userid: string | string[] = client.handshake.query._userId;
 		// let userdata = await this.userService.findOne(userid as string);
 		if (typeof userid === 'string') {
-			if (!socket_list.has(userid))
-				socket_list.set(userid, client);
-			else // for test in duplicate user
-			{
-				let num: number = 0;
-				while (socket_list.has(userid + "_" + num.toString()))
-					num++;
-				client.handshake.query._userId = userid + "_" + num.toString();
-				userid = client.handshake.query._userId;
-				socket_list.set(userid, client);
-			}
+			if (socket_list.has(userid))
+				socket_list.get(userid).disconnect();
+			socket_list.set(userid, client);
+
+			// if (!socket_list.has(userid))
+			// else // for test in duplicate user
+			// {
+
+			// 	client.emit("same_user", )
+			// 	// let num: number = 0;
+			// 	// while (socket_list.has(userid + "_" + num.toString()))
+			// 	// 	num++;
+			// 	// client.handshake.query._userId = userid + "_" + num.toString();
+			// 	// userid = client.handshake.query._userId;
+			// 	// socket_list.set(userid, client);
+				
+			// }
 		}
 
 		console.log('\x1b[38;5;154m Chat Connection: ', userid, " : ", client.id + "\x1b[0m");

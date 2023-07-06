@@ -85,7 +85,29 @@
     }
   });
 
+let insertUserId: string = "";
 
+function handleEnter(e: KeyboardEvent) {
+    if (e.key === "Enter") {
+        doSearch();
+    }
+}
+
+async function doSearch() {
+    console.log(insertUserId)
+    let answer : UserDTO | string; 
+    try {
+            answer = await getApi({
+            path: 'user/' + insertUserId,
+          });
+        } catch (error) {
+            console.log(error);
+    }
+    if (answer === "")
+        alert("존재하지 않는 유저입니다.");
+    else
+        goProfile(insertUserId);
+}
 
 </script>
 
@@ -105,11 +127,18 @@
       <DmList userInfo={userInfo} />
     {:else if tabSet === 1}
       <!-- Friend list -->
-        <dl class="list-dl">
-          {#each friendList as friend}
-            <FriendsList friend={friend} userInfo={userInfo} />
-          {/each}
-        </dl>
+            <header class="card-footer  top-0 w-full">
+                <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+                  <input type="search" placeholder="Search!!" bind:value={insertUserId} on:keydown={handleEnter} />
+                </div>
+            </header>
+            <div class="overflow-y-scroll">
+                <dl class="list-dl">
+                {#each friendList as friend}
+                    <FriendsList friend={friend} userInfo={userInfo} />
+                {/each}
+                </dl>
+            </div>
     {/if}
   </svelte:fragment>
 </TabGroup>

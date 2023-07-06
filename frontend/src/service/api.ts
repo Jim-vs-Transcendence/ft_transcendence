@@ -4,7 +4,8 @@ import axios from "axios";
 const send = async (method : string = '', path : string = '', data : any = {}, headers : any = {}) : Promise<any> => {
   const backUrl = import.meta.env.VITE_API_URL;
   const url = backUrl + '/' + path;
-  const getToken = localStorage.getItem('authToken');
+  const getToken = localStorage.getItem('authToken_' + localStorage.getItem('userid'));
+  const getLogin = sessionStorage.getItem('isLogin');
 
   // If data is an instance of FormData, let the browser set the Content-Type header
   const contentType = data instanceof FormData ? undefined : 'application/json';
@@ -13,6 +14,7 @@ const send = async (method : string = '', path : string = '', data : any = {}, h
   const defaultHeaders = {
     'Content-Type': contentType,
     'authtoken': getToken,
+    'islogin': getLogin,
   };
 
   // 사용자 정의 헤더가 제공되면 기본 헤더를 덮어쓴다. 파일을 보내는 경우, 브라우저가 헤더를 알아서 설정한다.
