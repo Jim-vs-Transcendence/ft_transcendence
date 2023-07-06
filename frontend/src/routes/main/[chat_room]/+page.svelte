@@ -100,15 +100,16 @@
 				console.log('초대좀 받아라');
 				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data};
 				if (!invite_status) {
+					invite_status = true;
 					if (confirm("게임초대"))
 					{
 						console.log("게임초대 수락");
 						send_data.acceptFlag = true;
-						invite_status = true;
 					}
 					else
 					{
 						console.log("게임초대 거절");
+						invite_status = false;
 					}
 					socket_game.emit("inviteResponsse", send_data);
 				}

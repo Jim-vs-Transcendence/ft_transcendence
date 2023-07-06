@@ -10,7 +10,7 @@
     let matchHistory : MatchDTO[] = [];
 
     function goJIM() {
-        goto('https://profile.intra.42.fr/users/jim');
+        window.open('https://profile.intra.42.fr/users/jim', '_blank');
     }
 
     onMount(async () => {
