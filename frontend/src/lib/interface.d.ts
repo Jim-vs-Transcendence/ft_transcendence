@@ -16,6 +16,7 @@ interface ChatRoomSendIF {
 	_password: string;
 	_users: Array<[string, ChatUserIF]>;
 	_ban_user: string[];
+	_user_self: ChatUserIF;
 }
 
 interface ChatUserIF {
