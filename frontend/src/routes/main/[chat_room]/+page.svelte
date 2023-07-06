@@ -12,10 +12,13 @@
 	import ChatUserList from '../../../components/Chat/ChatUserList.svelte';
 	import type { Unsubscriber } from 'svelte/store';
 	import { Authority } from '$lib/enum';
+	import { gameSocketStore } from '$lib/webSocketConnection_game';
+	import { gameClientOption, type GameInvitationData } from '$lib/gameData';
 	
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	let socket: Socket;
+	let socket_game: Socket;
 	let user_self: ChatUserIF;
 	let channel_name: string = $page.params['chat_room'];
 	let room : ChatRoomSendIF;
@@ -27,11 +30,17 @@
 		_room_name: $page.params['chat_room']
 	};
 	let tabSet: number = 0;
+	let chatUserList : Map<string, UserDTO>;
+	let game_invite_goto : boolean = false;
 
 	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
 	});
 	
+	const unsubscribe_game : Unsubscriber = gameSocketStore.subscribe((_socket: Socket) => {
+		socket_game = _socket;
+	});
+
 	onMount(async () => {
 		try {
 			if (socket === undefined)
@@ -68,7 +77,8 @@
 	
 			socket.on("chat-leave", (data) => {
 				console.log("chat_leave",data);
-				goto("/main");
+				if (!game_invite_goto)
+					goto("/main");
 			})
 			
 			/* ===== chat-msg-even ===== */
@@ -85,6 +95,28 @@
 					return alert("권한 설정 실패");
 				/// 권한 변경 
 			});
+
+			/* ===== game-invite ===== */
+			socket_game.on('youGotInvite', (data: string) => {
+				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data}; 
+				if (confirm("게임초대"))
+				{
+					console.log("게임초대 수락");
+					send_data.acceptFlag = true;
+					game_invite_goto = true;
+				}
+				else
+				{
+					console.log("게임초대 거절");
+					game_invite_goto = false;
+				}
+				socket_game.emit("inviteResponsse", send_data);
+			})
+
+			socket_game.on("roomName", (data: string) => {
+				gameClientOption._roomName = data;
+				goto('/game/option');
+			})
 		}
 		catch {
 			console.log("error");

@@ -35,6 +35,8 @@
 
 	function ft_invite_user(action: string) {
 		console.log(action);
+		console.log(chatUser._user_info);
+		game_socket.emit("sendGameInvite", chatUser._user_info.id);
 	}
 
 	function ft_mute_user(action: string) {

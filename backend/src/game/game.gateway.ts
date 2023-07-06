@@ -51,6 +51,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (typeof userid === 'string') {
 			if (!this.gameUsers.has(userid))
 				this.gameUsers.set(userid, client);
+			else{
+				let num: number = 0;
+				while (this.gameUsers.has(userid + "_" + num.toString()))
+					num++;
+				client.handshake.query._userId = userid + "_" + num.toString();
+				this.gameUsers.set(client.handshake.query._userId, client);
+			}
 		}
 		client.emit('gameSocketCreation',);
 	}
@@ -197,7 +204,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {
 		let userSocket = this.findGameUserSocket(opponentPlayer);
 		if (userSocket) {
-			userSocket.emit('you got invite', userSocket.handshake.query._userId);
+			userSocket.emit('youGotInvite', client.handshake.query._userId);
 		}
 		else {
 			client.emit('gotoMain');
@@ -251,7 +258,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.usersService.updateUserStatus(realUserId, 2);
 		}
 		else {
-			gameUser.emit('Invite Denied');
+			gameUser.emit('InviteDenied');
 		}
 	}
 
