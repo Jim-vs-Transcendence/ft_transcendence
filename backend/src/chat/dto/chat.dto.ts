@@ -40,9 +40,6 @@ export class ChatRoomSendDTO {
 
 	@IsObject()
 	_ban_user: string[];
-
-	@IsObject()
-	_user_self: ChatUserDTO;
 }
 
 export class ChatUserDTO {

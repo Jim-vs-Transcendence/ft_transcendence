@@ -32,16 +32,16 @@
 		socket = _socket;
 	});
 	
-	onMount(() => {
+	onMount(async () => {
 		try {
 			if (socket === undefined)
-				goto("/main");
+				await goto("/main");
 			/* ===== chat-connect ===== */
 			chat_data._room_name = $page.params['chat_room'];
 			
 			socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
 			
-			socket.on('chat-connect', (data: RoomCheckIF) => {
+			await socket.on('chat-connect', (data: RoomCheckIF) => {
 				if (!data._check) {
 					alert("잘못된 접근입니다");
 					goto("/main");
@@ -58,10 +58,7 @@
 			socket.on('chat-refresh', (data: ChatRoomSendIF | string) => {
 				console.log(data);
 				if (typeof data === 'object')
-				{
 					room = data;
-					user_self = data._user_self;
-				}
 				else
 				{
 					console.log("chat refresh error");

@@ -194,7 +194,6 @@ export class ChatGateway
 			_password: channel._password,
 			_users: Array.from(channel._users),
 			_ban_user: channel._ban_user,
-			_user_self: channel._users.get(client.handshake.query._userId as string),
 		}
 		client.join(payload._room_name);
 		this.server.to(payload._room_name).emit('chat-refresh', channelSendDTO);
@@ -576,7 +575,6 @@ export class ChatGateway
 				_password: channel._password,
 				_users: Array.from(channel._users),
 				_ban_user: channel._ban_user,
-				_user_self: channel._users.get(client.handshake.query._userId as string)
 			}
 			client.emit('chat-refresh', channelSendDTO);
 		}
@@ -586,15 +584,13 @@ export class ChatGateway
 
 	ft_chat_refresh_all(channel: ChatRoomDTO) {
 
-		let send: ChatRoomSendDTO = {
+		const send: ChatRoomSendDTO = {
 			_name: channel._name,
 			_password: channel._password,
 			_users: Array.from(channel._users),
 			_ban_user: channel._ban_user,
-			_user_self: undefined,
 		}
 		channel._users.forEach((val, key) => {
-			send._user_self = channel._users.get(key)
 			socket_list.get(key).emit("chat-refresh", send)
 			socket_list.get(key).emit("chat-self-update", channel_list.get(send._name)._users.get(key));
 		})
