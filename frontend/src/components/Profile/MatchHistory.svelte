@@ -5,8 +5,13 @@
     import { getApi } from '../../service/api';
     import { onMount } from 'svelte';
     import '../../service/matchDTO';
+	import { goto } from '$app/navigation';
 
     let matchHistory : MatchDTO[] = [];
+
+    function goJIM() {
+        goto('https://profile.intra.42.fr/users/jim');
+    }
 
     onMount(async () => {
         matchHistory = await getApi({ path: 'match-history/' + profile_id });
@@ -34,7 +39,7 @@
             {#if history.winLose }
                 <span class="text-2xl" style="font-weight: 700;">이김</span>
             {:else}
-                <span class="text-2xl"  style="font-weight: 700;">JIM</span>
+                <span class="text-2xl"  style="font-weight: 700;" on:click={goJIM}>JIM</span>
             {/if}
             <span style="font-weight: 500">
                 {history.player1} {history.player1_score} vs {history.player2_score} {history.player2}

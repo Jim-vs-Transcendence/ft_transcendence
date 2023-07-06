@@ -206,6 +206,10 @@
 		unsubscribeGame();
 	}
 
+	function dummyRetry() {
+		alert('잘못된 버튼입니다.');
+	}
+
 	onMount(async () => {
 		if (io_game === undefined) {
 			removeEvent();
@@ -298,6 +302,7 @@
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
 				data-sveltekit-preload-data="hover"
+				on:click={dummyRetry}
 			>
 				retry
 			</button>

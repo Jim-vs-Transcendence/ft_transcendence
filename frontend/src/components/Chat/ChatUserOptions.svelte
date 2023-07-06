@@ -18,11 +18,11 @@
 
 	let chat_socket: Socket;
 	let game_socket: Socket;
-	
+
 	const chatUnsubscribe: Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		chat_socket = _socket;
 	});
-	
+
 	const gameUnsubscribe: Unsubscriber = gameSocketStore.subscribe((_socket: Socket) => {
 		game_socket = _socket;
 	});
@@ -96,7 +96,7 @@
 <div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
 	<div class="hover:variant-filled-surface">
 		<button
-			class="cursor-pointer font-sans md:font-serif"
+			class="cursor-pointer"
 			on:click={() => {ft_profile_view_in_chatroom(chatUser._user_info)}}
 		>
 			개인정보
@@ -106,7 +106,7 @@
 	{#if chatUser._user_info.id !== user_self._user_info.id}
 		<div class="hover:variant-filled-surface">
 			<button
-				class="cursor-pointer font-sans md:font-serif"
+				class="cursor-pointer"
 				on:click={() => {
 					ft_invite_user('invite');
 				}}>놀이 초대</button
@@ -116,7 +116,7 @@
 			{#if !chatUser._is_muted}
 				<div class="hover:variant-filled-surface">
 					<button
-						class="cursor-pointer font-sans md:font-serif"
+						class="cursor-pointer"
 						on:click={() => {
 							ft_mute_user('mute');
 						}}>멈춰✋</button
@@ -125,7 +125,7 @@
 			{/if}
 			<div class="hover:variant-filled-surface">
 				<button
-					class="cursor-pointer font-sans md:font-serif"
+					class="cursor-pointer"
 					on:click={() => {
 						ft_kick_user('kick');
 					}}>내보내기</button
@@ -133,7 +133,7 @@
 			</div>
 			<div class="hover:variant-filled-surface">
 				<button
-					class="cursor-pointer font-sans md:font-serif"
+					class="cursor-pointer"
 					on:click={() => {
 						ft_ban_user('ban');
 					}}>영구추방</button
@@ -144,7 +144,7 @@
 			{#if chatUser._authority == Authority.USER}
 				<div class="hover:variant-filled-surface">
 					<button
-						class="cursor-pointer font-sans md:font-serif"
+						class="cursor-pointer"
 						on:click={() => {
 							ft_appoint_user('appoint');
 						}}>부방장 임명</button
@@ -153,7 +153,7 @@
 			{:else}
 				<div class="hover:variant-filled-surface">
 					<button
-						class="cursor-pointer font-sans md:font-serif"
+						class="cursor-pointer"
 						on:click={() => {
 							ft_appoint_user('unappoint');
 						}}>부방장 해고</button
