@@ -64,6 +64,7 @@
 	   ================================================================================ */
 	function ft_onMount_room_create() {
 		socket.on('room-create', (data: ChatRoomJoinIF) => {
+			if (!data._pass) return alert('이미 존재하는 방입니다.');
 			goto('/main/' + data._room_name);
 		});
 	}
