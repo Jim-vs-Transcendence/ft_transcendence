@@ -9,9 +9,16 @@
     let position = 60;
     let isScrolling = false;
 
+    let skip = function(event: KeyboardEvent) {
+        if (event.code === 'KeyX') {
+            goMain();
+        }
+    };
+
     async function goMain() {
 		audio.pause();
         await authToken.login(id);
+        window.removeEventListener('keydown', skip);
         goto('/main');
     }
 
@@ -24,7 +31,6 @@
         }, 40);
 
 		setTimeout(async () => {
-			audio.pause();
             goMain();
         }, 28000);
         // Set an interval to remove itself
@@ -35,17 +41,8 @@
     onMount(() => {
 		audio = new Audio(music);
 
-        window.addEventListener('keydown', async function(event) {
-            if (event.code === 'KeyX') {
-				audio.pause();
-                goMain();
-            }
-        });
-		onDestroy(() => {
-			audio.pause();
-		});
+        window.addEventListener('keydown', skip);
     });
-
 
 </script>
 

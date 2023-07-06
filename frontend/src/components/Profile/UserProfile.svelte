@@ -114,6 +114,10 @@
             //친구인지 여부 뭐 그런거 가져와야 함
             friendInfo = await getApi({ path: 'friends/' + profile_info.id });
             friendStat = friendInfo.friendStatus;
+            if (friendStat === "blocked")
+                isBlocked = true;
+            else
+                isBlocked = false;
 		}
 		catch(error){
 			alert('오류 : 프로필을 출력할 수 없습니다3');
