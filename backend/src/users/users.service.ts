@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   async updateUserStatus(id: string, userStatus: number): Promise<boolean> {
-    const user = this.userRepository.create({ user_status: userStatus });
+    const user: User = this.userRepository.create({ user_status: userStatus });
     await this.userRepository.update(id, user);
     return true;
   }
@@ -48,7 +48,7 @@ export class UsersService {
     req: RequestWithUser,
     file: Express.Multer.File,
   ): Promise<{ url: string }> {
-    const user = await this.findOne(req.user);
+    const user: User = await this.findOne(req.user);
 
     if (
       user.avatar !==

@@ -1,18 +1,22 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { TokenService } from './token.service';
+import { Request } from 'express';
+import RequestWithUser from '../interfaces/RequestWithUserID.interface';
 
 @Injectable()
 export class TokenGuard implements CanActivate {
   constructor(private tokenService: TokenService) {}
   async canActivate(context: ExecutionContext): Promise<any | boolean> {
     try {
-      const req = await context.switchToHttp().getRequest();
+      const req: RequestWithUser = await context.switchToHttp().getRequest();
       //헤더
-      const token = await req.header('authtoken');
-      // const token = await req.cookies['auth_token'];
-      const userId = await this.tokenService.verifyToken(token);
+      const token: string = await req.header('authtoken');
+      // const token: string = await req.cookies['auth_token'];
+      const userId: string | boolean = await this.tokenService.verifyToken(
+        token,
+      );
 
-      req.user = userId;
+      req.user = userId.toString();
       return userId;
     } catch (err) {
       return false;

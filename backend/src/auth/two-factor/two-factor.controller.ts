@@ -29,9 +29,8 @@ export class TwoFactorController {
   @Post('generate')
   @UseGuards(TokenGuard)
   async register(@Req() req: RequestWithUser): Promise<string> {
-    const { otpauthUrl } = await this.twoFactorService.generateTwoFactorSecret(
-      req.user.toString(),
-    );
+    const otpauthUrl: string =
+      await this.twoFactorService.generateTwoFactorSecret(req.user.toString());
 
     return await this.twoFactorService.QRtoDataURL(otpauthUrl);
   }

@@ -14,8 +14,8 @@ export class TokenService {
         await this.deleteToken(userId);
       }
 
-      const payload = { id: userId };
-      const token = await sign(
+      const payload: object = { id: userId };
+      const token: string = await sign(
         payload,
         this.configService.get<string>('JWT_SECRET'),
       );
@@ -30,7 +30,7 @@ export class TokenService {
 
   async verifyToken(token: string): Promise<boolean | string> {
     try {
-      const payload = await verify(
+      const payload: object = await verify(
         token,
         this.configService.get<string>('JWT_SECRET'),
       );

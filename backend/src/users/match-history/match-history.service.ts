@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MatchHistory } from '../entities/matchHistory.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users.service';
+import userDTO from '../user.dto';
 
 @Injectable()
 export class MatchHistoryService {
@@ -26,8 +27,8 @@ export class MatchHistoryService {
   async saveMatchHistory(matchHistory: MatchHistoryDTO): Promise<boolean> {
     await this.matchHistoryRepository.save(matchHistory);
 
-    const user1 = await this.userService.findOne(matchHistory.player1);
-    const user2 = await this.userService.findOne(matchHistory.player2);
+    const user1: userDTO = await this.userService.findOne(matchHistory.player1);
+    const user2: userDTO = await this.userService.findOne(matchHistory.player2);
 
     if (matchHistory.player1_score > matchHistory.player2_score) {
       user1.win++;

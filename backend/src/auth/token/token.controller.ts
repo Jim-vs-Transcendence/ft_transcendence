@@ -29,9 +29,9 @@ export class TokenController {
   async verifyToken(@Req() req: RequestWithUser): Promise<boolean | userDTO> {
     if (!req.user) return false;
 
-    const test = req.cookies['auth_token'];
+    const test: string = req.cookies['auth_token'];
     console.log(test);
-    const user = await this.usersService.findOne(req.user);
+    const user: userDTO = await this.usersService.findOne(req.user);
     if (user.user_status === 0) {
       user.user_status = 1;
       this.usersService.updateUser(req.user, user);
