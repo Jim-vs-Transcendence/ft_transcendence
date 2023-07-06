@@ -63,19 +63,6 @@ export class ChatGateway
 				socket_list.get(userid).disconnect();
 			socket_list.set(userid, client);
 
-			// if (!socket_list.has(userid))
-			// else // for test in duplicate user
-			// {
-
-			// 	client.emit("same_user", )
-			// 	// let num: number = 0;
-			// 	// while (socket_list.has(userid + "_" + num.toString()))
-			// 	// 	num++;
-			// 	// client.handshake.query._userId = userid + "_" + num.toString();
-			// 	// userid = client.handshake.query._userId;
-			// 	// socket_list.set(userid, client);
-				
-			// }
 		}
 
 		console.log('\x1b[38;5;154m Chat Connection: ', userid, " : ", client.id + "\x1b[0m");
