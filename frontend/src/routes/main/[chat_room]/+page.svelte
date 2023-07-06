@@ -14,7 +14,7 @@
 	import { Authority } from '$lib/enum';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption, type GameInvitationData } from '$lib/gameData';
-	
+
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	let socket: Socket;
@@ -32,11 +32,12 @@
 	let tabSet: number = 0;
 	let chatUserList : Map<string, UserDTO>;
 	let game_invite_goto : boolean = false;
+	let invite_status: boolean = false;
 
 	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		socket = _socket;
 	});
-	
+
 	const unsubscribe_game : Unsubscriber = gameSocketStore.subscribe((_socket: Socket) => {
 		socket_game = _socket;
 	});
@@ -47,9 +48,9 @@
 				await goto("/main");
 			/* ===== chat-connect ===== */
 			chat_data._room_name = $page.params['chat_room'];
-			
+
 			socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
-			
+
 			await socket.on('chat-connect', (data: RoomCheckIF) => {
 				if (!data._check) {
 					alert("잘못된 접근입니다");
@@ -59,7 +60,7 @@
 					user_self = data._user;
 			});
 			socket.emit("chat-refresh", $page.params['chat_room']);
-	
+
 			socket.on("chat-self-update", (data: ChatUserIF)=>{
 				user_self = data;
 			})
@@ -74,13 +75,13 @@
 					goto("/main");
 				}
 			})
-	
+
 			socket.on("chat-leave", (data) => {
 				console.log("chat_leave",data);
 				if (!game_invite_goto)
 					goto("/main");
 			})
-			
+
 			/* ===== chat-msg-even ===== */
 			socket.on('chat-msg-event', (data: ChatMsgIF) => {
 				console.log("chat-msg-event : ", data);
@@ -93,28 +94,32 @@
 			socket.on('chat-set-admin', (data: ChatAuthDTO) => {
 				if (!data._check)
 					return alert("권한 설정 실패");
-				/// 권한 변경 
+				/// 권한 변경
 			});
 
 			/* ===== game-invite ===== */
 			socket_game.on('youGotInvite', (data: string) => {
-				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data}; 
-				if (confirm("게임초대"))
-				{
-					console.log("게임초대 수락");
-					send_data.acceptFlag = true;
-					game_invite_goto = true;
+				console.log('초대좀 받아라');
+				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data};
+				if (!invite_status) {
+					if (confirm("게임초대"))
+					{
+						console.log("게임초대 수락");
+						send_data.acceptFlag = true;
+						invite_status = true;
+					}
+					else
+					{
+						console.log("게임초대 거절");
+						game_invite_goto = false;
+					}
+					socket_game.emit("inviteResponsse", send_data);
 				}
-				else
-				{
-					console.log("게임초대 거절");
-					game_invite_goto = false;
-				}
-				socket_game.emit("inviteResponsse", send_data);
 			})
 
 			socket_game.on("roomName", (data: string) => {
 				gameClientOption._roomName = data;
+				game_invite_goto = true;
 				goto('/game/option');
 			})
 		}
@@ -167,7 +172,7 @@
 	<div class="bg-surface-500/30 p-10">
 		<TabGroup>
 			<Tab bind:group={tabSet} name="tab1" value={0}> 채팅방 유저</Tab>
-			{#if user_self._authority === Authority.OWNER 
+			{#if user_self._authority === Authority.OWNER
 				|| user_self._authority === Authority.ADMIN}
 				<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
 			{/if}

@@ -278,10 +278,10 @@ export class ChatGateway
 
 	/**
 	 * @name ft_chat_set_admin
-	 * @param client 
-	 * @param payload 
+	 * @param client
+	 * @param payload
 	 * @emits client => "chat-set-admin"
-	 * @returns 
+	 * @returns
 	 */
 	@SubscribeMessage("chat-set-admin")
 	ft_chat_set_admin(
@@ -625,7 +625,7 @@ export class ChatGateway
 		@MessageBody() payload: ChatMsgDTO,
 	) {
 		const userid: string | string[] = client.handshake.query._userId;
-		console.log("\x1b[38;5;226m chat-msg-event \x1b[0m :", payload._room_name, userid);
+		// console.log("\x1b[38;5;226m chat-msg-event \x1b[0m :", payload._room_name, userid);
 		if (!this.server.adapter.rooms.has(payload._room_name)) {
 			console.log("\x1b[38;5;196m Error :: \x1b[0m chat-connect url is not enable");
 			return;
@@ -690,7 +690,7 @@ export class ChatGateway
 
 	// ================================================================================ //
 	/* =                                                                              =
-									utile                                    
+									utile
 	   =                                                                              = */
 	// ================================================================================ //
 

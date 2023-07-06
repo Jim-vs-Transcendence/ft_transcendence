@@ -49,7 +49,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const userid: string | string[] = client.handshake.query._userId;
 		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
 		if (typeof userid === 'string') {
-			if (!this.gameUsers.has(userid))
+			// if (!this.gameUsers.has(userid))
 				this.gameUsers.set(userid, client);
 		}
 		client.emit('gameSocketCreation',);
@@ -107,7 +107,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 						this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 					}
-					
+
 					this.service.endGame(room);
 				}
 			}
@@ -115,7 +115,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	handleDisconnect(client: Socket) {
-		console.log('\x1b[38;5;154m Disconnect: ', client.id + "\x1b[0m");
+		console.log('\x1b[38;5;154m Game Disconnect: ', client.id + "\x1b[0m");
 		this.destroyRoom(client);
 	}
 
@@ -195,8 +195,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 		@MessageBody() opponentPlayer: string,
 	) {
+		console.log('client id:', client.id, client.handshake.query._userId as string);
+		console.log('User', this.gameUsers);
 		let userSocket = this.findGameUserSocket(opponentPlayer);
 		if (userSocket) {
+			console.log(this.server.sockets);
 			userSocket.emit('youGotInvite', client.handshake.query._userId);
 		}
 		else {
