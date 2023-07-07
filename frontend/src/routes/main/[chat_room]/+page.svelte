@@ -136,6 +136,7 @@
 			socket.off('chat-self-update');
 			socket.off('chat-leave');
 			socket_game.off('youGotInvite');
+			socket_game.off('roomName');
 			socket.emit('chat-exit-room', chat_data);
 		}
 	});
