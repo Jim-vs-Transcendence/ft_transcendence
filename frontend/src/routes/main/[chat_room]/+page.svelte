@@ -104,6 +104,8 @@
 			function handleGameInvite(data: string) {
 				console.log('초대좀 받아라');
 				let send_data: GameInvitationData = { acceptFlag: false, opponentPlayer: data };
+				socket_game.off('youGotInvite');
+				//// 문제 많음 ////
 				if (!invite_status) {
 					invite_status = true;
 					if (confirm('게임초대')) {
@@ -112,6 +114,7 @@
 					} else {
 						console.log('게임초대 거절');
 						invite_status = false;
+						socket_game.on('youGotInvite', handleGameInvite); // 이벤트 다시 등록
 					}
 					socket_game.emit('inviteResponsse', send_data);
 				}
@@ -135,7 +138,6 @@
 			socket.off('chat-set-admin');
 			socket.off('chat-self-update');
 			socket.off('chat-leave');
-			socket_game.off('youGotInvite');
 			socket.emit('chat-exit-room', chat_data);
 		}
 	});
@@ -226,16 +228,16 @@
 	}
 </script>
 
-<!-- <svelte:window on:popstate={() => goto('/main')} /> -->
+<svelte:window on:popstate={() => goto('/main')} />
 {#if room !== undefined}
 	<div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 		<div class="bg-surface-500/30 p-10">
-			<!-- <TabGroup> -->
-				<!-- <Tab bind:group={tabSet} name="tab1" value={0}>채팅방 유저</Tab>
+			<TabGroup>
+				<Tab bind:group={tabSet} name="tab1" value={0}>채팅방 유저</Tab>
 				{#if user_self._authority === Authority.OWNER || user_self._authority === Authority.ADMIN}
 					<Tab bind:group={tabSet} name="tab2" value={1}>거절된 유저</Tab>
-				{/if} -->
-				<!-- <svelte:fragment slot="panel"> -->
+				{/if}
+				<svelte:fragment slot="panel">
 					{#if tabSet === 0}
 						{#each room._users as [user_name, chatUser]}
 							<dl class="list-dl">
@@ -306,8 +308,8 @@
 							{/each}
 						</div>
 					{/if}
-				<!-- </svelte:fragment> -->
-			<!-- </TabGroup> -->
+				</svelte:fragment>
+			</TabGroup>
 		</div>
 		<div bind:this={elemChat} class="max-h-[700px] p-4 overflow-y-auto space-y-4">
 			{#each msg_list as msg}
