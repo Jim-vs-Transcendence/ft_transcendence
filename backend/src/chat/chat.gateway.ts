@@ -599,9 +599,13 @@ export class ChatGateway
 		@MessageBody() payload: RoomCheckDTO,
 	) {
 		console.log("\x1b[38;5;226m ft_chat_connect \x1b[0m :");
-		if (!this.server.adapter.rooms.has(payload._room)) {
-			// console.log("\x1b[38;5;196m Error :: \x1b[0m chat-connect url is not enable");
+		if (!this.server.adapter.rooms.has(payload._room)
+			|| !channel_list.get(payload._room)._users.get(client.handshake.query._userId as string)
+			) {
+			console.log("\x1b[38;5;196m Error :: \x1b[0m chat-connect url is not enable");
 			payload._check = false;
+			client.emit('chat-connect', payload);
+			return ;
 		}
 		payload._check = true;
 		const userid: string = client.handshake.query._userId as string;

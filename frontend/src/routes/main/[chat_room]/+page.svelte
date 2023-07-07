@@ -42,6 +42,7 @@
 	});
 
 	onMount(async () => {
+		console.log("onmoute page + ");
 		try {
 			if (socket === undefined)
 				await goto("/main");
@@ -55,14 +56,15 @@
 					alert("잘못된 접근입니다");
 					goto("/main");
 				}
-				else
-					user_self = data._user;
+				user_self = data._user;
+				socket.emit("chat-refresh", $page.params['chat_room']);
 			});
-			socket.emit("chat-refresh", $page.params['chat_room']);
 
 			socket.on("chat-self-update", (data: ChatUserIF)=>{
 				user_self = data;
 			})
+
+
 			/* ===== chat-refresh ===== */
 			socket.on('chat-refresh', (data: ChatRoomSendIF | string) => {
 				console.log(data);
@@ -131,6 +133,7 @@
 	});
 
 	onDestroy(() => {
+		console.log("ondestroy page + ");
 		unsubscribe();
 		if (socket !== undefined)
 		{
