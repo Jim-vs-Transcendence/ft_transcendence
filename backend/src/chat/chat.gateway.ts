@@ -564,6 +564,7 @@ export class ChatGateway
 				_ban_user: channel._ban_user,
 			}
 			client.emit('chat-refresh', channelSendDTO);
+			client.emit('chat-self-update', channel._users.get(client.handshake.query._userId as string));
 		}
 		else
 			client.emit('chat-refresh', 'chat refresh error!')
