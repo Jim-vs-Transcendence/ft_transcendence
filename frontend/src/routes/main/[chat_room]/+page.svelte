@@ -166,7 +166,6 @@
 		elemChat.scrollTo({ top: elemChat.scrollHeight, behavior });
 	}
 
-
 </script>
 
 <svelte:window on:popstate={() => goto("/main")}/>
@@ -182,7 +181,13 @@
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
 					{#each [... room._users] as [userid_list, chatUser]}
-						<ChatUserList {user_self} {userid_list} {chatUser}  {channel_name}/>
+						<!-- <ChatUserList {user_self} {userid_list} {chatUser} {channel_name}/> -->
+						<ChatUserList
+							bind:user_self={user_self}
+							bind:userid_list={userid_list}
+							bind:chatUser={chatUser}
+							bind:channel_name={channel_name}
+						/>
 					{/each}
 				{/if}
 				{#if tabSet === 1}
