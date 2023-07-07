@@ -50,7 +50,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		console.log('\x1b[38;5;154m Connection: ', userid, " : ", client.id + "\x1b[0m");
 		if (typeof userid === 'string') {
 			// if (!this.gameUsers.has(userid))
-				this.gameUsers.set(userid, client);
+			if (this.gameUsers.has(userid))
+				this.gameUsers.get(userid).disconnect();
+			this.gameUsers.set(userid, client);
 		}
 		client.emit('gameSocketCreation',);
 	}
@@ -116,7 +118,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	handleDisconnect(client: Socket) {
 		console.log('\x1b[38;5;154m Game Disconnect: ', client.id + "\x1b[0m");
-		this.destroyRoom(client);
+		this.destroyRoom(client, true);
 	}
 
 	public findRoom(roomName: string): GameRoom {
