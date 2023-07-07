@@ -102,6 +102,7 @@
 				console.log('초대좀 받아라');
 				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data};
 				socket_game.off('youGotInvite');
+				//// 문제 많음 ////
 				if (!invite_status) {
 					invite_status = true;
 					if (confirm("게임초대"))
