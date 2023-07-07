@@ -62,7 +62,6 @@ export class ChatGateway
 			if (socket_list.has(userid))
 				socket_list.get(userid).disconnect();
 			socket_list.set(userid, client);
-
 		}
 
 		console.log('\x1b[38;5;154m Chat Connection: ', userid, " : ", client.id + "\x1b[0m");
