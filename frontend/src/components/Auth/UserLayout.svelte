@@ -51,7 +51,6 @@
       friendList = await getApi({
             path: 'friends/',
         });
-      console.log("done");
     }
   };
 

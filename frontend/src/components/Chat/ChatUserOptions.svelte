@@ -18,6 +18,10 @@
 
 	let chat_socket: Socket;
 	let game_socket: Socket;
+	// let optionButtonElement: HTMLButtonElement;
+	let optionButtonElements: Array<HTMLButtonElement | null> = [null, null, null, null, null]; // Initialize the array with null values
+
+	// $: optionButtonElement;
 
 	const chatUnsubscribe: Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		chat_socket = _socket;
@@ -99,7 +103,12 @@
 	<div class="hover:variant-filled-surface">
 		<button
 			class="cursor-pointer"
-			on:click={() => {ft_profile_view_in_chatroom(chatUser._user_info)}}
+			bind:this={optionButtonElements[0]}
+			on:click={() => {
+					optionButtonElements[0]?.blur();
+					ft_profile_view_in_chatroom(chatUser._user_info);
+				}
+			}
 		>
 			개인정보
 		</button>
@@ -109,7 +118,9 @@
 		<div class="hover:variant-filled-surface">
 			<button
 				class="cursor-pointer"
+				bind:this={optionButtonElements[1]}
 				on:click={() => {
+					optionButtonElements[1]?.blur();
 					ft_invite_user('invite');
 				}}>놀이 초대</button
 			>
@@ -119,7 +130,9 @@
 				<div class="hover:variant-filled-surface">
 					<button
 						class="cursor-pointer"
+						bind:this={optionButtonElements[2]}
 						on:click={() => {
+							optionButtonElements[2]?.blur();
 							ft_mute_user('mute');
 						}}>멈춰✋</button
 					>
@@ -128,7 +141,9 @@
 			<div class="hover:variant-filled-surface">
 				<button
 					class="cursor-pointer"
+					bind:this={optionButtonElements[3]}
 					on:click={() => {
+						optionButtonElements[3]?.blur();
 						ft_kick_user('kick');
 					}}>내보내기</button
 				>
@@ -136,7 +151,9 @@
 			<div class="hover:variant-filled-surface">
 				<button
 					class="cursor-pointer"
+					bind:this={optionButtonElements[4]}
 					on:click={() => {
+						optionButtonElements[4]?.blur();
 						ft_ban_user('ban');
 					}}>영구추방</button
 				>
