@@ -478,7 +478,7 @@ export class ChatGateway
 					channel._users.get(user_heritor)._is_muted = false;
 					this.ft_chat_refresh_all(channel);
 				}
-			}, 3000);
+			}, 30000);
 			return (0);
 		}
 		return (1)
