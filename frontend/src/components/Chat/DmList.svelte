@@ -95,7 +95,6 @@
     <header class="card-footer  top-0 w-full">
       <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
         <input type="search" placeholder="Search!!" bind:value={opponentUserId} on:keydown={ftDmSearchKeyDown} />
-        <button type="button" class="variant-filled-surface" on:click={ftDmSearch}>Add</button>
       </div>
     </header>
     <!-- DM list -->
