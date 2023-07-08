@@ -94,7 +94,8 @@
 
     //프로필 사진 업로드
     import { FileButton } from '@skeletonlabs/skeleton';
-	import FriendsList from './FriendsList.svelte';
+	import type { BlockedFriendIF } from '$lib/interface';
+	import { BlOCKED_USER_KEY } from '$lib/webSocketConnection_chat';
 
     // 투팩터 초기 설정
     onMount(async () => {
@@ -223,11 +224,24 @@
         if (isBlocked === false)
         {
             try {
-            await postApi({ path: 'friends/blocks/' + profile_info.id , data:{
-            }
-            });
-            isBlocked = true;
-            friendStat = "blocked";
+                await postApi({ path: 'friends/blocks/' + profile_info.id , data:{} });
+                isBlocked = true;
+                friendStat = "blocked";
+                // TODO
+                // get
+                // const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
+                // let blockedFriends : BlockedFriendIF = [];
+				// if (loadBlockedFrindList) {
+                //     blockedFriends = JSON.parse(loadBlockedFrindList);
+                //     blockedFriends._blockedFriendList.push(profile_info.id);
+				// 	// blockedFriends._blockedFriendList.forEach((blockedFriend) => {
+				// 	// 	if (blockedFriend === data._from)
+				// 	// 		return ;
+				// 	// })
+				// }
+
+                // set
+
             } catch (error) {
                 alert("블럭 오류");
             }
@@ -235,12 +249,14 @@
         else
         {
             try {
-            await delApi({ path: 'friends/' + profile_info.id , data:{
-                "user_to" : profile_info.id
-            }
-            });
-            isBlocked = false;
-            friendStat = " ";
+                await delApi({ path: 'friends/' + profile_info.id , data:{ "user_to" : profile_info.id } });
+                isBlocked = false;
+                friendStat = " ";
+                // TODO
+                // get
+
+                // set
+
             } catch (error) {
                 alert("블럭 해제 오류");
             }

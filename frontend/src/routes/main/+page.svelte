@@ -3,21 +3,27 @@
 	import { goto } from '$app/navigation';
 	import RoomCreateModal from '../../components/Chat/ChatRoomCreateModal.svelte';
 	import RoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
-	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
+	import { CreateSocket, socketStore, BlOCKED_USER_KEY } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import type { ChatRoomJoinIF } from '$lib/interface';
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
 	import { modalStore } from '@skeletonlabs/skeleton';
+	import { getApi } from '../../service/api';
 
 	/* ================================================================================
 									on
 	   ================================================================================ */
 
+	/**
+	 * local storage 혹은 메모리에 전역으로 차단된 유저 정보를 가지고 있는다
+	 */
 	onMount(async () => {
 		try {
 			if (socket === undefined) await CreateSocket(socketStore);
 			if (gameSocket === undefined) await CreateGameSocket(gameSocketStore);
+			// let friendList: friendDTO[] = await getApi({ path: 'friends/' });
+			// BlOCKED_USER_KEY
 			ft_onMount_room_refresh();
 			ft_onMount_room_create();
 			ft_onMount_room_join();

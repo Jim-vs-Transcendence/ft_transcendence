@@ -20,7 +20,6 @@
   // tab
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
-	import type { DmChatStoreIF, DmUserInfoIF } from '$lib/interface';
 	import DmList from '../Chat/DmList.svelte';
 
   const logout = () => {
@@ -97,15 +96,15 @@ async function doSearch() {
     let answer : UserDTO | string; 
     try {
             answer = await getApi({
-            path: 'user/' + insertUserId,
-          });
+                     path: 'user/' + insertUserId,
+                    });
+          if (answer === "")
+              alert("존재하지 않는 유저입니다.");
+          else
+              goProfile(insertUserId);
         } catch (error) {
             console.log(error);
     }
-    if (answer === "")
-        alert("존재하지 않는 유저입니다.");
-    else
-        goProfile(insertUserId);
 }
 
 </script>
@@ -154,7 +153,7 @@ async function doSearch() {
   <h1 class="h1 text-center -mt-3 col-span-3">
     <!-- 메인 로고 -->
     <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">
-        <span on:click={goHome} style="cursor: alias;">Jim&nbsp;</span><!--
+        <span on:click={goHome} style="cursor: alias;">Jim&nbsp;</span><!--typeof answer === "string" && 
         --><span on:click={goGame} style="cursor: progress;">vs</span><!--
         --><span on:click={goHome} style="cursor: alias;">&nbsp;Transcendence</span>
     </span>

@@ -4,10 +4,10 @@
     
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
-    import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
+    import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF, BlockedFriendIF } from '$lib/interface'
     
     // Socket
-    import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
+    import { BlOCKED_USER_KEY, DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
@@ -30,6 +30,15 @@
         dmDataLoad();
         socket.on("dm-chat", (data: DmChatIF) => {
             try {
+                // const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
+				// if (loadBlockedFrindList) {
+				// 	let blockedFriends : BlockedFriendIF = JSON.parse(loadBlockedFrindList);
+				// 	blockedFriends._blockedFriendList.forEach((blockedFriend) => {
+				// 		if (blockedFriend === data._from)
+				// 			return ;
+				// 	})
+				// }
+
                 if (data._from === dmUserInfo._userInfo.id)
                     dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
                 setTimeout(() => {
