@@ -68,7 +68,8 @@
     let elemChat: HTMLElement
     
     function scrollChatBottom(behavior?: ScrollBehavior): void {
-        elemChat.scrollTo({ top: elemChat.scrollHeight, behavior })
+        if (elemChat.scrollHeight)
+            elemChat.scrollTo({ top: elemChat.scrollHeight, behavior })
     }
 
     async function addMessage(): Promise<void> {
