@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Friend } from '../entities/friend.entity';
 import { FriendRequestStatus } from '../entities/friend.entity';
 import { friendDTO } from './dto/friend.dto';
@@ -167,9 +167,9 @@ export class FriendsService {
       },
     });
 
-    if (blocked) {
-      throw new ForbiddenException('You are blocked by this user');
-    }
+    // if (blocked) {
+    //   throw new ForbiddenException('You are blocked by this user');
+    // }
 
     const blockship: Friend = this.friendRepository.create({
       user_from: { id: user_from },
@@ -179,5 +179,29 @@ export class FriendsService {
     await this.friendRepository.save(blockship);
 
     return true;
+  }
+
+  async findBlockFriend(user_from: string): Promise<friendDTO[]> {
+    const friendEntities: Friend[] = await this.friendRepository.find({
+      where: {
+        user_from: { id: user_from },
+        friend_status: In([FriendRequestStatus.BLOCKED]),
+      },
+    });
+    // console.log(friendEntities);
+
+    const ret: friendDTO[] = await Promise.all(
+      friendEntities.map(async (friend) => {
+        return {
+          id: friend.user_to.id,
+          nickname: friend.user_to.nickname,
+          avatar: friend.user_to.avatar,
+          status: friend.user_to.user_status,
+          friendStatus: friend.friend_status,
+        };
+      }),
+    );
+
+    return ret;
   }
 }
