@@ -21,7 +21,7 @@ export class AuthService {
       res.redirect('http://localhost:5173/auth/two/' + user.id);
     else {
       const token: string = await this.tokenService.createToken(req.user.id);
-      res.cookie('auth_token', token, {
+      res.cookie('authtoken_' + req.user.id, token, {
         httpOnly: true,
         secure: true,
       });
@@ -30,10 +30,9 @@ export class AuthService {
   }
 
   async logout(req: Request, res: Response): Promise<void> {
-    //헤더
-    const token: string = await req.header('authtoken');
     //cookie
-    // const token = req.cookies['auth_token'];
+    const header_id: string = await req.header('userid');
+    const token = req.cookies['authtoken_' + header_id];
     const userId: string | boolean = await this.tokenService.verifyToken(token);
     if (!userId) return;
 
@@ -42,7 +41,7 @@ export class AuthService {
     const user: userDTO = await this.usersService.findOne(userId.toString());
     user.user_status = 0;
     await this.usersService.updateUser(userId.toString(), user);
-    res.cookie('auth_token', '', {
+    res.cookie('authtoken_' + header_id, '', {
       maxAge: 0,
     });
     res.send('logout success');

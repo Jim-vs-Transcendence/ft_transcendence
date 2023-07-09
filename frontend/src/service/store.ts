@@ -37,7 +37,6 @@ function setAuthToken() {
             // token = response;
 
             const loginResponse: loginDTO = response;
-            token = loginResponse.token;
             const isLogin = loginResponse.islogin;
 
             console.log(loginResponse);
@@ -45,8 +44,7 @@ function setAuthToken() {
             // console.log(token);
             // // debug
 
-            if (browser && token && isLogin) {
-                localStorage.setItem('authToken_' + id, token);
+            if (browser && isLogin) {
                 localStorage.setItem('userid', id);
                 sessionStorage.setItem('isLogin', isLogin);
             }

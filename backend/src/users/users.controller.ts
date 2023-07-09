@@ -28,7 +28,6 @@ const configService = new ConfigService();
 const IMAGE_SAVE_PATH = configService.get<string>('IMAGE_SAVE_PATH');
 
 @Controller('user')
-// @UseGuards(TokenGuard)
 @ApiTags('유저 API')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -42,6 +41,7 @@ export class UsersController {
     type: userDTO,
   })
   @Get('list')
+  @UseGuards(TokenGuard)
   async findAll(): Promise<userDTO[]> {
     return this.usersService.findAll();
   }
@@ -56,6 +56,7 @@ export class UsersController {
     type: userDTO,
   })
   @Get(':id')
+  @UseGuards(TokenGuard)
   async findOne(@Param('id') id: string): Promise<userDTO> {
     return this.usersService.findOne(id);
   }
@@ -70,6 +71,7 @@ export class UsersController {
     type: Boolean,
   })
   @Patch(':id')
+  @UseGuards(TokenGuard)
   async updateUser(
     @Param('id') id: string,
     @Body() user: userDTO,
@@ -87,6 +89,7 @@ export class UsersController {
     type: Boolean,
   })
   @Patch('status/:id')
+  @UseGuards(TokenGuard)
   async updateUserStatus(
     @Param('id') id: string,
     @Body() user: userDTO,
@@ -104,6 +107,7 @@ export class UsersController {
     type: userDTO,
   })
   @Post()
+  @UseGuards(TokenGuard)
   async saveUser(@Body() user: userDTO): Promise<userDTO> {
     return this.usersService.saveUser(user);
   }
@@ -117,6 +121,7 @@ export class UsersController {
     type: String,
   })
   @Delete(':id')
+  @UseGuards(TokenGuard)
   async deleteUser(@Param('id') id: string): Promise<boolean> {
     return this.usersService.deleteUser(id);
   }
@@ -171,6 +176,7 @@ export class UsersController {
   }
 
   @Delete('uploads/:filename')
+  @UseGuards(TokenGuard)
   @ApiOperation({
     summary: '이미지 삭제 API',
     description: '파라미터로 넘어온 filname에 해당하는 이미지를 삭제해줍니다.',

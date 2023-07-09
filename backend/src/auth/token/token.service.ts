@@ -19,6 +19,7 @@ export class TokenService {
       const token: string = await sign(
         payload,
         this.configService.get<string>('JWT_SECRET'),
+        { expiresIn: this.configService.get<string>('JWT_EXPIRATION_TIME') },
       );
       const login = Math.random().toString(36).substring(2, 12);
 
