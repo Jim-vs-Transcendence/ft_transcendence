@@ -8,18 +8,20 @@
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { onDestroy } from 'svelte';
 	import { Authority } from '$lib/enum';
-	import ChatRoomCreateModal from './ChatRoomCreateModal.svelte';
 	import ChatRoomProfile from './ChatRoomProfile.svelte';
-	// import { popup } from '@skeletonlabs/skeleton';
-	// import { storePopup } from '@skeletonlabs/skeleton';
 
 	export let chatUser: ChatUserIF;
 	export let user_self: ChatUserIF;
 	export let channel_name: string;
-	$: chatUser; // 어떤 차이가 있는지 확인 필요
+
+	$: chatUser;
 
 	let chat_socket: Socket;
 	let game_socket: Socket;
+	// let optionButtonElement: HTMLButtonElement;
+	let optionButtonElements: Array<HTMLButtonElement | null> = [null, null, null, null, null]; // Initialize the array with null values
+
+	// $: optionButtonElement;
 
 	const chatUnsubscribe: Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		chat_socket = _socket;
@@ -29,15 +31,17 @@
 		game_socket = _socket;
 	});
 
-	function ft_show_profile(action: string) {
-		console.log(action);
-	}
+	onDestroy(() => {
+		console.log("onDestroy() in ChatUserOptions.svelte");
+		chatUnsubscribe();
+		gameUnsubscribe();
+	});
+
 	function ft_invite_user(action: string) {
-		console.log(action);
+		game_socket.emit("sendGameInvite", chatUser._user_info.id);
 	}
 
 	function ft_mute_user(action: string) {
-		console.log(action);
 		let send: ChatActionDTO = {
 			_action: action,
 			_channel_name: channel_name,
@@ -47,7 +51,6 @@
 		chat_socket.emit('chat-mute-user', send);
 	}
 	function ft_kick_user(action: string) {
-		console.log(action);
 		let send: ChatActionDTO = {
 			_action: action,
 			_channel_name: channel_name,
@@ -57,7 +60,6 @@
 		chat_socket.emit('chat-kick-user', send);
 	}
 	function ft_ban_user(action: string) {
-		console.log(action);
 		let send: ChatActionDTO = {
 			_action: action,
 			_channel_name: channel_name,
@@ -67,7 +69,6 @@
 		chat_socket.emit('chat-ban-user', send);
 	}
 	function ft_appoint_user(action: string) {
-		console.log(action);
 		let send: ChatActionDTO = {
 			_action: action,
 			_channel_name: channel_name,
@@ -77,13 +78,7 @@
 		chat_socket.emit('chat-auth-user', send);
 	}
 
-	onDestroy(() => {
-		chatUnsubscribe();
-		gameUnsubscribe();
-	});
-
     function ft_profile_view_in_chatroom(user_info :UserDTO) {
-
 
         const modalComponent: ModalComponent = {
             ref: ChatRoomProfile,
@@ -92,7 +87,6 @@
 
         const modal: ModalSettings = {
             type: 'component',
-            // Data
             component: modalComponent,
         };
         modalStore.trigger(modal);
@@ -102,65 +96,83 @@
 <div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
 	<div class="hover:variant-filled-surface">
 		<button
-			class="cursor-pointer font-sans md:font-serif"
-			on:click={() => {ft_profile_view_in_chatroom(chatUser._user_info)}}
+			class="cursor-pointer"
+			bind:this={optionButtonElements[0]}
+			on:click={() => {
+					optionButtonElements[0]?.blur();
+					ft_profile_view_in_chatroom(chatUser._user_info);
+				}
+			}
 		>
 			개인정보
 		</button>
 	</div>
-	<div class="hover:variant-filled-surface">
-		<button
-			class="cursor-pointer font-sans md:font-serif"
-			on:click={() => {
-				ft_invite_user('invite');
-			}}>놀이 초대</button
-		>
-	</div>
-	{#if user_self._authority <= Authority.ADMIN}
-		<div class="hover:variant-filled-surface">
-			<button
-				class="cursor-pointer font-sans md:font-serif"
-				on:click={() => {
-					ft_mute_user('mute');
-				}}>멈춰✋</button
-			>
-		</div>
-		<div class="hover:variant-filled-surface">
-			<button
-				class="cursor-pointer font-sans md:font-serif"
-				on:click={() => {
-					ft_kick_user('kick');
-				}}>내보내기</button
-			>
-		</div>
-		<div class="hover:variant-filled-surface">
-			<button
-				class="cursor-pointer font-sans md:font-serif"
-				on:click={() => {
-					ft_ban_user('ban');
-				}}>영구추방</button
-			>
-		</div>
-	{/if}
-	{#if user_self._authority === Authority.OWNER}
-		<div class="hover:variant-filled-surface">
-			<button
-				class="cursor-pointer font-sans md:font-serif"
-				on:click={() => {
-					ft_appoint_user('appoint');
-				}}>부방장 임명</button
-			>
-		</div>
-	{/if}
-</div>
 
-<div class="card p-2 z-10 column-count-1" data-popup={chatUser._user_info.id}>
-  <!-- <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_show_profile("show profile");}}> 개인정보 </button></div> -->
-  <div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => ft_profile_view_in_chatroom(chatUser._user_info)}> 개인정보 </button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_invite_user("invite");}}>놀이 초대</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_mute_user("mute");}}>멈춰✋</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_kick_user("kick");}}>내보내기</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_ban_user("ban");}}>영구추방</button></div>
-	<div class="hover:variant-filled-surface"><button class="cursor-pointer font-sans md:font-serif" on:click={() => {ft_appoint_user("appoint");}}>부방장 임명</button></div>
-	<div class="arrow bg-surface-100-800-token" />
+	{#if chatUser._user_info.id !== user_self._user_info.id}
+		<div class="hover:variant-filled-surface">
+			<button
+				class="cursor-pointer"
+				bind:this={optionButtonElements[1]}
+				on:click={() => {
+					optionButtonElements[1]?.blur();
+					ft_invite_user('invite');
+				}}>놀이 초대</button
+			>
+		</div>
+		{#if user_self._authority < chatUser._authority}
+			{#if !chatUser._is_muted}
+				<div class="hover:variant-filled-surface">
+					<button
+						class="cursor-pointer"
+						bind:this={optionButtonElements[2]}
+						on:click={() => {
+							optionButtonElements[2]?.blur();
+							ft_mute_user('mute');
+						}}>멈춰✋</button
+					>
+				</div>
+			{/if}
+			<div class="hover:variant-filled-surface">
+				<button
+					class="cursor-pointer"
+					bind:this={optionButtonElements[3]}
+					on:click={() => {
+						optionButtonElements[3]?.blur();
+						ft_kick_user('kick');
+					}}>내보내기</button
+				>
+			</div>
+			<div class="hover:variant-filled-surface">
+				<button
+					class="cursor-pointer"
+					bind:this={optionButtonElements[4]}
+					on:click={() => {
+						optionButtonElements[4]?.blur();
+						ft_ban_user('ban');
+					}}>영구추방</button
+				>
+			</div>
+		{/if}
+		{#if user_self._authority === Authority.OWNER}
+			{#if chatUser._authority == Authority.USER}
+				<div class="hover:variant-filled-surface">
+					<button
+						class="cursor-pointer"
+						on:click={() => {
+							ft_appoint_user('appoint');
+						}}>부방장 임명</button
+					>
+				</div>
+			{:else}
+				<div class="hover:variant-filled-surface">
+					<button
+						class="cursor-pointer"
+						on:click={() => {
+							ft_appoint_user('unappoint');
+						}}>부방장 해고</button
+					>
+				</div>
+			{/if}
+		{/if}
+	{/if}
 </div>

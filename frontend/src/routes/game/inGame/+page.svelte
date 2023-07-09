@@ -17,6 +17,7 @@
 			gameStatus = true;
 		io_game.emit('gameQuit', gameStatus);
 		console.log('in game back button clicked');
+		removeEvent();
 		await goto('/main');
 	};
 
@@ -145,7 +146,7 @@
 		context.fillRect(rightPaddleX, moveData.rightPaddleY, paddleWidth, paddleHeight);
 	}
 
-	function handleKeyPress(event: any) {
+	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			readyCnt++;
 			console.log('enter press');
@@ -199,8 +200,19 @@
 		}
 	}
 
+	function removeEvent() {
+		window.removeEventListener('resize', resizeCanvas);
+		window.removeEventListener('keydown', handleKeyPress);
+		unsubscribeGame();
+	}
+
+	function dummyRetry() {
+		alert('잘못된 버튼입니다.');
+	}
+
 	onMount(async () => {
 		if (io_game === undefined) {
+			removeEvent();
 			await goto('/main');
 		}
 
@@ -209,6 +221,7 @@
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
+			removeEvent();
 			await goto('/main');
 		}
 
@@ -223,6 +236,7 @@
 
 		io_game.on('gotoMain', () => {
 			console.log('in game go to main');
+			removeEvent();
 			goto('/main');
 		});
 
@@ -259,9 +273,6 @@
 			io_game.off('gotoMain');
 			io_game.off('restart');
 			io_game.off('gameEnd');
-			window.removeEventListener('resize', resizeCanvas);
-			window.removeEventListener('keydown', handleKeyPress);
-			unsubscribeGame();
 			window.removeEventListener('beforeunload', handleBeforeUnload);
 		};
 	});
@@ -291,6 +302,7 @@
 			<button
 				class="skeleton-button variant-glass-secondary btn-lg rounded-lg transition-transform duration-200 ease-in-out hover:scale-110"
 				data-sveltekit-preload-data="hover"
+				on:click={dummyRetry}
 			>
 				retry
 			</button>

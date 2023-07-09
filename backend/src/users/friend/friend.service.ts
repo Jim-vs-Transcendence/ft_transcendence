@@ -5,11 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Friend } from '../entities/friend.entity';
 import { FriendRequestStatus } from '../entities/friend.entity';
 import { friendDTO } from './dto/friend.dto';
 import { UsersService } from '../users.service';
+import userDTO from '../user.dto';
 
 @Injectable()
 export class FriendsService {
@@ -21,7 +22,7 @@ export class FriendsService {
 
   // Find a friend request
   async findFriend(user_to: string): Promise<friendDTO[]> {
-    const friendEntities = await this.friendRepository.find({
+    const friendEntities: Friend[] = await this.friendRepository.find({
       where: {
         user_to: { id: user_to },
         // friend_status: In([FriendRequestStatus.PENDING, FriendRequestStatus.ACCEPTED]),
@@ -45,26 +46,26 @@ export class FriendsService {
   }
 
   async findOneFriend(user_from: string, user_to: string): Promise<friendDTO> {
-    const friend = await this.friendRepository.findOne({
+    const friend: Friend = await this.friendRepository.findOne({
       where: {
         user_from: { id: user_from },
         user_to: { id: user_to },
       },
     });
 
-    let friend_status;
+    let friend_status: FriendRequestStatus;
 
     if (friend) {
       friend_status = friend.friend_status;
     } else friend_status = FriendRequestStatus.NOTHING;
 
-    const userFrom = await this.usersService.findOne(user_to);
+    const userTo: userDTO = await this.usersService.findOne(user_to);
 
     const ret: friendDTO = {
       id: user_to,
-      nickname: userFrom.nickname,
-      avatar: userFrom.avatar,
-      status: userFrom.user_status,
+      nickname: userTo.nickname,
+      avatar: userTo.avatar,
+      status: userTo.user_status,
       friendStatus: friend_status,
     };
 
@@ -81,19 +82,28 @@ export class FriendsService {
       where: {
         user_from: { id: user_to },
         user_to: { id: user_from },
-        friend_status: FriendRequestStatus.BLOCKED,
       },
     });
 
-    if (blocked) {
+    if (blocked && blocked.friend_status === FriendRequestStatus.BLOCKED) {
       throw new ForbiddenException('You are blocked by this user');
     }
 
-    const friendRequest = this.friendRepository.create({
-      user_from: { id: user_from },
-      user_to: { id: user_to },
+    // check already request firend
+    const friend = await this.friendRepository.findOne({
+      where: {
+        user_from: { id: user_from },
+        user_to: { id: user_to },
+      },
     });
-    this.friendRepository.save(friendRequest);
+
+    if (!friend) {
+      const friendRequest: Friend = this.friendRepository.create({
+        user_from: { id: user_from },
+        user_to: { id: user_to },
+      });
+      this.friendRepository.save(friendRequest);
+    }
     return true;
   }
 
@@ -121,7 +131,7 @@ export class FriendsService {
     await this.friendRepository.save(request);
 
     // user_from create
-    const friendship = this.friendRepository.create({
+    const friendship: Friend = this.friendRepository.create({
       user_from: { id: user_to },
       user_to: { id: user_from },
       friend_status: FriendRequestStatus.ACCEPTED,
@@ -134,7 +144,7 @@ export class FriendsService {
   async deleteFriend(user_from: string, user_to: string): Promise<boolean> {
     // Fetch the friend entities from the database
 
-    const friendEntities = await this.friendRepository.find({
+    const friendEntities: Friend[] = await this.friendRepository.find({
       where: [
         { user_from: { id: user_to }, user_to: { id: user_from } },
         { user_from: { id: user_from }, user_to: { id: user_to } },
@@ -158,7 +168,7 @@ export class FriendsService {
 
   // Block a user
   async blockUser(user_from: string, user_to: string): Promise<boolean> {
-    const blocked = await this.friendRepository.findOne({
+    const blocked: Friend = await this.friendRepository.findOne({
       where: {
         user_from: { id: user_to },
         user_to: { id: user_from },
@@ -166,16 +176,55 @@ export class FriendsService {
       },
     });
 
-    if (blocked) {
-      throw new ForbiddenException('You are blocked by this user');
-    }
+    // 상호 block 허용
 
-    const blockship = this.friendRepository.create({
+    const blockship: Friend = this.friendRepository.create({
       user_from: { id: user_from },
       user_to: { id: user_to },
       friend_status: FriendRequestStatus.BLOCKED,
     });
     await this.friendRepository.save(blockship);
+
+    return true;
+  }
+
+  async findBlockFriend(user_from: string): Promise<friendDTO[]> {
+    const friendEntities: Friend[] = await this.friendRepository.find({
+      where: {
+        user_from: { id: user_from },
+        friend_status: In([FriendRequestStatus.BLOCKED]),
+      },
+    });
+    // console.log(friendEntities);
+
+    const ret: friendDTO[] = await Promise.all(
+      friendEntities.map(async (friend) => {
+        return {
+          id: friend.user_to.id,
+          nickname: friend.user_to.nickname,
+          avatar: friend.user_to.avatar,
+          status: friend.user_to.user_status,
+          friendStatus: friend.friend_status,
+        };
+      }),
+    );
+
+    return ret;
+  }
+
+  async unBlockUser(user_from: string, user_to: string): Promise<boolean> {
+    // Fetch the friend entities from the database
+
+    const friendEntity: Friend = await this.friendRepository.findOne({
+      where: {
+        user_from: { id: user_from },
+        user_to: { id: user_to },
+        friend_status: FriendRequestStatus.BLOCKED,
+      },
+    });
+
+    // If found, remove(delete) the entity from the database
+    await this.friendRepository.delete(friendEntity);
 
     return true;
   }

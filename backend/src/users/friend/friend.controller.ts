@@ -23,7 +23,7 @@ export class FriendsController {
 
   @ApiOperation({
     summary: '친구 목록 조회 API',
-    description: '현재 친구 목록을 불러옵니다.(user_',
+    description: '현재 친구 목록을 불러옵니다.(user_to 기준)',
   })
   @ApiCreatedResponse({
     description: 'friendDTO 배열을 반환해줍니다.',
@@ -32,6 +32,19 @@ export class FriendsController {
   @Get()
   findFriend(@Req() req: RequestWithUser): Promise<friendDTO[]> {
     return this.friendsService.findFriend(req.user);
+  }
+
+  @ApiOperation({
+    summary: '블락 유저 목록 조회 API',
+    description: '',
+  })
+  @ApiCreatedResponse({
+    description: '블락된 유저들를 friendDTO 배열 형태로 반환해줍니다.',
+    type: Promise<friendDTO[]>,
+  })
+  @Get('blocks')
+  findBlockFriend(@Req() req: RequestWithUser): Promise<friendDTO[]> {
+    return this.friendsService.findBlockFriend(req.user);
   }
 
   @ApiOperation({
@@ -134,5 +147,22 @@ export class FriendsController {
     @Param('user_to') user_to: string,
   ): Promise<boolean> {
     return this.friendsService.blockUser(req.user, user_to);
+  }
+
+  // Unblock a user
+  @ApiOperation({
+    summary: '유저 block 해제 API',
+    description: 'user_to에 해당하는 유저의 block을 해제합니다.',
+  })
+  @ApiCreatedResponse({
+    description: '성공여부를 boolean값으로 반환해줍니다.',
+    type: Boolean,
+  })
+  @Delete('unblocks/:user_to')
+  unblockUser(
+    @Req() req: RequestWithUser,
+    @Param('user_to') user_to: string,
+  ): Promise<boolean> {
+    return this.friendsService.unBlockUser(req.user, user_to);
   }
 }

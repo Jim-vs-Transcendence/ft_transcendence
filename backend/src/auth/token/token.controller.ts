@@ -5,6 +5,7 @@ import { TokenGuard } from './token.guard';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import userDTO from 'src/users/user.dto';
 import RequestWithUser from '../interfaces/RequestWithUserID.interface';
+import { loginDTO } from './login.dto';
 
 @Controller('token')
 @ApiTags('토큰 API')
@@ -29,9 +30,9 @@ export class TokenController {
   async verifyToken(@Req() req: RequestWithUser): Promise<boolean | userDTO> {
     if (!req.user) return false;
 
-    const test = req.cookies['auth_token'];
+    const test: string = req.cookies['auth_token'];
     console.log(test);
-    const user = await this.usersService.findOne(req.user);
+    const user: userDTO = await this.usersService.findOne(req.user);
     if (user.user_status === 0) {
       user.user_status = 1;
       this.usersService.updateUser(req.user, user);
@@ -47,7 +48,7 @@ export class TokenController {
     description: 'Parameter에 해당하는 유저의 토큰을 반환해줍니다.',
   })
   @Get(':id')
-  async getToken(@Param('id') userId: string): Promise<string | undefined> {
+  async getToken(@Param('id') userId: string): Promise<loginDTO | undefined> {
     return await this.tokenService.getToken(userId);
   }
 }

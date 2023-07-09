@@ -53,3 +53,8 @@ export const gameClientOption : GameClientOption = {
 	_ballRadius: 0,
 	_gameScore: 0,
 }
+
+export interface GameInvitationData {
+	opponentPlayer: string;
+	acceptFlag: boolean;
+}

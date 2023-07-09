@@ -1,8 +1,9 @@
+
 enum FriendRequestStatus {
-    BLOCKED = 'blocked',
-    PENDING = 'pending',
-    ACCEPTED = 'accepted',
-}
+  BLOCKED = 'blocked',
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+};
 
 interface friendDTO {
   id: string;

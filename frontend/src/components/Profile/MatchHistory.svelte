@@ -8,6 +8,10 @@
 
     let matchHistory : MatchDTO[] = [];
 
+    function goJIM() {
+        window.open('https://profile.intra.42.fr/users/jim', '_blank');
+    }
+
     onMount(async () => {
         matchHistory = await getApi({ path: 'match-history/' + profile_id });
         // if profile_id win -> true
@@ -28,31 +32,23 @@
  </script>
 
 <div class="card">
-    <header class="card-header text-center">싸운 흔적</header>
+    <header class="card-header text-center text-4xl" style="font-weight: 700;">싸운 흔적</header><br>
     {#each matchHistory as history }
         <section class="p-4 text-center flex flex-col">
             {#if history.winLose }
-                <span>이김</span>
+                <span class="text-2xl" style="font-weight: 700;">이김</span>
             {:else}
-                <span>JIM</span>
+                <span class="text-2xl"  style="font-weight: 700;" on:click={goJIM}>JIM</span>
             {/if}
-            {history.player1} {history.player1_score} vs {history.player2_score} {history.player2}
+            <span style="font-weight: 500">
+                {history.player1} {history.player1_score} vs {history.player2_score} {history.player2}
+            </span>
 
         </section>
     {/each}
 
-    <footer class="card-footer text-center">전적 조회는 최근 5회만 지원됩니다. 자세한 내용은 고개를 돌려 고객센터에 문의하세요.</footer>
+    <br><footer class="card-footer text-center">전적 조회는 최근 5회만 지원됩니다. 자세한 내용은 고개를 돌려 고객센터에 문의하세요.</footer>
 </div>
-
-<!-- <svg on:mousemove="{e => {
-    coords_r.set({ x: e.clientX - 50, y: e.clientY });
-    coords_g.set({ x: e.clientX , y: e.clientY - 200 });
-    coords_b.set({ x: e.clientX + 50, y: e.clientY - 50 });
-}}">
-    <circle cx={$coords_r.x} cy={$coords_r.y} r="20" fill="red" />
-    <circle cx={$coords_g.x} cy={$coords_g.y} r="25" fill="green" />
-    <circle cx={$coords_b.x} cy={$coords_b.y} r="30" fill="blue" />
-</svg> -->
 
 <style>
     svg {

@@ -13,14 +13,14 @@ export class AuthService {
   ) {}
 
   async login(req: RequestWithUserDTO, res: Response): Promise<void> {
-    let user = await this.usersService.findOne(req.user.id);
+    let user: userDTO = await this.usersService.findOne(req.user.id);
 
     if (!user) user = await this.usersService.saveUser(req.user);
 
     if (user.two_factor == true)
       res.redirect('http://localhost:5173/auth/two/' + user.id);
     else {
-      const token = await this.tokenService.createToken(req.user.id);
+      const token: string = await this.tokenService.createToken(req.user.id);
       res.cookie('auth_token', token, {
         httpOnly: true,
         secure: true,
@@ -31,10 +31,10 @@ export class AuthService {
 
   async logout(req: Request, res: Response): Promise<void> {
     //헤더
-    const token = await req.header('authtoken');
+    const token: string = await req.header('authtoken');
     //cookie
     // const token = req.cookies['auth_token'];
-    const userId = await this.tokenService.verifyToken(token);
+    const userId: string | boolean = await this.tokenService.verifyToken(token);
     if (!userId) return;
 
     await this.tokenService.deleteToken(userId.toString());

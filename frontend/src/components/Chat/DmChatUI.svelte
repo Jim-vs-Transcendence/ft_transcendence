@@ -1,21 +1,21 @@
 <script lang="ts">
+    import { onMount } from 'svelte'
+    import { Avatar } from '@skeletonlabs/skeleton'
+    
+    // Stores
+	import { modalStore } from '@skeletonlabs/skeleton'
+    import type { DmUserInfoIF, DmChatIF, DmChatStoreIF } from '$lib/interface'
+    
+    // Socket
+    import { BlOCKED_USER_KEY, DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
+	import type { Socket } from 'socket.io-client';
+	import { onDestroy } from 'svelte';
+	import type { Unsubscriber } from 'svelte/store';
+
     export let dmUserInfo: DmUserInfoIF
     export let userInfo: UserDTO
     export let opponent : string
     export let dmStoreData: DmChatStoreIF
-
-    import { onMount } from 'svelte'
-    import { Avatar } from '@skeletonlabs/skeleton'
-
-    // Stores
-	import { modalStore } from '@skeletonlabs/skeleton'
-    import type { DmUserInfoIF, DmChatIF, DmChatStoreIF, ChatMsgIF } from '$lib/interface'
-        
-    // Socket
-    import { DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
-	import type { Socket } from 'socket.io-client';
-	import { onDestroy } from 'svelte';
-	import type { Unsubscriber } from 'svelte/store';
 
 	let socket: Socket;
     
@@ -25,12 +25,45 @@
         socket = _socket;
 	});
 
+    onMount(() => {
+      try {
+        dmDataLoad();
+        socket.on("dm-chat", (data: DmChatIF) => {
+            try {
+                const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
+				if (loadBlockedFrindList) {
+                    let m = 1;
+					let blockedFriends : friendDTO[] = JSON.parse(loadBlockedFrindList);
+					blockedFriends.forEach(
+                        (blockedFriend) => {
+                            if (m == 0)
+                            { return ; }
+                            if (blockedFriend.id === data._from) {
+                                return m = 0;
+                            }
+                        }
+                    )
+                    if (m == 0)
+                        return ;
+				}
+                if (data._from === dmUserInfo._userInfo.id)
+                    dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
+                setTimeout(() => {
+                    scrollChatBottom('smooth')
+                }, 0)
+            }
+            catch {
+                alert('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.') 
+            }
+        })
+      } catch (error) {
+        return alert('DM loading error')
+      }
+    })
+
     onDestroy(() => {
+        console.log("onDestroy() in DmChatUI.svelte");
         unsubscribe();
-        if (socket !== undefined)
-		{
-			socket.off('dm-chat-to-ui');
-		}
     });
 
     function dmDataLoad() {
@@ -43,22 +76,6 @@
 		    }, 0)
         }
     }
-    
-    // 데이터 수신때 사용
-    onMount(() => {
-      try {
-        dmDataLoad();
-
-        socket.on("dm-chat-to-ui", (data: DmChatIF) => {
-            dmUserInfo._dmChatStore = [...dmUserInfo._dmChatStore, data]
-            setTimeout(() => {
-			    scrollChatBottom('smooth')
-		    }, 0)
-        })
-      } catch (error) {
-        return alert('DM loading error')
-      }
-    })
 
     /* ================================================================================
                                 chat interface
@@ -67,10 +84,16 @@
     let elemChat: HTMLElement
     
     function scrollChatBottom(behavior?: ScrollBehavior): void {
-        elemChat.scrollTo({ top: elemChat.scrollHeight, behavior })
+        if (elemChat && elemChat.scrollHeight && elemChat.scrollHeight > window.innerHeight)
+            elemChat.scrollTo({ top: elemChat.scrollHeight, behavior })
     }
 
     async function addMessage(): Promise<void> {
+        currentMessage = currentMessage.trim()
+        if (!(currentMessage))
+            return 
+        else if (currentMessage.length >= 300)
+            return alert("300자 이상 입력하실 수 없습니다.")
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
             _to: opponent,
@@ -89,21 +112,11 @@
 
     function onPromptKeyPress(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
-			event.preventDefault()
-            if (currentMessage.trim())
-			    addMessage()
+	  	    event.preventDefault()
+            addMessage()
 		}
 	}
 
-    /*
-        동시에 여러 사용자와의DM으로 꼬일 일은 없다
-        한번에 1명의 사용자와만 통신한다.
-        고려해야할 것은
-        나는 DM창을 안켰는데 상대방만 킨 경우 어떻게 되는가?
-        socket이 연결 되는가?
-        둘다 켜야지만 되는가?
-    */
-    // async
     function sendDm(dmChatData : DmChatIF)
     {
         try {
@@ -113,6 +126,7 @@
                 socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
+            console.log(error)
             alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
         }
     }
@@ -133,7 +147,7 @@
                                 <Avatar src="{userInfo.avatar}" width="w-12" />
                                 <div class="card p-4 variant-soft rounded-tl-none space-y-2">
                                     <header class="flex justify-between items-center">
-                                        <p class="font-bold">{bubble._from}</p>
+                                        <p class="font-bold">{bubble._from} | {userInfo.nickname} </p>
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>
@@ -142,7 +156,7 @@
                             <div class="grid grid-cols-[1fr_auto] gap-2">
                                 <div class="card p-4 rounded-tr-none space-y-2 variant-soft-primary">
                                     <header class="flex justify-between items-center">
-                                        <p class="font-bold">{bubble._from}</p>
+                                        <p class="font-bold">{bubble._from} | {dmUserInfo._userInfo.nickname}</p>
                                     </header>
                                     <p>{bubble._msg}</p>
                                 </div>
@@ -154,7 +168,7 @@
                 <!-- Prompt -->
                 <section class="border-t border-surface-500/30 p-4">
                     <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
-                        <button class="input-group-shim">+</button>
+                        <button class="input-group-shim"></button>
                         <textarea
                             bind:value={currentMessage}
                             class="bg-transparent border-0 ring-0"

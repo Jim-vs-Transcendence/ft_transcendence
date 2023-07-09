@@ -15,24 +15,21 @@ export class TwoFactorService {
     private readonly tokenServiece: TokenService,
   ) {}
 
-  async generateTwoFactorSecret(userId: string): Promise<any> {
-    const secret = authenticator.generateSecret();
+  async generateTwoFactorSecret(userId: string): Promise<string> {
+    const secret: string = authenticator.generateSecret();
 
     const user: userDTO = await this.userService.findOne(userId);
 
     user.two_factor_secret = secret;
     await this.userService.updateUser(userId, user);
 
-    const otpauthUrl = await authenticator.keyuri(
+    const otpauthUrl: string = await authenticator.keyuri(
       userId,
       this.configService.get<string>('TWO_FACTOR_AUTHENTICATION_APP_NAME'),
       secret,
     );
 
-    return {
-      secret,
-      otpauthUrl,
-    };
+    return otpauthUrl;
   }
 
   async QRtoDataURL(otpauthUrl: string): Promise<string> {
@@ -42,7 +39,7 @@ export class TwoFactorService {
   async isTwoFactorCodeValid(
     userId: string,
     twoFactorCode: string,
-  ): Promise<any> {
+  ): Promise<boolean> {
     const user: userDTO = await this.userService.findOne(userId);
     return authenticator.verify({
       token: twoFactorCode,
@@ -55,7 +52,12 @@ export class TwoFactorService {
     twoFactorCode: string,
     res: Response,
   ): Promise<boolean> {
-    const isCodeValidated = await this.isTwoFactorCodeValid(id, twoFactorCode);
+    const isCodeValidated: boolean = await this.isTwoFactorCodeValid(
+      id,
+      twoFactorCode,
+    );
+
+    console.log(isCodeValidated);
     let token: string;
 
     if (isCodeValidated == true)
@@ -63,6 +65,7 @@ export class TwoFactorService {
     res.cookie('auth_token', token, {
       httpOnly: true,
     });
+    res.send(isCodeValidated);
 
     return isCodeValidated;
   }

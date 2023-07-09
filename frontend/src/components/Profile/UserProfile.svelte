@@ -10,7 +10,7 @@
     import { onMount } from 'svelte';
 	import { auth } from '../../service/store';
 	import { goto } from '$app/navigation';
-    import '../../service/friendDTO'
+    import '../../service/friendDTO';
 
     let isBlocked : boolean = false;
     $ : isBlocked;
@@ -21,6 +21,12 @@
     //유저가 친구인지 뭔지에 대한 정보
     let friendInfo : friendDTO;
     let friendStat : string;
+
+    enum FriendRequestStatus {
+        BLOCKED = 'blocked',
+        PENDING = 'pending',
+        ACCEPTED = 'accepted',
+    };
 
     import { getApi, petchApi, postApi, delApi, postApiWithFile } from '../../service/api';
 
@@ -94,7 +100,7 @@
 
     //프로필 사진 업로드
     import { FileButton } from '@skeletonlabs/skeleton';
-	import FriendsList from './FriendsList.svelte';
+	import { BlOCKED_USER_KEY } from '$lib/webSocketConnection_chat';
 
     // 투팩터 초기 설정
     onMount(async () => {
@@ -114,6 +120,10 @@
             //친구인지 여부 뭐 그런거 가져와야 함
             friendInfo = await getApi({ path: 'friends/' + profile_info.id });
             friendStat = friendInfo.friendStatus;
+            if (friendStat === "blocked")
+                isBlocked = true;
+            else
+                isBlocked = false;
 		}
 		catch(error){
 			alert('오류 : 프로필을 출력할 수 없습니다3');
@@ -219,26 +229,55 @@
         if (isBlocked === false)
         {
             try {
-            await postApi({ path: 'friends/blocks/' + profile_info.id , data:{
-            }
-            });
-            isBlocked = true;
-            friendStat = "blocked";
+                await postApi({ path: 'friends/blocks/' + profile_info.id , data:{} });
+                isBlocked = true;
+                friendStat = "blocked";
+                // friendDTO
+                let newBlockedFriend: friendDTO = {
+                    id: profile_info.id,
+                    nickname: profile_info.nickname,
+                    avatar: profile_info.avatar,
+                    status: profile_info.user_status,
+                    friendStatus: FriendRequestStatus.BLOCKED,
+                };
+                const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
+                let blockedFriends : friendDTO[] = []
+                if (loadBlockedFrindList) {
+                    blockedFriends = JSON.parse(loadBlockedFrindList);
+                }
+                blockedFriends.push(newBlockedFriend);
+                localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
             } catch (error) {
                 alert("블럭 오류");
+                console.log(error);
             }
         }
         else
         {
             try {
-            await delApi({ path: 'friends/' + profile_info.id , data:{
-                "user_to" : profile_info.id
-            }
-            });
-            isBlocked = false;
-            friendStat = " ";
+                isBlocked = false;
+                friendStat = " ";
+                await delApi({ path: 'friends/unblocks/' + profile_info.id , data:{
+                    "user_to" : profile_info.id,
+                }});
+                const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
+                if (loadBlockedFrindList) {
+					let blockedFriends : friendDTO[] = JSON.parse(loadBlockedFrindList);
+                    let to_be_remove_index: number = -1;
+                    blockedFriends.forEach((blockedFriend, index) => {
+                        console.log("blockedFriend in blockedFriends.forEach() when release blocked friend");
+						console.log(blockedFriend);
+                        if (blockedFriend.id === profile_info.id)
+                            to_be_remove_index = index;
+					})
+                    console.log("to_be_remove_index : " + to_be_remove_index);
+                    if (to_be_remove_index !== -1)
+                        blockedFriends.splice(to_be_remove_index, 1);
+                    localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
+				}
             } catch (error) {
                 alert("블럭 해제 오류");
+                console.log(error)
             }
         }
     }

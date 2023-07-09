@@ -56,10 +56,7 @@
 {#if isLoading === true}
     <LoadingMessage />
 {:else}
-    <!-- tab -->
         <UserLayout {userInfo} {friendList}/>
-        <!-- DmUser
-        <Dmchat  -->
     <slot />
 {/if}
 

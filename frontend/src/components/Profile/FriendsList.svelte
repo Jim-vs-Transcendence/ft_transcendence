@@ -23,7 +23,7 @@
     let isRefused = false;
 
     const goProfile = (name: string) => {
-        goto('profile/' + name)
+        goto('/profile/' + name)
     };
 
     async function acceptFriend(): Promise<void> {
