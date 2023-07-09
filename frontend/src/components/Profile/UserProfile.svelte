@@ -232,7 +232,7 @@
                 await postApi({ path: 'friends/blocks/' + profile_info.id , data:{} });
                 isBlocked = true;
                 friendStat = "blocked";
-                // friendDTO 
+                // friendDTO
                 let newBlockedFriend: friendDTO = {
                     id: profile_info.id,
                     nickname: profile_info.nickname,
@@ -262,13 +262,13 @@
                 const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
                 if (loadBlockedFrindList) {
 					let blockedFriends : friendDTO[] = JSON.parse(loadBlockedFrindList);
-                    let to_be_remove_index: number = -1; 
+                    let to_be_remove_index: number = -1;
                     blockedFriends.forEach((blockedFriend, index) => {
                         console.log("blockedFriend in blockedFriends.forEach() when release blocked friend");
 						console.log(blockedFriend);
                         if (blockedFriend.id === profile_info.id)
                             to_be_remove_index = index;
-					}) 
+					})
                     console.log("to_be_remove_index : " + to_be_remove_index);
                     if (to_be_remove_index !== -1)
                         blockedFriends.splice(to_be_remove_index, 1);
@@ -276,6 +276,7 @@
 				}
             } catch (error) {
                 alert("블럭 해제 오류");
+                console.log(error)
             }
         }
     }

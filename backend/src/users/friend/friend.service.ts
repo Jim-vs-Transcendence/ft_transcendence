@@ -82,19 +82,28 @@ export class FriendsService {
       where: {
         user_from: { id: user_to },
         user_to: { id: user_from },
-        friend_status: FriendRequestStatus.BLOCKED,
       },
     });
 
-    if (blocked) {
+    if (blocked && blocked.friend_status === FriendRequestStatus.BLOCKED) {
       throw new ForbiddenException('You are blocked by this user');
     }
 
-    const friendRequest: Friend = this.friendRepository.create({
-      user_from: { id: user_from },
-      user_to: { id: user_to },
+    // check already request firend
+    const friend = await this.friendRepository.findOne({
+      where: {
+        user_from: { id: user_from },
+        user_to: { id: user_to },
+      },
     });
-    this.friendRepository.save(friendRequest);
+
+    if (!friend) {
+      const friendRequest: Friend = this.friendRepository.create({
+        user_from: { id: user_from },
+        user_to: { id: user_to },
+      });
+      this.friendRepository.save(friendRequest);
+    }
     return true;
   }
 
