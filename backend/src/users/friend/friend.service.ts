@@ -167,9 +167,7 @@ export class FriendsService {
       },
     });
 
-    if (blocked) {
-      throw new ForbiddenException('You are blocked by this user');
-    }
+    // 상호 block 허용
 
     const blockship: Friend = this.friendRepository.create({
       user_from: { id: user_from },
@@ -177,6 +175,23 @@ export class FriendsService {
       friend_status: FriendRequestStatus.BLOCKED,
     });
     await this.friendRepository.save(blockship);
+
+    return true;
+  }
+
+  async unBlockUser(user_from: string, user_to: string): Promise<boolean> {
+    // Fetch the friend entities from the database
+
+    const friendEntity: Friend = await this.friendRepository.findOne({
+      where: {
+        user_from: { id: user_from },
+        user_to: { id: user_to },
+        friend_status: FriendRequestStatus.BLOCKED,
+      },
+    });
+
+    // If found, remove(delete) the entity from the database
+    await this.friendRepository.delete(friendEntity);
 
     return true;
   }

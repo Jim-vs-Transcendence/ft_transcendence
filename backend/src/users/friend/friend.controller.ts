@@ -135,4 +135,21 @@ export class FriendsController {
   ): Promise<boolean> {
     return this.friendsService.blockUser(req.user, user_to);
   }
+
+  // Unblock a user
+  @ApiOperation({
+    summary: '유저 block 해제 API',
+    description: 'user_to에 해당하는 유저의 block을 해제합니다.',
+  })
+  @ApiCreatedResponse({
+    description: '성공여부를 boolean값으로 반환해줍니다.',
+    type: Boolean,
+  })
+  @Delete('unblocks/:user_to')
+  unblockUser(
+    @Req() req: RequestWithUser,
+    @Param('user_to') user_to: string,
+  ): Promise<boolean> {
+    return this.friendsService.unBlockUser(req.user, user_to);
+  }
 }

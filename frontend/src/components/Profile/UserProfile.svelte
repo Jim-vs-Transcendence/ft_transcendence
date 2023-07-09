@@ -235,7 +235,7 @@
         else
         {
             try {
-            await delApi({ path: 'friends/' + profile_info.id , data:{
+            await delApi({ path: 'friends/unblocks' + profile_info.id , data:{
                 "user_to" : profile_info.id
             }
             });
