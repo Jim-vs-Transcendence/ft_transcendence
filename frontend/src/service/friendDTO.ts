@@ -1,4 +1,9 @@
-// import '../service/friendEnum'
+
+enum FriendRequestStatus {
+  BLOCKED = 'blocked',
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+};
 
 interface friendDTO {
   id: string;

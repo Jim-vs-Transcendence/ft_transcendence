@@ -10,7 +10,8 @@
     import { onMount } from 'svelte';
 	import { auth } from '../../service/store';
 	import { goto } from '$app/navigation';
-    import '../../service/friendDTO'
+    import '../../service/friendDTO';
+    import '../../service/friendEnum';
 
     let isBlocked : boolean = false;
     $ : isBlocked;
@@ -21,6 +22,12 @@
     //유저가 친구인지 뭔지에 대한 정보
     let friendInfo : friendDTO;
     let friendStat : string;
+
+    enum FriendRequestStatus {
+        BLOCKED = 'blocked',
+        PENDING = 'pending',
+        ACCEPTED = 'accepted',
+    };
 
     import { getApi, petchApi, postApi, delApi, postApiWithFile } from '../../service/api';
 
@@ -94,7 +101,6 @@
 
     //프로필 사진 업로드
     import { FileButton } from '@skeletonlabs/skeleton';
-	import type { BlockedFriendIF } from '$lib/interface';
 	import { BlOCKED_USER_KEY } from '$lib/webSocketConnection_chat';
 
     // 투팩터 초기 설정
@@ -227,23 +233,23 @@
                 await postApi({ path: 'friends/blocks/' + profile_info.id , data:{} });
                 isBlocked = true;
                 friendStat = "blocked";
-                // TODO
-                // get
-                // const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
-                // let blockedFriends : BlockedFriendIF = [];
-				// if (loadBlockedFrindList) {
-                //     blockedFriends = JSON.parse(loadBlockedFrindList);
-                //     blockedFriends._blockedFriendList.push(profile_info.id);
-				// 	// blockedFriends._blockedFriendList.forEach((blockedFriend) => {
-				// 	// 	if (blockedFriend === data._from)
-				// 	// 		return ;
-				// 	// })
-				// }
-
-                // set
-
+                // friendDTO 
+                let newBlockedFriend: friendDTO = {
+                    id: profile_info.id,
+                    nickname: profile_info.nickname,
+                    avatar: profile_info.avatar,
+                    status: profile_info.user_status,
+                    friendStatus: FriendRequestStatus.BLOCKED,
+                };
+                const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
+                if (loadBlockedFrindList) {
+					let blockedFriends : friendDTO[] = JSON.parse(loadBlockedFrindList);
+                    blockedFriends.push(newBlockedFriend);
+                    localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
+				}
             } catch (error) {
                 alert("블럭 오류");
+                console.log(error);
             }
         }
         else
@@ -253,10 +259,21 @@
                 isBlocked = false;
                 friendStat = " ";
                 // TODO
-                // get
-
-                // set
-
+                const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
+                if (loadBlockedFrindList) {
+					let blockedFriends : friendDTO[] = JSON.parse(loadBlockedFrindList);
+                    let to_be_remove_index: number = -1; 
+                    blockedFriends.forEach((blockedFriend, index) => {
+                        console.log("blockedFriend in blockedFriends.forEach() when release blocked friend");
+						console.log(blockedFriend);
+                        if (blockedFriend.id === profile_info.id)
+                            to_be_remove_index = index;
+					}) 
+                    console.log("to_be_remove_index : " + to_be_remove_index);
+                    if (to_be_remove_index !== -1)
+                        blockedFriends.splice(to_be_remove_index, 1);
+                    localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
+				}
             } catch (error) {
                 alert("블럭 해제 오류");
             }

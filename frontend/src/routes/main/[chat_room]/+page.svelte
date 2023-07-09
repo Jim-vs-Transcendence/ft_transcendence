@@ -30,7 +30,6 @@
 		_room_name: $page.params['chat_room']
 	};
 	let tabSet: number = 0;
-	let chatUserList : Map<string, UserDTO>;
 	let invite_status: boolean = false;
 
 	const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
@@ -134,6 +133,7 @@
 	onDestroy(() => {
 		console.log("ondestroy page + ");
 		unsubscribe();
+		unsubscribe_game();
 		if (socket !== undefined)
 		{
 			socket.off('chat-connect');
@@ -172,7 +172,7 @@
 	let elemChat: HTMLElement;
 
 	function scrollChatBottom(behavior?: ScrollBehavior): void {
-		if (elemChat.scrollHeight)
+		if (elemChat && elemChat.scrollHeight && elemChat.scrollHeight > window.innerHeight)
 			elemChat.scrollTo({ top: elemChat.scrollHeight, behavior });
 	}
 
@@ -191,7 +191,6 @@
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
 					{#each [... room._users] as [userid_list, chatUser]}
-						<!-- <ChatUserList {user_self} {userid_list} {chatUser} {channel_name}/> -->
 						<ChatUserList
 							bind:user_self={user_self}
 							bind:userid_list={userid_list}

@@ -70,13 +70,6 @@ interface ChatActionDTO {
 								DM
    ================================================================================ */
 
-/**
- * blocked frined list
- */
-interface BlockedFriendIF {
-	_blockedFriendList: string[];
-}
-
 interface DmChatIF {
 	_msg: string;
 	_from: string;
