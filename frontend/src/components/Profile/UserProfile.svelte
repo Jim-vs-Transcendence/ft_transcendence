@@ -241,11 +241,12 @@
                     friendStatus: FriendRequestStatus.BLOCKED,
                 };
                 const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
+                let blockedFriends : friendDTO[] = []
                 if (loadBlockedFrindList) {
-					let blockedFriends : friendDTO[] = JSON.parse(loadBlockedFrindList);
-                    blockedFriends.push(newBlockedFriend);
-                    localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
-				}
+                    blockedFriends = JSON.parse(loadBlockedFrindList);
+                }
+                blockedFriends.push(newBlockedFriend);
+                localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
             } catch (error) {
                 alert("블럭 오류");
                 console.log(error);
