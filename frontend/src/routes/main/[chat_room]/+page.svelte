@@ -131,7 +131,6 @@
 	});
 
 	onDestroy(() => {
-		console.log("ondestroy page + ");
 		unsubscribe();
 		unsubscribe_game();
 		if (socket !== undefined)

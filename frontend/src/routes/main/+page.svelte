@@ -15,15 +15,10 @@
 									on
 	   ================================================================================ */
 
-	/**
-	 * local storage 혹은 메모리에 전역으로 차단된 유저 정보를 가지고 있는다
-	 */
 	onMount(async () => {
 		try {
 			if (socket === undefined) await CreateSocket(socketStore);
 			if (gameSocket === undefined) await CreateGameSocket(gameSocketStore);
-			// let friendList: friendDTO[] = await getApi({ path: 'friends/' });
-			// BlOCKED_USER_KEY
 			ft_onMount_room_refresh();
 			ft_onMount_room_create();
 			ft_onMount_room_join();
@@ -83,7 +78,6 @@
 	   ================================================================================ */
 	function ft_onMount_room_join() {
 		socket.on('room-join', (data: ChatRoomJoinIF) => {
-			console.log('check trigger');
 			if (data._ban) return alert('추방되셨습니다');
 			if (!data._room_name)
 				return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');

@@ -38,13 +38,10 @@
 	});
 
 	function ft_invite_user(action: string) {
-		console.log(action);
-		console.log(chatUser._user_info);
 		game_socket.emit("sendGameInvite", chatUser._user_info.id);
 	}
 
 	function ft_mute_user(action: string) {
-		console.log(action);
 		let send: ChatActionDTO = {
 			_action: action,
 			_channel_name: channel_name,
@@ -54,7 +51,6 @@
 		chat_socket.emit('chat-mute-user', send);
 	}
 	function ft_kick_user(action: string) {
-		console.log(action);
 		let send: ChatActionDTO = {
 			_action: action,
 			_channel_name: channel_name,
@@ -64,7 +60,6 @@
 		chat_socket.emit('chat-kick-user', send);
 	}
 	function ft_ban_user(action: string) {
-		console.log(action);
 		let send: ChatActionDTO = {
 			_action: action,
 			_channel_name: channel_name,
@@ -74,7 +69,6 @@
 		chat_socket.emit('chat-ban-user', send);
 	}
 	function ft_appoint_user(action: string) {
-		console.log(action);
 		let send: ChatActionDTO = {
 			_action: action,
 			_channel_name: channel_name,

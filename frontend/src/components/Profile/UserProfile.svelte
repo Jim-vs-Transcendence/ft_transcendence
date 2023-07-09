@@ -11,7 +11,6 @@
 	import { auth } from '../../service/store';
 	import { goto } from '$app/navigation';
     import '../../service/friendDTO';
-    import '../../service/friendEnum';
 
     let isBlocked : boolean = false;
     $ : isBlocked;
@@ -255,12 +254,11 @@
         else
         {
             try {
-                await delApi({ path: 'friends/unblocks' + profile_info.id , data:{
-                    "user_to" : profile_info.id
-                }
                 isBlocked = false;
                 friendStat = " ";
-                // TODO
+                await delApi({ path: 'friends/unblocks/' + profile_info.id , data:{
+                    "user_to" : profile_info.id,
+                }});
                 const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
                 if (loadBlockedFrindList) {
 					let blockedFriends : friendDTO[] = JSON.parse(loadBlockedFrindList);

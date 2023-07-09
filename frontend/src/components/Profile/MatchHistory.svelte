@@ -5,7 +5,6 @@
     import { getApi } from '../../service/api';
     import { onMount } from 'svelte';
     import '../../service/matchDTO';
-	import { goto } from '$app/navigation';
 
     let matchHistory : MatchDTO[] = [];
 
@@ -50,16 +49,6 @@
 
     <br><footer class="card-footer text-center">전적 조회는 최근 5회만 지원됩니다. 자세한 내용은 고개를 돌려 고객센터에 문의하세요.</footer>
 </div>
-
-<!-- <svg on:mousemove="{e => {
-    coords_r.set({ x: e.clientX - 50, y: e.clientY });
-    coords_g.set({ x: e.clientX , y: e.clientY - 200 });
-    coords_b.set({ x: e.clientX + 50, y: e.clientY - 50 });
-}}">
-    <circle cx={$coords_r.x} cy={$coords_r.y} r="20" fill="red" />
-    <circle cx={$coords_g.x} cy={$coords_g.y} r="25" fill="green" />
-    <circle cx={$coords_b.x} cy={$coords_b.y} r="30" fill="blue" />
-</svg> -->
 
 <style>
     svg {
