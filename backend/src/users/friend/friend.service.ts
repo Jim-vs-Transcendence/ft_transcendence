@@ -120,10 +120,10 @@ export class FriendsService {
     });
 
     if (!request) {
-      throw new NotFoundException('Friend request not found');
+      return false;
     }
-    if (request.friend_status !== FriendRequestStatus.PENDING) {
-      throw new BadRequestException('Friend request is not pending');
+    if (request.friend_status !== FriendRequestStatus.BLOCKED) {
+      return false;
     }
 
     // user_to accept
@@ -137,6 +137,23 @@ export class FriendsService {
       friend_status: FriendRequestStatus.ACCEPTED,
     });
     await this.friendRepository.save(friendship);
+
+    return true;
+  }
+
+  async rejectFriendRequest(
+    user_from: string,
+    user_to: string,
+  ): Promise<boolean> {
+    const pending: Friend = await this.friendRepository.findOne({
+      where: {
+        user_from: { id: user_to },
+        user_to: { id: user_from },
+        friend_status: FriendRequestStatus.PENDING,
+      },
+    });
+
+    await this.friendRepository.delete(pending);
 
     return true;
   }
@@ -168,14 +185,6 @@ export class FriendsService {
 
   // Block a user
   async blockUser(user_from: string, user_to: string): Promise<boolean> {
-    const blocked: Friend = await this.friendRepository.findOne({
-      where: {
-        user_from: { id: user_to },
-        user_to: { id: user_from },
-        friend_status: FriendRequestStatus.BLOCKED,
-      },
-    });
-
     // 상호 block 허용
 
     const blockship: Friend = this.friendRepository.create({

@@ -129,7 +129,7 @@ export class FriendsController {
     @Param('user_from') user_from: string,
   ): Promise<boolean> {
     console.log('reject');
-    return this.friendsService.deleteFriend(user_from, req.user);
+    return this.friendsService.rejectFriendRequest(user_from, req.user);
   }
 
   // Block a user
