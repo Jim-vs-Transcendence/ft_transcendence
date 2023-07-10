@@ -75,8 +75,8 @@
 			};
 		}
 		catch(error){
-			alert('오류 : 프로필을 출력할 수 없습니다1');
-			goto('/main');
+			alert('잘못된 접근');
+			goto('/');
 		}
 	});
 </script>

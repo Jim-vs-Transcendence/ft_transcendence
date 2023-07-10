@@ -4,10 +4,12 @@ import { TokenService } from '../token/token.service';
 import userDTO from 'src/users/user.dto';
 import { Request, Response } from 'express';
 import RequestWithUserDTO from '../interfaces/RequestWithUserDTO.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly usersService: UsersService,
     private readonly tokenService: TokenService,
   ) {}
@@ -18,14 +20,14 @@ export class AuthService {
     if (!user) user = await this.usersService.saveUser(req.user);
 
     if (user.two_factor == true)
-      res.redirect('http://localhost:5173/auth/two/' + user.id);
+      res.redirect(this.configService.get<string>('FRONTEND_URL') + 'auth/two/' + user.id);
     else {
       const token: string = await this.tokenService.createToken(req.user.id);
+      console.log(token);
       res.cookie('authtoken_' + req.user.id, token, {
         httpOnly: true,
-        secure: true,
       });
-      res.redirect('http://localhost:5173/auth/login/' + user.id);
+      res.redirect(this.configService.get<string>('FRONTEND_URL') + 'auth/login/' + user.id);
     }
   }
 

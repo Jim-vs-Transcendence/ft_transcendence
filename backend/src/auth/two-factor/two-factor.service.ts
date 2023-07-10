@@ -64,7 +64,6 @@ export class TwoFactorService {
       token = await this.tokenServiece.createToken(id);
     res.cookie('authtoken_' + id, token, {
       httpOnly: true,
-      secure: true,
     });
     res.send(isCodeValidated);
 
