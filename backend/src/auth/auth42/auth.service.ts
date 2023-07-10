@@ -23,7 +23,6 @@ export class AuthService {
       res.redirect(this.configService.get<string>('FRONTEND_URL') + 'auth/two/' + user.id);
     else {
       const token: string = await this.tokenService.createToken(req.user.id);
-      console.log(token);
       res.cookie('authtoken_' + req.user.id, token, {
         httpOnly: true,
       });

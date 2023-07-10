@@ -31,7 +31,6 @@ export class TokenController {
     if (!req.user) return false;
 
     const test: string = req.cookies['auth_token'];
-    console.log(test);
     const user: userDTO = await this.usersService.findOne(req.user);
     if (user.user_status === 0) {
       user.user_status = 1;

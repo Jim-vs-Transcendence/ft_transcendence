@@ -173,7 +173,7 @@
             return (text);
         }
         if (nickname === "" ||nickname === profile_info.nickname) return;
-        if (nickname.length > 20)
+        if (nickname.length > 10)
         {
             alert("Fork you r nickname : too long");
             return;

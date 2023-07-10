@@ -17,7 +17,6 @@ export class TokenGuard implements CanActivate {
       if (!await this.tokenService.verifyLogin(userId.toString(), login)) {
         return false;
       }
-      console.log('test2')
 
       req.user = userId.toString();
       return userId;

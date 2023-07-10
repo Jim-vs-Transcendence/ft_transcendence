@@ -12,7 +12,7 @@ export class GameService {
 		gameGateway: GameGateway
 	) { this.myGameGateway = gameGateway }
 
-	private readonly fps: number = 1000 / 60;
+	private readonly fps: number = 1000 / 30;
 	private readonly canvasWidth: number = 1200;
 	private readonly canvasHeight: number = 600;
 
@@ -183,7 +183,7 @@ export class GameService {
 				room.leftPlayer.updateData.moveData.ballX += room.leftPlayer.ballSpeed;
 				room.rightPlayer.updateData.moveData.ballX -= room.leftPlayer.ballSpeed;
 			}
-			
+
 			if (room.isHitPaddle === false) {
 				if (room.leftPlayer.ballSpeed > blinkMoveLeft && room.leftPlayer.updateData.moveData.ballMoveX === true) {
 					if (room.leftPlayer.updateData.moveData.ballMoveY) {

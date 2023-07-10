@@ -57,7 +57,6 @@ export class TwoFactorService {
       twoFactorCode,
     );
 
-    console.log(isCodeValidated);
     let token: string;
 
     if (isCodeValidated == true)

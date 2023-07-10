@@ -28,7 +28,6 @@ export class FriendsService {
         // friend_status: In([FriendRequestStatus.PENDING, FriendRequestStatus.ACCEPTED]),
       },
     });
-    // console.log(friendEntities);
 
     const ret: friendDTO[] = await Promise.all(
       friendEntities.map(async (friend) => {
@@ -119,10 +118,24 @@ export class FriendsService {
       },
     });
 
+    const blocked = await this.friendRepository.findOne({
+      where: {
+        user_to: { id: user_to },
+        user_from: { id: user_from },
+        friend_status: FriendRequestStatus.BLOCKED,
+      },
+    });
+
     if (!request) {
       return false;
     }
-    if (request.friend_status !== FriendRequestStatus.BLOCKED) {
+    if (request.friend_status === FriendRequestStatus.BLOCKED) {
+      await this.friendRepository.delete(request);
+      return false;
+    }
+
+    if (blocked && blocked.friend_status === FriendRequestStatus.BLOCKED) {
+      await this.friendRepository.delete(request);
       return false;
     }
 
@@ -147,8 +160,8 @@ export class FriendsService {
   ): Promise<boolean> {
     const pending: Friend = await this.friendRepository.findOne({
       where: {
-        user_from: { id: user_to },
-        user_to: { id: user_from },
+        user_from: { id: user_from },
+        user_to: { id: user_to },
         friend_status: FriendRequestStatus.PENDING,
       },
     });
@@ -204,7 +217,6 @@ export class FriendsService {
         friend_status: In([FriendRequestStatus.BLOCKED]),
       },
     });
-    // console.log(friendEntities);
 
     const ret: friendDTO[] = await Promise.all(
       friendEntities.map(async (friend) => {

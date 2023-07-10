@@ -2,6 +2,7 @@ version: "3"
 
 volumes:
   volume_postgres:
+  volume_backend:
 
 networks:
   network-transcendence:
@@ -37,6 +38,8 @@ services:
     ports:
       - 3000:3000
     command: node dist/main.js
+    volumes:
+      - volume_backend:/mnt/img
     networks:
       - network-transcendence
       - default

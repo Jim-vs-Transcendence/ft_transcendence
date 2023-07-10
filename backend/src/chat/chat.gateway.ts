@@ -469,7 +469,7 @@ export class ChatGateway
 
 	ft_channel_mute(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority < Authority.MANAGER
+		if (channel._users.get(user_grantor)._authority <= Authority.MANAGER
 			&& channel._users.has(user_heritor)) {
 			channel._users.get(user_heritor)._is_muted = true;
 			setTimeout(() => {
@@ -486,7 +486,7 @@ export class ChatGateway
 
 	ft_channel_unmute(channel_name: string, user_grantor: string, user_heritor: string) {
 		let channel: ChatRoomDTO = channel_list.get(channel_name);
-		if (channel._users.get(user_grantor)._authority < Authority.MANAGER
+		if (channel._users.get(user_grantor)._authority <= Authority.MANAGER
 			&& channel._users.has(user_heritor)) {
 			channel._users.get(user_heritor)._is_muted = false;
 			return (0);

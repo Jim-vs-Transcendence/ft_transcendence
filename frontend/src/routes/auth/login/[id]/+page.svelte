@@ -10,11 +10,6 @@
     let isScrolling = false;
     let timer: NodeJS.Timer;
 
-    let skip = function(event: KeyboardEvent) {
-        if (event.code === 'KeyX') {
-            goMain();
-        }
-    };
 
     async function goMain() {
 		audio.pause();
@@ -55,8 +50,6 @@
           {
           }
 		audio = new Audio(music);
-
-        window.addEventListener('keydown', skip);
     });
 
 </script>
@@ -171,11 +164,7 @@ JVT는 여러분이 그 주인공이고,
 
 감사합니다.
 
-<button
-	on:click={() => goMain()}
->
-	Click to Skip
-</button>
+Click to Skip
 
 [Credit]
 chpark

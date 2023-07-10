@@ -20,8 +20,6 @@
         CHATING,
     }
 
-    let isRefused = false;
-
     const goProfile = (name: string) => {
         goto('/profile/' + name)
     };
@@ -38,10 +36,9 @@
 
     async function noFriend(): Promise<void> {
         await delApi({
-            path: 'friends/requests/' + friend.id,
+            path: 'friends/requests/' + friend.id + '/reject',
             data: {}
         });
-        isRefused = true;
     }
 
     //프로필 팝업
@@ -58,8 +55,7 @@
 	});
 </script>
 
-{#if !isRefused}
-    {#if friend.friendStatus !== FriendRequestStatus.BLOCKED}
+{#if friend.friendStatus !== FriendRequestStatus.BLOCKED}
     <div>
     <Avatar
         src={friend.avatar}
@@ -90,7 +86,6 @@
             </button>
         {/if}
     </span>
-    
+
     </div>
-    {/if}
 {/if}

@@ -155,7 +155,6 @@ export class UsersController {
     @Req() req: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<{ url: string }> {
-    console.log('uploads');
     return await this.usersService.uploadImage(req, file);
   }
 

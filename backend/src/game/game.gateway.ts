@@ -82,6 +82,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				clearInterval(room.dataFrame);
 				clearInterval(room.endTimer);
 
+				if (room.isEnd) {
+					this.service.endGame(room);
+					return ;
+				}
+
 				if (room.leftPlayer.socketId === client.id) {
 					// rightPlayer win
 					console.log('rightPlayer win');
@@ -197,11 +202,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 		@MessageBody() opponentPlayer: string,
 	) {
-		console.log('client id:', client.id, client.handshake.query._userId as string);
-		console.log('User', this.gameUsers);
 		let userSocket = this.findGameUserSocket(opponentPlayer);
 		if (userSocket) {
-			console.log(this.server.sockets);
 			userSocket.emit('youGotInvite', client.handshake.query._userId);
 		}
 		else {

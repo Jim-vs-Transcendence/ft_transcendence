@@ -55,13 +55,13 @@
 
   let intervalId: NodeJS.Timer;
 
-  const startInterval = () => {
+  export let startInterval = () => {
     intervalId = setInterval(() => {
     updateFriend();
-    }, 5000);
+    }, 1000);
   };
 
-  const stopInterval = () => {
+  export let stopInterval = () => {
     clearInterval(intervalId);
   };
 
@@ -93,7 +93,7 @@ function handleEnter(e: KeyboardEvent) {
 
 async function doSearch() {
     console.log(insertUserId)
-    let answer : UserDTO | string; 
+    let answer : UserDTO | string;
     try {
             answer = await getApi({
                      path: 'user/' + insertUserId,
@@ -153,7 +153,7 @@ async function doSearch() {
   <h1 class="h1 text-center -mt-3 col-span-3">
     <!-- 메인 로고 -->
     <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">
-        <span on:click={goHome} style="cursor: alias;">Jim&nbsp;</span><!--typeof answer === "string" && 
+        <span on:click={goHome} style="cursor: alias;">Jim&nbsp;</span><!--typeof answer === "string" &&
         --><span on:click={goGame} style="cursor: progress;">vs</span><!--
         --><span on:click={goHome} style="cursor: alias;">&nbsp;Transcendence</span>
     </span>

@@ -95,7 +95,6 @@ export class FriendsController {
     @Req() req: RequestWithUser,
     @Param('user_from') user_from: string,
   ): Promise<boolean> {
-    console.log('accept');
     return this.friendsService.acceptFriendRequest(req.user, user_from);
   }
 
@@ -123,12 +122,11 @@ export class FriendsController {
     description: '성공여부를 boolean값으로 반환해줍니다.',
     type: Boolean,
   })
-  @Delete('requests/:user_from')
+  @Delete('requests/:user_from/reject')
   rejectFriendRequest(
     @Req() req: RequestWithUser,
     @Param('user_from') user_from: string,
   ): Promise<boolean> {
-    console.log('reject');
     return this.friendsService.rejectFriendRequest(user_from, req.user);
   }
 
