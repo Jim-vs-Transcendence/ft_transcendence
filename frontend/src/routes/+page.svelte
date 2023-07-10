@@ -9,7 +9,7 @@
   import LoadingMessage from "../components/Auth/LoadingMessage.svelte"
 
   //1. store.ts에 만들어질 isLogin함수 활용해서 로그인 여부 확인
-  let userInfo : UserDTO; //여기 any는 나중에 타입 정해지면 바꿔야 함
+  let userInfo : UserDTO;
   let isLoading = true;
 
   onMount(async () => {

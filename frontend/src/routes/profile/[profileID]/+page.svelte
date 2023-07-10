@@ -48,7 +48,6 @@
 			//2. target user profile / isMyself가 false라면,
 			profile_path = 'user/' + profileID;
 			profile_info = await getApi({ path: profile_path });
-			console.log(profile_info);
 
 			//만약 본인 프로필에 들어갔다면
 			if (userInfo.id === profileID) {
@@ -58,7 +57,6 @@
 			else
 			{
 				const friendList : friendDTO[] = await getApi({ path: 'friends' });
-                console.log(friendList);
 				const found = friendList.find((friend) => friend.id.includes(profileID));
 				if (found) {
 					if (found.friendStatus === 'accepted')

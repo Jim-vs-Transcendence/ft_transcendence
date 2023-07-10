@@ -82,7 +82,7 @@
 			if (!data._room_name)
 				return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
 			if (!data._pass) return alert('비밀번호가 일치하지 않습니다.');
-			modalStore.close(); // 이거의 역활??
+			modalStore.close();
 			goto('/main/' + data._room_name);
 		});
 	}

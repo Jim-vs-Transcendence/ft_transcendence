@@ -26,7 +26,7 @@
     }
 </script>
 
-<div class="cursor-pointer hover:variant-glass-surface" on:keypress={()=>{console.log("keypress")}} on:click={ftDmChat} >
+<div class="cursor-pointer hover:variant-glass-surface" on:click={ftDmChat} >
     <Avatar
         bind:src={dmUserInfo._userInfo.avatar}
         width="w-7"

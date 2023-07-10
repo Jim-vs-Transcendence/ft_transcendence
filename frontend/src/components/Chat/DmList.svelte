@@ -4,7 +4,7 @@
   import DmUser from './DmUser.svelte'
   import { DM_KEY } from '$lib/webSocketConnection_chat';
   import { getApi } from '../../service/api'
-  
+
   export let userInfo: UserDTO
 
   let opponentUserId= ''
@@ -20,7 +20,6 @@
           await ftUpdateDmList()
         }
       } catch (error) {
-        console.log(error)
         return alert('DM list loading error')
       }
   })
@@ -43,7 +42,7 @@
 
   async function ftUpdateChatLocalStorage(userId: string, newDmChatStore : DmUserInfoIF) {
     let curloadDmChat  : string | null = localStorage.getItem(DM_KEY)
-    
+
     let curDmStoreData : DmChatStoreIF
     if (curloadDmChat) {
       curDmStoreData = JSON.parse(curloadDmChat)

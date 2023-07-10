@@ -14,7 +14,6 @@
 
     onMount(async () => {
         matchHistory = await getApi({ path: 'match-history/' + profile_id });
-        // if profile_id win -> true
         matchHistory = matchHistory.map(function(history) {
             if (profile_id == history.player1
             && history.player1_score > history.player2_score) {

@@ -12,14 +12,12 @@
 
   async function handleSubmit(input: string): Promise<void> {
     try {
-      console.log(input);
         response = await postApi({ path: 'two-factor/authentication/' + id, data:
           {
             "twoFactorCode": input
           }
         }
       );
-    console.log(response);
     if (response === true)
     {
       goto(`../login/${id}`);

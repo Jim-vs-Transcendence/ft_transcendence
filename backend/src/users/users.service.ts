@@ -15,7 +15,6 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
-  // User part
   async findAll(): Promise<userDTO[]> {
     return await this.userRepository.find();
   }

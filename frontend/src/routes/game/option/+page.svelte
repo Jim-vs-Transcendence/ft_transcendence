@@ -17,13 +17,11 @@
 
 	const main = async () => {
 		io_game.emit('gameQuit');
-		console.log('option back button clicked');
 		await goto('/main');
 	};
 
 	function setReady() {
 		cnt++;
-		console.log('set Ready');
 		if (cnt === 1) {
 			optionEmit();
 		}
@@ -41,11 +39,9 @@
 	// function을 새로 정의하여 value값을 매개변수로 넘긴다
 
 	function optionEmit() {
-		console.log(score, color, ballSize);
 		gameClientOption._gameScore = score;
 		gameClientOption._canvasColor = color;
 		gameClientOption._ballRadius = ballSize;
-		console.log(gameClientOption);
 		io_game.emit('optionReady', gameClientOption);
 	}
 
@@ -59,13 +55,10 @@
 		const num: number = parseInt(input, 10);
 		if (num === 3) {
 			score = 3;
-			// scoreEmit();
 		} else if (num == 5) {
 			score = 5;
-			// scoreEmit();
 		} else if (num == 6) {
 			score = 6;
-			// scoreEmit();
 		} else if (num >= 10) {
 			alert('사용자의 피로도를 고려해 10점 이상은 진행할 수 없습니다');
 		} else {
@@ -126,7 +119,6 @@
 		} else {
 			ballSize = 35 - value;
 		}
-		// ballSizeEmit();
 	}
 
 	async function handleBeforeUnload() {
@@ -142,12 +134,10 @@
 	// 옵션 페이지에서만 작동 안 함. 왜
 	onMount(async () => {
 		if ( io_game === undefined) {
-			console.log('user refresh');
 			await goto('/main');
 		}
 
 		try {
-			//1. token기반
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');

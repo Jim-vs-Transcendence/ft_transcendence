@@ -23,7 +23,6 @@ import { ConfigService } from '@nestjs/config';
 import RequestWithUser from 'src/auth/interfaces/RequestWithUserID.interface';
 import userDTO from './user.dto';
 
-// fileInterceptor 안에서 this 참조가 안 돼서 어쩔 수 없이...
 const configService = new ConfigService();
 const IMAGE_SAVE_PATH = configService.get<string>('IMAGE_SAVE_PATH');
 

@@ -31,7 +31,6 @@ export class AuthService {
   }
 
   async logout(req: Request, res: Response): Promise<void> {
-    //cookie
     const header_id: string = await req.header('userid');
     const token = req.cookies['authtoken_' + header_id];
     const userId: string | boolean = await this.tokenService.verifyToken(token);

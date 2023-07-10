@@ -7,17 +7,14 @@
   export let userInfo: UserDTO ;
   export let friendList: friendDTO[];
 
-  //friendsList component
   import FriendsList from '../Profile/FriendsList.svelte';
 
-  //css
   import { AppBar } from '@skeletonlabs/skeleton';
   import { Avatar } from '@skeletonlabs/skeleton';
   import { Drawer, drawerStore } from '@skeletonlabs/skeleton';
   import { getApi } from '../../service/api';
   import { onMount, onDestroy } from 'svelte';
 
-  // tab
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
 	import DmList from '../Chat/DmList.svelte';
@@ -26,7 +23,6 @@
     authToken.logout()
   };
 
-  //상대경로가 아닌 절대경로 프로필로 이동하도록 설정
   const goProfile = (name: string) => {
     goto('/profile/' + name, { replaceState: true });
   };
@@ -92,7 +88,6 @@ function handleEnter(e: KeyboardEvent) {
 }
 
 async function doSearch() {
-    console.log(insertUserId)
     let answer : UserDTO | string;
     try {
             answer = await getApi({

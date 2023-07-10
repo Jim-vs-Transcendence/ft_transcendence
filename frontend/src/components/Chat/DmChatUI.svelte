@@ -1,11 +1,11 @@
 <script lang="ts">
     import { onMount } from 'svelte'
     import { Avatar } from '@skeletonlabs/skeleton'
-    
+
     // Stores
 	import { modalStore } from '@skeletonlabs/skeleton'
     import type { DmUserInfoIF, DmChatIF, DmChatStoreIF } from '$lib/interface'
-    
+
     // Socket
     import { BlOCKED_USER_KEY, DM_KEY, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
@@ -18,9 +18,9 @@
     export let dmStoreData: DmChatStoreIF
 
 	let socket: Socket;
-    
+
     let loadDmChat : string | null;
-    
+
     const unsubscribe : Unsubscriber = socketStore.subscribe((_socket: Socket) => {
         socket = _socket;
 	});
@@ -53,7 +53,7 @@
                 }, 0)
             }
             catch {
-                alert('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.') 
+                alert('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.')
             }
         })
       } catch (error) {
@@ -62,7 +62,6 @@
     })
 
     onDestroy(() => {
-        console.log("onDestroy() in DmChatUI.svelte");
         unsubscribe();
     });
 
@@ -82,7 +81,7 @@
     ================================================================================ */
     let currentMessage = ''
     let elemChat: HTMLElement
-    
+
     function scrollChatBottom(behavior?: ScrollBehavior): void {
         if (elemChat && elemChat.scrollHeight && elemChat.scrollHeight > window.innerHeight)
             elemChat.scrollTo({ top: elemChat.scrollHeight, behavior })
@@ -91,7 +90,7 @@
     async function addMessage(): Promise<void> {
         currentMessage = currentMessage.trim()
         if (!(currentMessage))
-            return 
+            return
         else if (currentMessage.length >= 300)
             return alert("300자 이상 입력하실 수 없습니다.")
 		const newMessage : DmChatIF = {
@@ -126,7 +125,6 @@
                 socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
-            console.log(error)
             alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
         }
     }

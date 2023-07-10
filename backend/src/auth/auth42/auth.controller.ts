@@ -19,9 +19,7 @@ export class AuthController {
 
   @Get('login')
   @UseGuards(AuthGuard42)
-  login(): void {
-    //
-  }
+  login(): void {}
 
   @Get('42/callback')
   @UseGuards(AuthGuard42)
@@ -33,7 +31,6 @@ export class AuthController {
     await this.authService.login(req, res);
   }
 
-  // token 기반 -> id 기반
   @Get('logout')
   async logout(@Req() req: Request, @Res() res: Response): Promise<void> {
     await this.authService.logout(req, res);

@@ -9,10 +9,8 @@ function setAuth() {
             const getUserInfo = await getApi({path: 'token'});
             return getUserInfo;
         }
-        catch(error)
-        {
-            // cookie로 대체해야함
-            // authToken.resetAuthToken();
+        catch(error) {
+            console.log('error');
         }
     }
     return {
@@ -34,15 +32,9 @@ function setAuthToken() {
     const login = async (id: string) => {
         try {
             const response = await getApi({ path: 'token/' + id });
-            // token = response;
 
             const loginResponse: loginDTO = response;
             const isLogin = loginResponse.islogin;
-
-            console.log(loginResponse);
-
-            // console.log(token);
-            // // debug
 
             if (browser && isLogin) {
                 localStorage.setItem('userid', id);

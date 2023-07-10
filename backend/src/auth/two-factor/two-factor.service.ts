@@ -68,14 +68,4 @@ export class TwoFactorService {
 
     return isCodeValidated;
   }
-
-  // async deleteSecret(userId: string) : Promise<boolean> {
-  //   const user: User = await this.userService.findOne(userId);
-
-  //   user.two_factor = false;
-  //   user.two_factor_secret = "";
-
-  //   this.userService.updateUser(userId, user);
-
-  // }
 }

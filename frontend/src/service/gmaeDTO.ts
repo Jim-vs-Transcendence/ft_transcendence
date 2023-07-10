@@ -9,12 +9,3 @@ interface UserDTO {
     two_factor: boolean;
     user_status: number;
 }
-
-// interface friendDTO {
-//     id: string;
-//     nickname: string;
-//     avatar: string;
-//     status: number;
-//     friendStatus: FriendRequestStatus;
-//   }
-  

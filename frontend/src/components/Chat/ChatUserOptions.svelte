@@ -18,10 +18,7 @@
 
 	let chat_socket: Socket;
 	let game_socket: Socket;
-	// let optionButtonElement: HTMLButtonElement;
 	let optionButtonElements: Array<HTMLButtonElement | null> = [null, null, null, null, null]; // Initialize the array with null values
-
-	// $: optionButtonElement;
 
 	const chatUnsubscribe: Unsubscriber = socketStore.subscribe((_socket: Socket) => {
 		chat_socket = _socket;
@@ -32,7 +29,6 @@
 	});
 
 	onDestroy(() => {
-		console.log("onDestroy() in ChatUserOptions.svelte");
 		chatUnsubscribe();
 		gameUnsubscribe();
 	});

@@ -16,7 +16,6 @@
 		if (status === 1)
 			gameStatus = true;
 		io_game.emit('gameQuit', gameStatus);
-		console.log('in game back button clicked');
 		removeEvent();
 		await goto('/main');
 	};
@@ -83,8 +82,6 @@
 	}
 
 	function initPlayer(Player: GamePlayerData) {
-		console.log(Player);
-		console.log('init Player', Player.canvasWidth);
 		canvas.width = Player.canvasWidth;
 		canvas.height = Player.canvasHeight;
 		width = canvas.width;
@@ -114,7 +111,6 @@
 	}
 
 	function draw(moveData: GameMoveData) {
-		console.log(moveData);
 		context.clearRect(0, 0, width, height);
 		context.beginPath();
 		context.arc(
@@ -149,7 +145,6 @@
 	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			readyCnt++;
-			console.log('enter press');
 			if (readyCnt < 0) {
 			} else if (readyCnt === 1 && rdyFlag === false) {
 				rdyFlag = true;
@@ -194,9 +189,7 @@
 			const userData = await getGameData();
 			initPlayer(userData);
 			draw(userData.updateData.moveData);
-			console.log('Received game draw data:', userData);
 		} catch (error) {
-			console.error('Failed to receive game draw data:', error);
 		}
 	}
 
@@ -217,7 +210,6 @@
 		}
 
 		try {
-			//1. token기반
 			userInfo = await auth.isLogin();
 		} catch (error) {
 			alert('오류 : 프로필을 출력할 수 없습니다1');
@@ -235,7 +227,6 @@
 		window.addEventListener('keydown', handleKeyPress);
 
 		io_game.on('gotoMain', () => {
-			console.log('in game go to main');
 			removeEvent();
 			goto('/main');
 		});

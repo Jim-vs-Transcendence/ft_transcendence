@@ -25,7 +25,6 @@ export class FriendsService {
     const friendEntities: Friend[] = await this.friendRepository.find({
       where: {
         user_to: { id: user_to },
-        // friend_status: In([FriendRequestStatus.PENDING, FriendRequestStatus.ACCEPTED]),
       },
     });
 
@@ -198,8 +197,6 @@ export class FriendsService {
 
   // Block a user
   async blockUser(user_from: string, user_to: string): Promise<boolean> {
-    // 상호 block 허용
-
     const blockship: Friend = this.friendRepository.create({
       user_from: { id: user_from },
       user_to: { id: user_to },

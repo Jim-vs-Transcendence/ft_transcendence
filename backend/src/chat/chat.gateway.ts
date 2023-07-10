@@ -19,7 +19,6 @@ import { channel } from 'diagnostics_channel';
 import { timeout } from 'rxjs';
 import { parentPort } from 'worker_threads';
 '../../'
-// let channel_list = new Map<string, ChatRoom>();
 let channel_list: Map<string, ChatRoomDTO> = new Map<string, ChatRoomDTO>();
 let socket_list: Map<string, Socket> = new Map<string, Socket>();
 
@@ -38,13 +37,11 @@ export class ChatGateway
 		this.server.server.engine.opts.pingInterval = 20000;
 		this.server.server.engine.opts.upgradeTimeout = 40000;
 
-		//// 이게 문제네...
 		this.server.adapter.on("delete-room", (room: string) => {
 			channel_list.delete(room);
 			this.server.emit('room-refresh', this.ft_room_list());
 		})
 
-		//// 이거 따로 여기한이유 생각안남..
 		this.server.adapter.on("leave-room", (room: string, id: string) => {
 			const client: Socket = this.server.sockets.get(id);
 			const userid: string | String[] = client.handshake.query._userId;
@@ -55,9 +52,8 @@ export class ChatGateway
 
 	// chat.gateway.ts
 	async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
-		this.server.adapter.rooms // ???? 왜잇음?
+		this.server.adapter.rooms
 		let userid: string | string[] = client.handshake.query._userId;
-		// let userdata = await this.userService.findOne(userid as string);
 		if (typeof userid === 'string') {
 			if (socket_list.has(userid))
 				socket_list.get(userid).disconnect();
@@ -173,7 +169,6 @@ export class ChatGateway
 		}
 		if (!await this.ft_channel_join(payload, userid))
 			return client.emit('room-join', payload);
-		// refactoring
 		const channel = channel_list.get(payload._room_name);
 		const channelSendDTO: ChatRoomSendDTO = {
 			_name: channel._name,
@@ -183,7 +178,6 @@ export class ChatGateway
 		}
 		client.join(payload._room_name);
 		this.server.to(payload._room_name).emit('chat-refresh', channelSendDTO);
-		// refactoring end
 		payload._pass = true;
 		client.emit('room-join', payload);
 	}
@@ -518,11 +512,10 @@ export class ChatGateway
 		if (channel._users.has(user_grantor)) {
 			if (channel._users.has(user_heritor) &&
 				channel._users.get(user_grantor)._authority > channel._users.get(user_heritor)._authority) {
-				// 능력밖 밴 금지
 				return (1);
 			}
 			if (channel._ban_user.indexOf(user_heritor) != -1)
-				return (2); // 이미 존제
+				return (2);
 			channel._ban_user.push(user_heritor);
 			this.ft_channel_kick(channel_name, user_grantor, user_heritor);
 			setTimeout(() => {
@@ -555,9 +548,7 @@ export class ChatGateway
 		@MessageBody() payload: string,
 	) {
 		console.log("\x1b[38;5;226m chat-refresh \x1b[0m :", payload);
-		// refactoring
 		const channel = channel_list.get(payload);
-		// refactoring end
 		if (channel !== undefined) {
 			const channelSendDTO: ChatRoomSendDTO = {
 				_name: channel._name,
@@ -632,7 +623,6 @@ export class ChatGateway
 		@MessageBody() payload: ChatMsgDTO,
 	) {
 		const userid: string | string[] = client.handshake.query._userId;
-		// console.log("\x1b[38;5;226m chat-msg-event \x1b[0m :", payload._room_name, userid);
 		if (!this.server.adapter.rooms.has(payload._room_name)) {
 			console.log("\x1b[38;5;196m Error :: \x1b[0m chat-connect url is not enable");
 			return;

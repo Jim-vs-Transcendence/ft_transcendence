@@ -18,7 +18,6 @@ export class GameService {
 
 	private readonly initBallX: number = this.canvasWidth / 2;
 	private readonly initBallY: number = this.canvasHeight / 2;
-	// 옵션 페이지 매개변수로 받아서 설정해줄 것
 	private readonly ballSpeed: number = 15;
 
 	private readonly paddleWidth: number = this.canvasWidth * 0.02;
@@ -76,17 +75,12 @@ export class GameService {
 		player2.ballMoveY = moveY;
 	}
 
-	// test function will be call back to main page
-	// 서비스로 가는데, 지우는 건 gateway가 해줘야 됨
 	public endGame(room: GameRoom) {
-		// 재시작 여부 판단 로직 추가
-		console.log('who is it?', room.leftPlayer.socketId, room.rightPlayer.socketId);
 		this.myGameGateway.server.to(room.leftPlayer.socketId).emit('gotoMain', true);
 		this.myGameGateway.server.to(room.rightPlayer.socketId).emit('gotoMain', true);
 		this.myGameGateway.roomKey.delete(room.leftPlayer.socketId);
 		this.myGameGateway.roomKey.delete(room.rightPlayer.socketId);
 		this.myGameGateway.rooms.delete(room.leftPlayer.socketId);
-		console.log('wait success');
 	}
 
 	private resetScore(player: GameUpdateData) {
@@ -102,7 +96,6 @@ export class GameService {
 	}
 
 	public resetGame(room: GameRoom): void {
-		console.log('reset Game called');
 		room.rightPlayer.updateData.leftScore = room.leftPlayer.updateData.rightScore;
 		room.rightPlayer.updateData.rightScore = room.leftPlayer.updateData.leftScore;
 		room.isHitPaddle = false;
@@ -113,7 +106,6 @@ export class GameService {
 		const endScore: number = room.leftPlayer.gameScore;
 
 		if (room.leftPlayer.updateData.leftScore >= endScore || room.leftPlayer.updateData.rightScore >= endScore) {
-			console.log('reset game called and game end');
 			clearInterval(room.dataFrame);
 			room.isEnd = true;
 			room.leftReady = false;
@@ -138,7 +130,6 @@ export class GameService {
 			gamePlayerScoreData.player2 = room.rightPlayer.myId;
 			gamePlayerScoreData.player2_score = room.leftPlayer.updateData.rightScore;
 			gamePlayerScoreData.game_type = room.gameType;
-			// user 쪽에서 DB에 POST하는 로직 추가
 			this.myGameGateway.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 		}
 
@@ -196,7 +187,6 @@ export class GameService {
 					}
 					room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
 					room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
-					console.log('left hit ball location : ', room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.leftPaddleY, room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight)
 					if (room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius >= room.leftPlayer.updateData.moveData.leftPaddleY) {
 						room.leftPlayer.updateData.moveData.ballMoveX = false;
 						room.rightPlayer.updateData.moveData.ballMoveX = true;
@@ -217,7 +207,6 @@ export class GameService {
 					}
 					room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
 					room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
-					console.log('right hit ball location : ', room.leftPlayer.updateData.moveData.ballY, room.leftPlayer.updateData.moveData.leftPaddleY, room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight)
 					if (room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius <= room.leftPlayer.updateData.moveData.rightPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius >= room.leftPlayer.updateData.moveData.rightPaddleY) {
 						room.leftPlayer.updateData.moveData.ballMoveX = true;
 						room.rightPlayer.updateData.moveData.ballMoveX = false;
@@ -229,7 +218,6 @@ export class GameService {
 				}
 				else if (room.leftPlayer.ballSpeed <= blinkMoveLeft || room.leftPlayer.ballSpeed <= blinkMoveRight) {
 					if (room.leftPlayer.updateData.moveData.ballX - (room.leftPlayer.ballRadius) <= this.initLeftPaddleX + this.paddleWidth && room.leftPlayer.updateData.moveData.ballX - room.leftPlayer.ballRadius >= this.initLeftPaddleX) {
-						console.log('slow left hit ball location : ', room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.leftPaddleY, room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight)
 						if (room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius <= room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius >= room.leftPlayer.updateData.moveData.leftPaddleY) {
 							room.leftPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;
 							room.rightPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
@@ -242,7 +230,6 @@ export class GameService {
 						}
 					}
 					if (room.leftPlayer.updateData.moveData.ballX + (room.leftPlayer.ballRadius) >= this.initRightPaddleX && room.leftPlayer.updateData.moveData.ballX + room.leftPlayer.ballRadius <= this.initRightPaddleX + this.paddleWidth) {
-						console.log('slow left hit ball location : ', room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius, room.leftPlayer.updateData.moveData.leftPaddleY, room.leftPlayer.updateData.moveData.leftPaddleY + this.paddleHeight)
 						if (room.leftPlayer.updateData.moveData.ballY - room.leftPlayer.ballRadius <= room.leftPlayer.updateData.moveData.rightPaddleY + this.paddleHeight && room.leftPlayer.updateData.moveData.ballY + room.leftPlayer.ballRadius >= room.leftPlayer.updateData.moveData.rightPaddleY) {
 							room.leftPlayer.updateData.moveData.ballX = this.initRightPaddleX - room.leftPlayer.ballRadius;
 							room.rightPlayer.updateData.moveData.ballX = this.initLeftPaddleX + this.paddleWidth + room.leftPlayer.ballRadius;

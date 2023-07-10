@@ -41,7 +41,6 @@
 	});
 
 	onMount(async () => {
-		console.log("onmoute page + ");
 		try {
 			if (socket === undefined)
 				await goto("/main");
@@ -65,24 +64,20 @@
 
 			/* ===== chat-refresh ===== */
 			socket.on('chat-refresh', (data: ChatRoomSendIF | string) => {
-				console.log(data);
 				if (typeof data === 'object')
 					room = data;
 				else
 				{
-					console.log("chat refresh error");
 					goto("/main");
 				}
 			})
 
 			socket.on("chat-leave", (data) => {
-				console.log("chat_leave",data);
 				goto("/main");
 			})
 
 			/* ===== chat-msg-even ===== */
 			socket.on('chat-msg-event', (data: ChatMsgIF) => {
-				console.log("chat-msg-event : ", data);
 				msg_list = [...msg_list, data];
 				setTimeout(() => {
 					scrollChatBottom('smooth');
@@ -99,20 +94,16 @@
 			socket_game.on('youGotInvite', handleGameInvite);
 
 			function handleGameInvite(data: string) {
-				console.log('초대좀 받아라');
 				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data};
 				socket_game.off('youGotInvite');
-				//// 문제 많음 ////
 				if (!invite_status) {
 					invite_status = true;
 					if (confirm("게임초대"))
 					{
-						console.log("게임초대 수락");
 						send_data.acceptFlag = true;
 					}
 					else
 					{
-						console.log("게임초대 거절");
 						invite_status = false;
 						socket_game.on('youGotInvite', handleGameInvite); // 이벤트 다시 등록
 					}
@@ -126,7 +117,6 @@
 			})
 		}
 		catch {
-			console.log("error");
 		}
 	});
 
@@ -154,13 +144,12 @@
 	function ft_chat_send_msg() {
 		chat_data._msg = chat_data._msg.trim()
         if (!(chat_data._msg))
-            return 
+            return
         else if (chat_data._msg.length >= 300)
             return alert("300자 이상 입력하실 수 없습니다.")
 		if (chat_data._msg.length && chat_data._msg != '\n')
 			socket.emit('chat-msg-event', chat_data);
 		chat_data._msg = '';
-		console.log(user_self);
 	}
 
 	function ft_chat_send_msg_keydown(e: KeyboardEvent) {

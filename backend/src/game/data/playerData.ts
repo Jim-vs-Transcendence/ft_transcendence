@@ -19,7 +19,6 @@ export class GameClientOption {
 
 	_canvasColor: string;
 
-	// Ball Location
 	_ballRadius: number;
 	_gameScore: number;
 }

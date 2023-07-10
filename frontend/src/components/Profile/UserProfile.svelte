@@ -72,8 +72,6 @@
                 alert("설정 실패")
             }
         }
-        console.log(getApi({ path: 'user/'+profile_info.id }));
-
     }
 
     //투팩터 팝업 -> 구글어스 출력
@@ -88,7 +86,6 @@
                     }
                     }
                 );
-                console.log(response);
                 if (response === true) {
                     two_factor_toggle();
                     popQR = false;
@@ -249,7 +246,6 @@
                 localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
             } catch (error) {
                 alert("블럭 오류");
-                console.log(error);
             }
         }
         else
@@ -265,19 +261,15 @@
 					let blockedFriends : friendDTO[] = JSON.parse(loadBlockedFrindList);
                     let to_be_remove_index: number = -1;
                     blockedFriends.forEach((blockedFriend, index) => {
-                        console.log("blockedFriend in blockedFriends.forEach() when release blocked friend");
-						console.log(blockedFriend);
                         if (blockedFriend.id === profile_info.id)
                             to_be_remove_index = index;
 					})
-                    console.log("to_be_remove_index : " + to_be_remove_index);
                     if (to_be_remove_index !== -1)
                         blockedFriends.splice(to_be_remove_index, 1);
                     localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
 				}
             } catch (error) {
                 alert("블럭 해제 오류");
-                console.log(error)
             }
         }
     }

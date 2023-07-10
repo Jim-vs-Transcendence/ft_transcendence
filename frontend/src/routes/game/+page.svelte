@@ -42,7 +42,6 @@
 		audio = new Audio(music);
 
 		try{
-			//1. token기반
 			userInfo = await auth.isLogin();
 		}
 		catch(error){
