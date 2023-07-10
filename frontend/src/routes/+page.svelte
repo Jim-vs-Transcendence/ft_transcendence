@@ -26,7 +26,7 @@
           isLoading = false;
           if (sessionStorage.getItem('isLogin') === 'remove') {
             sessionStorage.removeItem('isLogin');
-            alert("중복 로그인이 감지되었습니다, 다시 로그인 해주세요");
+            alert("연결이 끊겼습니다. 다시 로그인 해주세요");
           }
       }
     }

@@ -25,14 +25,14 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 			blockedFriendList = await getApi({
 				path: 'friends/blocks/',
 			});
-			
+
 			if (blockedFriendList.length !== 0)
 				localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriendList));
 		} catch (error) {
 			console.log(error);
 		}
 	};
-	
+
 	if (browser) {
 		userId = localStorage.getItem("userid");
 		DM_KEY += userId
@@ -44,7 +44,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 		query: {
 			_userId : userId
 	}});
-	
+
 	socket.on("dm-chat", async (data : DmChatIF) => {
 		if (browser)
 		{

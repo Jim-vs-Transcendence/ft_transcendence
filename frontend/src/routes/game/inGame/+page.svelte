@@ -17,6 +17,7 @@
 			gameStatus = true;
 		io_game.emit('gameQuit', gameStatus);
 		removeEvent();
+		io_game.disconnect();
 		await goto('/main');
 	};
 
@@ -217,43 +218,49 @@
 			await goto('/main');
 		}
 
-		io_game.emit('inGamePageArrived', gameClientOption._roomName);
+		try {
+			io_game.emit('inGamePageArrived', gameClientOption._roomName);
 
-		handleGameDraw();
+			handleGameDraw();
+			io_game.on('gotoMain', () => {
+				removeEvent();
+				goto('/main');
+			});
+
+			io_game.on('restart', (flag: boolean) => {
+				status = 1;
+				if (flag) {
+					leftScore = 0;
+					rightScore = 0;
+				}
+			});
+
+			io_game.on('gameEnd', (flag: boolean) => {
+				status = 2;
+				retryFlag = true;
+				setEndGame(flag);
+			});
+
+			io_game.on('ballMove', (player: GameMoveData) => {
+				draw(player);
+			});
+
+			io_game.on('oneSetEnd', (player: GameUpdateData) => {
+				leftScore = player.leftScore;
+				rightScore = player.rightScore;
+				draw(player.moveData);
+			});
+		}
+		catch (error) {
+			await goto('/main');
+		}
+
 
 		context = canvas.getContext('2d')!;
 
 		window.addEventListener('resize', resizeCanvas);
 		window.addEventListener('keydown', handleKeyPress);
 
-		io_game.on('gotoMain', () => {
-			removeEvent();
-			goto('/main');
-		});
-
-		io_game.on('restart', (flag: boolean) => {
-			status = 1;
-			if (flag) {
-				leftScore = 0;
-				rightScore = 0;
-			}
-		});
-
-		io_game.on('gameEnd', (flag: boolean) => {
-			status = 2;
-			retryFlag = true;
-			setEndGame(flag);
-		});
-
-		io_game.on('ballMove', (player: GameMoveData) => {
-			draw(player);
-		});
-
-		io_game.on('oneSetEnd', (player: GameUpdateData) => {
-			leftScore = player.leftScore;
-			rightScore = player.rightScore;
-			draw(player.moveData);
-		});
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
 		return () => {

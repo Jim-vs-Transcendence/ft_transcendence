@@ -31,11 +31,11 @@ export class ChatGateway
 
 	@WebSocketServer() server: Namespace;
 
-	afterInit(server: Server) {
+	afterInit() {
 		console.count('Init');
-		this.server.server.engine.opts.pingTimeout = 20000;
-		this.server.server.engine.opts.pingInterval = 20000;
-		this.server.server.engine.opts.upgradeTimeout = 40000;
+		this.server.server.engine.opts.pingTimeout = 5000;
+		this.server.server.engine.opts.pingInterval = 5000;
+		this.server.server.engine.opts.upgradeTimeout = 5000;
 
 		this.server.adapter.on("delete-room", (room: string) => {
 			channel_list.delete(room);
@@ -633,8 +633,6 @@ export class ChatGateway
 		if (typeof userid === "string") {
 			payload._user_name = userid;
 			payload._user_avatar = channel_list.get(payload._room_name)._users.get(userid as string)._user_info.avatar;
-			console.log(channel_list.get(payload._room_name)._users.get(userid as string));
-			console.log(payload);
 			client.emit("chat-msg-event", payload);
 			client.to(payload._room_name).emit('chat-msg-event', payload);
 		}

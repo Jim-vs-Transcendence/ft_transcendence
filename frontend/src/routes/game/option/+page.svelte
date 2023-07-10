@@ -16,7 +16,7 @@
 	let cnt: number = 0;
 
 	const main = async () => {
-		io_game.emit('gameQuit');
+		io_game.emit('gameQuit')
 		await goto('/main');
 	};
 
@@ -144,17 +144,23 @@
 			await goto('/main');
 		}
 
-		io_game.emit('optionPageArrived');
+		try {
+			io_game.emit('optionPageArrived');
+			io_game.on('gotoMain', () => {
+				console.log('game option error');
+				goto('/main');
+			});
 
-		io_game.on('gotoMain', () => {
-			goto('/main');
-		});
+			io_game.on('optionReady', (flag: boolean) => {
+				if (flag) {
+					goto('/game/inGame');
+				}
+			});
+		}
+		catch (error) {
+			await goto('/main');
+		}
 
-		io_game.on('optionReady', (flag: boolean) => {
-			if (flag) {
-				goto('/game/inGame');
-			}
-		});
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
 		return () => {

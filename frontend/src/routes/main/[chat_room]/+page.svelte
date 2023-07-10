@@ -116,7 +116,8 @@
 				goto('/game/option');
 			})
 		}
-		catch {
+		catch (error) {
+			goto('/main');
 		}
 	});
 

@@ -18,6 +18,7 @@
 	const main = async () => {
 		io_game.emit('queueOut', );
 		audio.pause();
+		io_game.disconnect();
 		await goto('/main');
 	};
 
@@ -53,13 +54,19 @@
 			await goto('/main');
 		}
 
-		io_game.emit('pushMatchList', );
+		try {
+			io_game.emit('pushMatchList', );
 
-		io_game.on('roomName', (roomName: string) => {
-			gameClientOption._roomName = roomName;
-			audio.pause();
-			goto('/game/option');
-		});
+			io_game.on('roomName', (roomName: string) => {
+				gameClientOption._roomName = roomName;
+				audio.pause();
+				goto('/game/option');
+			});
+		}
+		catch (error) {
+			await goto('/main');
+		}
+
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
 			return () => {

@@ -56,9 +56,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	afterInit(server: Server) {
-		this.server.server.engine.opts.pingTimeout = 20000;
-		this.server.server.engine.opts.pingInterval = 20000;
-		this.server.server.engine.opts.upgradeTimeout = 20000;
+		this.server.server.engine.opts.pingTimeout = 5000;
+		this.server.server.engine.opts.pingInterval = 5000;
+		this.server.server.engine.opts.upgradeTimeout = 5000;
 	}
 
 	private destroyRoom(client: Socket, gameStatus?: boolean) {
