@@ -18,7 +18,6 @@
 	const main = async () => {
 		io_game.emit('queueOut', );
 		audio.pause();
-		io_game.disconnect();
 		await goto('/main');
 	};
 

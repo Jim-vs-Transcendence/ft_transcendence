@@ -17,7 +17,6 @@
 			gameStatus = true;
 		io_game.emit('gameQuit', gameStatus);
 		removeEvent();
-		io_game.disconnect();
 		await goto('/main');
 	};
 
