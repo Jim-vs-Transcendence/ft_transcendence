@@ -473,7 +473,7 @@ export class ChatGateway
 			&& channel._users.has(user_heritor)) {
 			channel._users.get(user_heritor)._is_muted = true;
 			setTimeout(() => {
-				if (channel._users.get(user_heritor))
+				if (channel && channel._users.get(user_heritor))
 				{
 					channel._users.get(user_heritor)._is_muted = false;
 					this.ft_chat_refresh_all(channel);
@@ -526,8 +526,12 @@ export class ChatGateway
 			channel._ban_user.push(user_heritor);
 			this.ft_channel_kick(channel_name, user_grantor, user_heritor);
 			setTimeout(() => {
-				channel._ban_user.splice(channel._ban_user.indexOf(user_heritor), 1);
-				this.ft_chat_refresh_all(channel);
+				if (channel && channel._ban_user &&
+					channel._ban_user.indexOf(user_heritor) != -1)
+				{
+					channel._ban_user.splice(channel._ban_user.indexOf(user_heritor), 1);
+					this.ft_chat_refresh_all(channel);
+				}
 			}, 30000);
 			return (0);
 		}
