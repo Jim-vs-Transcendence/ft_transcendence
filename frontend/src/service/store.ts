@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 import { getApi, petchApi, delApi, postApi } from "../service/api";
 import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
@@ -80,5 +80,24 @@ function setAuthToken() {
     }
 }
 
+// function setBlockedFriendList() {
+//     const blockedList = async () => {
+//         try {
+//             const blockedFriendList = await getApi({
+    // 				path: 'friends/blocks/',
+    // 			});
+//             return blockedFriendList;
+//         }
+//         catch(error) {
+//             console.log(error);
+//         }
+//     }
+//     return {
+//         blockedList
+//     }
+// }
+
 export const auth = setAuth();
 export const authToken = setAuthToken();
+// setBlockedFriendList()과 writable을 같이 쓸 수 있는 방법
+export const blockedList : Writable<friendDTO[]> = writable([]);

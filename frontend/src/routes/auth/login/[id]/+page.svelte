@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { auth, authToken } from '../../../../service/store';
     import { page } from '$app/stores';
@@ -169,7 +169,7 @@ Click to Skip
 [Credit]
 chpark
 dhyun
-gyepkim
+gyeokim
 jim
 jinwoole
 kyoulee

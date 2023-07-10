@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation'
-  import { auth } from '../service/store';
+  import { auth, blockedFriendList } from '../service/store';
+  import { getApi } from '../service/api';
+
 
   let backUrl = import.meta.env.VITE_API_URL;
 
@@ -12,10 +14,15 @@
   let userInfo : UserDTO;
   let isLoading = true;
 
+  // const unsubscribeBlockedList = blockedList.subscribe(value => {
+  //   blockedFriendList = value;
+  // });
+
   onMount(async () => {
       try {
           userInfo = await auth.isLogin();
           if (userInfo) {
+            $blockedFriendList = await getApi({ path: 'friends/blocks/' });
             goto('/main');
           }
           else {
@@ -31,6 +38,10 @@
       }
     }
   );
+
+  onDestroy(() => {
+    $blockedFriendList = [];
+  });
 
   //2. 로그인 함수
   // 42auth로 연결해서 로그인 후, main으로 가게 됨. 만약 로그인 실패했으면, main에서 다시 돌아오게 됨
