@@ -14,6 +14,9 @@
 	import { Authority } from '$lib/enum';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption, type GameInvitationData } from '$lib/gameData';
+	import type { ModalComponent, ModalSettings } from '@skeletonlabs/skeleton';
+	import { modalStore } from '@skeletonlabs/skeleton';
+	import GameInviteModal from '../../../components/Chat/ChatRoomGameInviteModal.svelte';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -72,7 +75,7 @@
 				}
 			})
 
-			socket.on("chat-leave", (data) => {
+			socket.on("chat-leave", () => {
 				goto("/main");
 			})
 
@@ -93,16 +96,33 @@
 			/* ===== game-invite ===== */
 			socket_game.on('youGotInvite', handleGameInvite);
 
+			function ft_game_invite_modal() {
+				const modalComponent: ModalComponent = {
+					ref: GameInviteModal
+				};
+				const modal: ModalSettings = {
+					type: 'component',
+					// Pass the component directly:
+					component: modalComponent,
+					// response: (_passwd: string) => {
+					// 	room_select._room_password = _passwd;
+					// 	socket.emit('room-join', room_select);
+					// }
+				};
+				modalStore.trigger(modal);
+			}
+
 			function handleGameInvite(data: string) {
 				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data};
 				socket_game.off('youGotInvite');
 				if (!invite_status) {
 					invite_status = true;
-					if (confirm("게임초대"))
-					{
-						send_data.acceptFlag = true;
-					}
-					else
+					ft_game_invite_modal();
+					// if (confirm("게임초대"))
+					// {
+					// 	send_data.acceptFlag = true;
+					// }
+					// else
 					{
 						invite_status = false;
 						socket_game.on('youGotInvite', handleGameInvite); // 이벤트 다시 등록

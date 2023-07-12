@@ -56,7 +56,7 @@
 {#if isLoading === true}
     <LoadingMessage />
 {:else}
-        <UserLayout {userInfo} {friendList}/>
+    <UserLayout {userInfo} {friendList}/>
     <slot />
 {/if}
 

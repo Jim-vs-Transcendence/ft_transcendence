@@ -3,13 +3,12 @@
 	import { goto } from '$app/navigation';
 	import RoomCreateModal from '../../components/Chat/ChatRoomCreateModal.svelte';
 	import RoomJoinModal from '../../components/Chat/ChatRoomJoinModal.svelte';
-	import { CreateSocket, socketStore, BlOCKED_USER_KEY } from '$lib/webSocketConnection_chat';
+	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import type { ChatRoomJoinIF } from '$lib/interface';
 	import { gameSocketStore, CreateGameSocket } from '$lib/webSocketConnection_game';
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { getApi } from '../../service/api';
 
 	/* ================================================================================
 									on
@@ -54,7 +53,7 @@
 	   ================================================================================ */
 	let rooms_list: ChatRoomJoinIF[] = [];
 	function ft_onMount_room_refresh() {
-		socket.on('room-refresh', (data) => {
+		socket.on('room-refresh', (data: ChatRoomJoinIF) => {
 			rooms_list = [...data];
 		});
 		socket.emit('room-refresh', 'page load chat list');
