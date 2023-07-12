@@ -14,7 +14,6 @@
     async function goMain() {
 		audio.pause();
         await authToken.login(id);
-        window.removeEventListener('keydown', skip);
         clearTimeout(timer);
         goto('/main');
     }
@@ -29,7 +28,7 @@
 
 		timer = setTimeout(async () => {
             goMain();
-        }, 28000);
+        }, 2.8000);
         // Set an interval to remove itself
         return () => clearInterval(interval);
     }
@@ -164,20 +163,26 @@ JVT는 여러분이 그 주인공이고,
 
 감사합니다.
 
-Click to Skip
 
 [Credit]
 chpark
 dhyun
-gyepkim
-jim
+gyeokim
+JIM
 jinwoole
 kyoulee
 min-jo
 sesim
 yichoi
 yolee
-            </div>
+
+
+
+
+
+
+Click to Skip
+</div>
         </div>
     {/if}
 </div>

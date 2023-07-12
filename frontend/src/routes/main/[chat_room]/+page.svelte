@@ -15,6 +15,42 @@
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption, type GameInvitationData } from '$lib/gameData';
 
+	import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+	let toastID: string = '';
+
+	function errorToast(): void {
+			const t: ToastSettings = {
+					message: 'Fail',
+					hideDismiss: true,
+					timeout: 3000
+			};
+			toastStore.trigger(t);
+	}
+
+	function confirmToast(msg: string, data: GameInvitationData) {
+			const t: ToastSettings = {
+					message: msg,
+					action: {
+						label: '수락',
+						response: () => {
+							data.acceptFlag = true;
+							socket_game.emit("inviteResponse", data);
+						},
+					},
+					autohide: false,
+					callback: (response) => {
+						toastID = response.id;
+						if (response.status === 'closed') {
+							socket_game.emit("inviteResponse", data);
+						}
+					}
+			};
+			toastStore.trigger(t);
+	}
+
+
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	let socket: Socket;
@@ -40,6 +76,11 @@
 		socket_game = _socket;
 	});
 
+	const gameQuit = async() => {
+		socket_game.emit('gameQuit');
+		await goto('/main');
+	}
+
 	onMount(async () => {
 		try {
 			if (socket === undefined)
@@ -50,7 +91,6 @@
 			socket.emit('chat-connect', { _room: $page.params['chat_room'], _check: true });
 			socket.on('chat-connect', (data: RoomCheckIF) => {
 				if (!data._check) {
-					alert("잘못된 접근입니다");
 					goto("/main");
 				}
 				user_self = data._user;
@@ -86,30 +126,21 @@
 			/* ===== chat-set-admin ===== */
 			socket.on('chat-set-admin', (data: ChatAuthDTO) => {
 				if (!data._check)
-					return alert("권한 설정 실패");
+					return errorToast(); //권한 설정 실패
 				/// 권한 변경
 			});
 
 			/* ===== game-invite ===== */
 			socket_game.on('youGotInvite', handleGameInvite);
 
-			function handleGameInvite(data: string) {
+			async function handleGameInvite(data: string) {
 				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data};
-				socket_game.off('youGotInvite');
-				if (!invite_status) {
-					invite_status = true;
-					if (confirm("게임초대"))
-					{
-						send_data.acceptFlag = true;
-					}
-					else
-					{
-						invite_status = false;
-						socket_game.on('youGotInvite', handleGameInvite); // 이벤트 다시 등록
-					}
-					socket_game.emit("inviteResponsse", send_data);
-				}
+				confirmToast('게임초대', send_data);
 			}
+
+			socket_game.on('opPlayerExit', () => {
+				toastStore.close(toastID);
+			});
 
 			socket_game.on("roomName", (data: string) => {
 				gameClientOption._roomName = data;
@@ -135,6 +166,7 @@
 			socket_game.off('youGotInvite');
 			socket_game.off('roomName');
 			socket.emit('chat-exit-room', chat_data);
+			socket_game.emit('exitChatRoom');
 		}
 	});
 
@@ -147,7 +179,7 @@
         if (!(chat_data._msg))
             return
         else if (chat_data._msg.length >= 300)
-            return alert("300자 이상 입력하실 수 없습니다.")
+            return errorToast();
 		if (chat_data._msg.length && chat_data._msg != '\n')
 			socket.emit('chat-msg-event', chat_data);
 		chat_data._msg = '';
@@ -165,9 +197,14 @@
 			elemChat.scrollTo({ top: elemChat.scrollHeight, behavior });
 	}
 
+	const main = async () => {
+		console.log('go to main@')
+		await goto('/main')
+	}
+
 </script>
 
-<svelte:window on:popstate={() => goto("/main")}/>
+<svelte:window on:popstate={main}/>
 {#if room !== undefined}
 <div class="w-full h-full grid grid-cols-[auto_1fr] gap-1" style="height: calc(90% - 64px)">
 	<div class="bg-surface-500/30 p-10">
@@ -239,3 +276,4 @@
 	</div>
 </div>
 {/if}
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />

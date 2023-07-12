@@ -16,12 +16,16 @@
     let friendList: friendDTO[] = [];
 
 	async function handleBeforeUnload() {
-	        await petchApi({
-	            path: 'user/status/' + userInfo.id,
-	            data: {
+        try {
+			await petchApi({
+				path: 'user/status/' + userInfo.id,
+				data: {
 					"user_status": 0,
 				}
-        	});
+			});
+		} catch {
+
+		}
 	}
 
     onMount(async () => {
@@ -47,7 +51,7 @@
 			};
         }
         catch(error) {
-            alert("잘못된 접근");
+            console.log(error);
             goto('/');
         }
     });

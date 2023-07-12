@@ -33,6 +33,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	private players: GamePlayerData[];
 
+	private inviteQueue = new Map<string, string>();
+
 	constructor(
 		private readonly usersService: UsersService,
 		public readonly matchHistoryService: MatchHistoryService,
@@ -62,6 +64,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	private destroyRoom(client: Socket, gameStatus?: boolean) {
+		const curUser: string | string[] = client.handshake.query._userId;
+		let realUserId: string;
+		if (typeof(curUser) === 'string' && curUser !== null) {
+			realUserId = curUser;
+		}
+
+		const opPlayer: string = this.findInviteQueue(realUserId);
+		if (opPlayer) {
+			this.inviteQueue.delete(realUserId);
+			this.inviteQueue.delete(opPlayer);
+		}
+
 		const curPlayer: GamePlayerData = this.players.find(data => data.socketId === client.id);
 		if (curPlayer) {
 			const playerIndex: number = this.players.indexOf(curPlayer);
@@ -81,9 +95,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					return ;
 				}
 
-				if (room.leftPlayer.socketId === client.id) {
+				if (gameStatus === true) {
+					if (room.leftPlayer.socketId === client.id) {
 					// rightPlayer win
-					if (gameStatus === true) {
 						gamePlayerScoreData.player1 = room.leftPlayer.myId;
 						gamePlayerScoreData.player1_score = 0;
 						gamePlayerScoreData.player2 = room.rightPlayer.myId;
@@ -92,12 +106,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 						this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 					}
-
-					this.service.endGame(room);
-				}
-				else {
+					else {
 					// leftPlayer Win
-					if (gameStatus === true) {
 						gamePlayerScoreData.player1 = room.leftPlayer.myId;
 						gamePlayerScoreData.player1_score = room.leftPlayer.gameScore;
 						gamePlayerScoreData.player2 = room.rightPlayer.myId;
@@ -106,14 +116,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 						this.matchHistoryService.saveMatchHistory(gamePlayerScoreData);
 					}
-
-					this.service.endGame(room);
 				}
+				this.service.endGame(room);
 			}
 		}
 	}
 
 	handleDisconnect(client: Socket) {
+		console.log('GAME DISCONNECTED');
 		this.destroyRoom(client, true);
 	}
 
@@ -127,10 +137,21 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return userSocket;
 	}
 
+	private findInviteQueue(userId: string): string {
+		const player: string = this.inviteQueue.get(userId);
+		return player;
+	}
+
 	@SubscribeMessage('pushMatchList')
 	pushPlayer(
 		@ConnectedSocket() client: Socket,
 	) {
+		let gameRoom: string = this.roomKey.get(client.id);
+		if (gameRoom) {
+			this.server.to(client.id).emit('gotoMain', );
+			return ;
+		}
+
 		let player: GamePlayerData = new GamePlayerData();
 		player.updateData = new GameUpdateData();
 		player.updateData.moveData = new GameMoveData();
@@ -192,9 +213,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 		@MessageBody() opponentPlayer: string,
 	) {
+		const player: string | string[] = client.handshake.query._userId;
+		let curPlayer: string;
+		if (typeof(player) === 'string' && player !== null) {
+			curPlayer = player;
+			const existPlayer = this.findInviteQueue(curPlayer);
+			if (existPlayer) {
+				console.log('cur user is exist');
+				return ;
+			}
+		}
 		let userSocket = this.findGameUserSocket(opponentPlayer);
 		if (userSocket) {
-			userSocket.emit('youGotInvite', client.handshake.query._userId);
+			const opPlayer: string = this.findInviteQueue(opponentPlayer);
+			if (opPlayer) {
+				console.log('op user is exist');
+				return ;
+			}
+			this.inviteQueue.set(curPlayer, opponentPlayer);
+			this.inviteQueue.set(opponentPlayer, curPlayer);
+			userSocket.emit('youGotInvite', curPlayer);
 		}
 		else {
 			client.emit('gotoMain');
@@ -230,7 +268,31 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.server.to(room.rightPlayer.socketId).emit('roomName', room.leftPlayer.socketId);
 	}
 
-	@SubscribeMessage('inviteResponsse')
+	@SubscribeMessage('exitChatRoom')
+	userExitChatRoom(
+		@ConnectedSocket() client: Socket,
+	) {
+		console.log('user exit chatting channel')
+		const curUser: string | string[] = client.handshake.query._userId;
+		let realUserId: string;
+		if (typeof(curUser) === 'string' && curUser !== null) {
+			realUserId = curUser;
+		}
+		const opPlayer: string = this.inviteQueue.get(realUserId);
+		if (opPlayer) {
+			const opPlayerSocket: Socket = this.findGameUserSocket(opPlayer);
+			opPlayerSocket.emit('opPlayerExit');
+		}
+	}
+
+	@SubscribeMessage('userInMain')
+	handleMainUser(
+		@ConnectedSocket() client: Socket,
+	) {
+		this.destroyRoom(client, true);
+	}
+
+	@SubscribeMessage('inviteResponse')
 	gameInviteResponse(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() gameInvitation: GameInvitation,
@@ -241,13 +303,19 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (typeof userId === 'string' && userId !== null) {
 			realUserId = userId;
 		}
+
+		const OpPlayer1: string = this.findInviteQueue(realUserId);
+		const OpPlayer2: string = this.findInviteQueue(gameInvitation.opponentPlayer);
+		this.inviteQueue.delete(OpPlayer1);
+		this.inviteQueue.delete(OpPlayer2);
+
 		if (gameInvitation.acceptFlag === true) {
 			this.handleInvitation(client, gameUser);
 			this.usersService.updateUserStatus(gameInvitation.opponentPlayer, 2);
 			this.usersService.updateUserStatus(realUserId, 2);
 		}
 		else {
-			gameUser.emit('InviteDenied');
+			gameUser.emit('inviteDenied');
 		}
 	}
 
@@ -256,7 +324,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 	) {
 		let gameRoom: string = this.roomKey.get(client.id);
-		if (!gameRoom) {
+		if (gameRoom) {
+			const curRoom: GameRoom = this.rooms.get(gameRoom);
+			if (curRoom.leftPlayer.isInGame === true)
+				this.server.to(client.id).emit('gotoMain', );
+		}
+		else {
 			this.server.to(client.id).emit('gotoMain', );
 		}
 	}

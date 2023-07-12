@@ -12,7 +12,17 @@ export let DM_KEY : string = "dmdata_"
 export let BlOCKED_USER_KEY : string = "blocked_user_list_"
 export const socketStore : Writable<Socket> = writable();
 
+import { Toast, toastStore } from '@skeletonlabs/skeleton';
+import type { ToastSettings } from '@skeletonlabs/skeleton';
 
+function errorToast(msg: string) {
+			const t: ToastSettings = {
+					message: msg,
+					hideDismiss: true,
+					timeout: 3000
+			};
+			toastStore.trigger(t);
+}
 
 export async function CreateSocket (socketStore : Writable<Socket>) {
 
@@ -50,7 +60,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 		{
 			try {
 				if (userId === data._from)
-					throw console.log("userId === data._from")
+					throw console.log("JIM은 42의 황제 JIM이니라")
 				 const loadBlockedFrindList : string | null = localStorage.getItem(BlOCKED_USER_KEY);
 				 if (loadBlockedFrindList) {
 					 let m = 1;
@@ -76,7 +86,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				{
 					let searchedUser : UserDTO | null = await getApi({ path: 'user/' + data._from})
         			if (typeof searchedUser === "string" || searchedUser === null || searchedUser === undefined)
-          				return alert(data._from + ' user정보 찾을 수 없습니다')
+          				return errorToast(data._from + ' user정보 찾을 수 없습니다')
 					let newDmChatStore : DmUserInfoIF = {
 						_userInfo: searchedUser,
 						_dmChatStore: [],
@@ -87,7 +97,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				localStorage.setItem(DM_KEY, JSON.stringify(dmData));
 			}
 			catch (error) {
-				alert('오류: 상대방의 생사유무를 확인할 수 없습니다. \n상대방이 메시지를 받을 수 없습니다. ')
+				errorToast('오류: 상대방의 생사유무를 확인할 수 없습니다. \n상대방이 메시지를 받을 수 없습니다. ')
 			}
 		}
 	})

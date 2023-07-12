@@ -11,6 +11,18 @@
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { getApi } from '../../service/api';
 
+	import { Toast, toastStore } from '@skeletonlabs/skeleton';
+    import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+	function errorToast(msg: string) {
+        const t: ToastSettings = {
+            message: msg,
+            hideDismiss: true,
+            timeout: 3000
+        };
+        toastStore.trigger(t);
+	}
+
 	/* ================================================================================
 									on
 	   ================================================================================ */
@@ -25,6 +37,7 @@
 		} catch (error) {
 			console.log('socket loading error.');
 		}
+		gameSocket.emit('userInMain')
 	});
 
 	onDestroy(() => {
@@ -65,7 +78,7 @@
 	   ================================================================================ */
 	function ft_onMount_room_create() {
 		socket.on('room-create', (data: ChatRoomJoinIF) => {
-			if (!data._pass) return alert('이미 존재하는 방입니다.');
+			if (!data._pass) return errorToast('이미 존재하는 방입니다.');
 			goto('/main/' + data._room_name);
 		});
 	}
@@ -78,10 +91,10 @@
 	   ================================================================================ */
 	function ft_onMount_room_join() {
 		socket.on('room-join', (data: ChatRoomJoinIF) => {
-			if (data._ban) return alert('추방되셨습니다');
+			if (data._ban) return errorToast('추방되셨습니다');
 			if (!data._room_name)
-				return socket.emit('room-refresh', 'room-join error'), alert('접속 불가');
-			if (!data._pass) return alert('비밀번호가 일치하지 않습니다.');
+				return socket.emit('room-refresh', 'room-join error'), errorToast('접속 불가');
+			if (!data._pass) return errorToast("비밀번호가 일치하지 않습니다?");
 			modalStore.close();
 			goto('/main/' + data._room_name);
 		});
@@ -145,6 +158,7 @@
 		</div>
 	{/each}
 </div>
+<Toast max={5} />
 
 <style>
   .button-container {

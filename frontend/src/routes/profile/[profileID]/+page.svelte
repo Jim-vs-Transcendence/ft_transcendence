@@ -4,6 +4,17 @@
 	import { getApi } from '../../../service/api';
 	import { auth, authToken } from '../../../service/store';
 	import { goto } from '$app/navigation';
+	import { Toast, toastStore } from '@skeletonlabs/skeleton';
+    import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+    function errorToast() {
+        const t: ToastSettings = {
+            message: '잘못된 접근',
+            hideDismiss: true,
+            timeout: 3000
+        };
+        toastStore.trigger(t);
+    }
 
 	const profileID = $page.params.profileID;
 
@@ -32,12 +43,16 @@
 	import { petchApi } from '../../../service/api';
 
 	async function handleBeforeUnload() {
-	        await petchApi({
-	            path: 'user/status/' + userInfo.id,
-	            data: {
+		try {
+			await petchApi({
+				path: 'user/status/' + userInfo.id,
+				data: {
 					"user_status": 0,
 				}
-        	});
+			});
+		} catch {
+
+		}
 	}
 
 	onMount(async () => {
@@ -73,7 +88,7 @@
 			};
 		}
 		catch(error){
-			alert('잘못된 접근');
+			errorToast();
 			goto('/');
 		}
 	});
@@ -91,10 +106,5 @@
 		<MatchHistory {profile_info}/>
 	  </div>
 </div>
+<Toast max={5} />
 {/if}
-
-
-
-<style>
-
-</style>

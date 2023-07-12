@@ -17,6 +17,9 @@
 
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
+  import { Toast, toastStore } from '@skeletonlabs/skeleton';
+  import type { ToastSettings } from '@skeletonlabs/skeleton';
+
 	import DmList from '../Chat/DmList.svelte';
 
   const logout = () => {
@@ -87,6 +90,15 @@ function handleEnter(e: KeyboardEvent) {
     }
 }
 
+function showToast() {
+  const t: ToastSettings = {
+    message: '존재하지 않는 유저입니다',
+    hideDismiss: true,
+    timeout: 3000
+  };
+  toastStore.trigger(t);
+}
+
 async function doSearch() {
     let answer : UserDTO | string;
     try {
@@ -94,7 +106,7 @@ async function doSearch() {
                      path: 'user/' + insertUserId,
                     });
           if (answer === "")
-              alert("존재하지 않는 유저입니다.");
+            showToast();
           else
               goProfile(insertUserId);
         } catch (error) {
@@ -159,3 +171,4 @@ async function doSearch() {
     <button type="button" class="btn btn-sm variant-filled" on:click={openDrawer}>동무 ! 목록</button>
   </div>
 </AppBar>
+<Toast max={5} />

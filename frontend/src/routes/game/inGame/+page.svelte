@@ -1,5 +1,6 @@
 <script lang="ts">
 
+	import { createBrowserHistory } from 'history';
 	import type { Socket } from 'socket.io-client';
 	import type { GamePlayerData, GameUpdateData, GameMoveData } from '$lib/gameData';
 	import { onMount, onDestroy } from 'svelte';
@@ -8,6 +9,8 @@
 	import { auth } from '../../../service/store';
 	import { petchApi } from '../../../service/api';
 	import { goto } from '$app/navigation';
+	import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
 
 	let io_game: Socket;
 
@@ -19,6 +22,15 @@
 		removeEvent();
 		await goto('/main');
 	};
+
+	function errorToast(msg: string) {
+        const t: ToastSettings = {
+            message: msg,
+            hideDismiss: true,
+            timeout: 3000
+        };
+        toastStore.trigger(t);
+	}
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
@@ -61,7 +73,7 @@
 	function resizeCanvas() {
 		if (window.innerWidth <= 1200 || window.innerHeight <= 600) {
 			readyCnt = -10;
-			alert('👆👆👆👆👆👆 멈춰 👆👆👆👆👆👆👆👆👆');
+			errorToast('👆👆👆👆👆👆 멈춰 👆👆👆👆👆👆👆👆👆');
 		}
 	}
 
@@ -161,12 +173,16 @@
 	let userInfo: UserDTO;
 
 	async function handleBeforeUnload() {
-		await petchApi({
-			path: 'user/status/' + userInfo.id,
-			data: {
-				user_status: 0
-			}
-		});
+		try {
+			await petchApi({
+				path: 'user/status/' + userInfo.id,
+				data: {
+					"user_status": 0,
+				}
+			});
+		} catch {
+
+		}
 	}
 
 	function retryGame() {
@@ -194,13 +210,14 @@
 	}
 
 	function removeEvent() {
+		window.removeEventListener('popstate', handlePopState);
 		window.removeEventListener('resize', resizeCanvas);
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();
 	}
 
 	function dummyRetry() {
-		alert('잘못된 버튼입니다.');
+		errorToast('잘못된 버튼입니다.');
 	}
 
 	onMount(async () => {
@@ -212,7 +229,7 @@
 		try {
 			userInfo = await auth.isLogin();
 		} catch (error) {
-			alert('오류 : 프로필을 출력할 수 없습니다1');
+			errorToast('오류 : 프로필을 출력할 수 없습니다1');
 			removeEvent();
 			await goto('/main');
 		}
@@ -314,6 +331,7 @@
 		{/if}
 	</div>
 </div>
+<Toast max={5} />
 
 <style>
 	.button-container {

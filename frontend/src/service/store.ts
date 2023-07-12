@@ -60,7 +60,7 @@ function setAuthToken() {
             goto('/')
         }
         catch(error){
-            alert('로그아웃 실패')
+            console.log("로그아웃 실패");
         }
     }
 

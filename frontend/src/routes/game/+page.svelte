@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { createBrowserHistory } from 'history';
 	import { onMount, onDestroy } from 'svelte';
 	import type { Socket } from 'socket.io-client';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
@@ -8,6 +9,8 @@
 	import { petchApi } from '../../service/api';
 	import Img from '$lib/JVT_gameLoading.gif'
 	import music from "./great_rocky_music.mp3"
+	import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
 
 	let io_game: Socket;
 
@@ -22,21 +25,35 @@
 	};
 
 	async function handleBeforeUnload() {
-		await petchApi({
-			path: 'user/status/' + userInfo.id,
-			data: {
-				"user_status": 0,
-			}
-		});
+		try {
+			await petchApi({
+				path: 'user/status/' + userInfo.id,
+				data: {
+					"user_status": 0,
+				}
+			});
+		} catch {
+
+		}
 	}
 
 	let audio: HTMLAudioElement;
 
-	function awesomePlay() {
-		audio.play();
+	async function awesomePlay() {
+		await audio.play();
 	}
 
 	let userInfo : UserDTO;
+
+
+	function errorToast(msg: string) {
+        const t: ToastSettings = {
+            message: msg,
+            hideDismiss: true,
+            timeout: 3000
+        };
+        toastStore.trigger(t);
+	}
 
 	onMount(async() => {
 		audio = new Audio(music);
@@ -45,7 +62,7 @@
 			userInfo = await auth.isLogin();
 		}
 		catch(error){
-			alert('오류 : 프로필을 출력할 수 없습니다1');
+			errorToast('오류 : 프로필을 출력할 수 없습니다1');
 			await goto('/main');
 		}
 
@@ -61,11 +78,14 @@
 				audio.pause();
 				goto('/game/option');
 			});
+
+			io_game.on('gotoMain', () => {
+				goto('/main');
+			});
 		}
 		catch (error) {
 			await goto('/main');
 		}
-
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
 			return () => {
@@ -78,7 +98,7 @@
 
 </script>
 
-<svelte:window on:popstate={main}></svelte:window>
+<svelte:window on:popstate={main} />
 
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-5">
@@ -87,3 +107,4 @@
 		</div>
 	</div>
 </div>
+<Toast max={5} />

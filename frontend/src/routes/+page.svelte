@@ -12,6 +12,18 @@
   let userInfo : UserDTO;
   let isLoading = true;
 
+  import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+	function errorToast(msg: string) {
+        const t: ToastSettings = {
+            message: msg,
+            hideDismiss: true,
+            timeout: 3000
+        };
+        toastStore.trigger(t);
+	}
+
   onMount(async () => {
       try {
           userInfo = await auth.isLogin();
@@ -26,7 +38,7 @@
           isLoading = false;
           if (sessionStorage.getItem('isLogin') === 'remove') {
             sessionStorage.removeItem('isLogin');
-            alert("연결이 끊겼습니다. 다시 로그인 해주세요");
+            errorToast("연결이 끊겼습니다. 다시 로그인 해주세요");
           }
       }
     }
@@ -49,6 +61,4 @@
     </div>
   </div>
 {/if}
-<style>
-
-</style>
+<Toast max={5} />

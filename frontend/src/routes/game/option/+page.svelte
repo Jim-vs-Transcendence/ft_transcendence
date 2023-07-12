@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { createBrowserHistory } from 'history';
 	import { goto } from '$app/navigation';
 	import { auth } from '../../../service/store';
 	import { petchApi } from '../../../service/api';
@@ -6,6 +7,17 @@
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
+    import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+	function errorToast(msg: string) {
+        const t: ToastSettings = {
+            message: msg,
+            hideDismiss: true,
+            timeout: 3000
+        };
+        toastStore.trigger(t);
+	}
 
 	let io_game: Socket;
 
@@ -60,9 +72,9 @@
 		} else if (num == 6) {
 			score = 6;
 		} else if (num >= 10) {
-			alert('사용자의 피로도를 고려해 10점 이상은 진행할 수 없습니다');
+			errorToast('사용자의 피로도를 고려해 10점 이상은 진행할 수 없습니다');
 		} else {
-			alert('잘못된 숫자입니다.');
+			errorToast('잘못된 숫자입니다.');
 		}
 	}
 
@@ -99,13 +111,13 @@
 				'문제 : 조금 전 예문에서 나온 color의 개수는 몇 개 인가요?'
 			);
 			if (input === null) {
-				alert('정답을 입력하세요');
+				errorToast('정답을 입력하세요');
 				isColorSelect = false;
 			}
 			const num: number = parseInt(input, 10);
 			if (num === 30) {
 			} else {
-				alert('오답입니다');
+				errorToast('오답입니다');
 				isColorSelect = false;
 			}
 		}
@@ -122,12 +134,16 @@
 	}
 
 	async function handleBeforeUnload() {
-		await petchApi({
-			path: 'user/status/' + userInfo.id,
-			data: {
-				user_status: 0
-			}
-		});
+		try {
+			await petchApi({
+				path: 'user/status/' + userInfo.id,
+				data: {
+					"user_status": 0,
+				}
+			});
+		} catch {
+
+		}
 	}
 
 	let userInfo: UserDTO;
@@ -140,7 +156,7 @@
 		try {
 			userInfo = await auth.isLogin();
 		} catch (error) {
-			alert('오류 : 프로필을 출력할 수 없습니다1');
+			errorToast('오류 : 프로필을 출력할 수 없습니다1');
 			await goto('/main');
 		}
 
@@ -280,3 +296,4 @@
 		{/if}
 	</ul>
 </div>
+<Toast max={5} />

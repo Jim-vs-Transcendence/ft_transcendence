@@ -25,6 +25,18 @@
         socket = _socket;
 	});
 
+    import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+	function errorToast(msg: string) {
+        const t: ToastSettings = {
+            message: msg,
+            hideDismiss: true,
+            timeout: 3000,
+        };
+        toastStore.trigger(t);
+	}
+
     onMount(() => {
       try {
         dmDataLoad();
@@ -53,11 +65,11 @@
                 }, 0)
             }
             catch {
-                alert('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.')
+                errorToast('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.')
             }
         })
       } catch (error) {
-        return alert('DM loading error')
+        return errorToast('DM loading error')
       }
     })
 
@@ -92,7 +104,7 @@
         if (!(currentMessage))
             return
         else if (currentMessage.length >= 300)
-            return alert("300자 이상 입력하실 수 없습니다.")
+            return errorToast("300자 이상 입력하실 수 없습니다.")
 		const newMessage : DmChatIF = {
             _from: userInfo.id,
             _to: opponent,
@@ -125,7 +137,7 @@
                 socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
-            alert('오류: 상대방의 생사유무를 확인할 수 없습니다.')
+            errorToast('오류: 상대방의 생사유무를 확인할 수 없습니다.')
         }
     }
 </script>
@@ -185,3 +197,4 @@
         </div>
     </section>
 {/if}
+<Toast max={5} />

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { ChatRoomJoinIF } from '$lib/interface';
-	
+
 	// Stores
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy } from 'svelte';
-	
+
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
@@ -34,6 +34,19 @@
 	 * g: The global flag, which allows the regular expression to match all occurrences in the input string rather than stopping at the first match.
 	 * i: The case-insensitive flag, which makes the pattern case-insensitive.
 	 */
+
+	import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+	function errorToast(msg: string) {
+			const t: ToastSettings = {
+					message: msg,
+					hideDismiss: true,
+					timeout: 3000
+			};
+			toastStore.trigger(t);
+	}
+
 	function handleChatRoomNameInput(event: Event) {
       const input = event.target as HTMLInputElement;
       const sanitizedInput = input.value.replace(/[^\w\sㄱ-ㅎㅏ-ㅣ가-힣]/gi, '');
@@ -41,7 +54,7 @@
     }
 
 	function onRoomDataSubmitKeyDown(event: KeyboardEvent): void {
-		
+
 		if (['Enter'].includes(event.code)) {
 			event.preventDefault()
 			onRoomDataSubmit()
@@ -50,10 +63,10 @@
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onRoomDataSubmit(): void {
-	
+
 		roomData._room_name = roomData._room_name.trim();
 		if (!(roomData._room_name)) {
-			alert('방이름을 입력하세요');
+			errorToast('방이름을 입력하세요');
 		}
 		else {
 			if ($modalStore[0].response)
@@ -90,3 +103,4 @@
     </footer>
 	</div>
 {/if}
+<Toast max={5} />

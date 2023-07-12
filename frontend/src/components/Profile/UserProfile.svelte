@@ -32,6 +32,19 @@
 
     // Two-factor toggle
     import { SlideToggle } from '@skeletonlabs/skeleton';
+
+    import { Toast, toastStore } from '@skeletonlabs/skeleton';
+    import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+    function errorToast() {
+        const t: ToastSettings = {
+            message: 'Fail',
+            hideDismiss: true,
+            timeout: 3000
+        };
+        toastStore.trigger(t);
+    }
+
     let twoFactor : number;
 
     $: if (twoFactor >= 50) {
@@ -58,7 +71,7 @@
                 },
             })
             } catch (error) {
-                alert("설정 실패");
+                errorToast();
             }
         }
         else
@@ -69,29 +82,29 @@
                 },
             })
             } catch (error) {
-                alert("설정 실패")
+                errorToast()
             }
         }
     }
 
+    let inputCode : string = "";
     //투팩터 팝업 -> 구글어스 출력
-    async function close_qr() {
-
-        const input : string | null = prompt('구글 인증기에 등록했나요? 코드를 입력하세요');
+    async function close_qr(event: KeyboardEvent) {
+        if (event.key === 'Enter') {
         try {
-            const response = await postApi({
-                path: 'two-factor/init_authentication/' + profile_info.id,
-                data: {
-                    "twoFactorCode": input
+                const response = await postApi({
+                    path: 'two-factor/init_authentication/' + profile_info.id,
+                    data: {
+                        "twoFactorCode": inputCode
+                        }
+                    });
+                    if (response === true) {
+                        two_factor_toggle();
+                        popQR = false;
                     }
-                    }
-                );
-                if (response === true) {
-                    two_factor_toggle();
-                    popQR = false;
-                }
-        } catch (error) {
-            alert("에러");
+            } catch (error) {
+                errorToast();
+            }
         }
     }
 
@@ -123,7 +136,7 @@
                 isBlocked = false;
 		}
 		catch(error){
-			alert('오류 : 프로필을 출력할 수 없습니다3');
+            errorToast();
 			goto('/main');
 		}
 	});
@@ -138,11 +151,11 @@
             const file = uploaded_pic[0];
 
 			if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
-                alert('jpeg나 png 그리고 gif만 지원합니다');
+                errorToast();
                 return;
             }
             if (file.size > 5 * 1024 * 1024) {
-                alert('당신 얼굴의 크기가 너무 큽니다. 5MB까지만 올릴 수 있습니다.');
+                errorToast();
                 return;
             }
             const formData = new FormData();
@@ -159,39 +172,11 @@
         }
     }
 
-    // 닉네임 변경
-    async function handleChangeNickname() {
-        const nickname : string = prompt_string();
-        function prompt_string () : string
-        {
-            let text : string | null = prompt('변경할 가짜 이름을 입력하세요');
-            if (text == null)
-                text = "";
-            return (text);
-        }
-        if (nickname === "" ||nickname === profile_info.nickname) return;
-        if (nickname.length > 10)
-        {
-            alert("Fork you r nickname : too long");
-            return;
-        }
-        try {
-            await petchApi({ path: 'user/'+profile_info.id , data:{
-                "nickname" : nickname
-            },
-        });
-        profile_info.nickname = nickname;
-
-        } catch (error) {
-            alert("가짜이름 설정 실패");
-        }
-    }
-
     // 친구 추가
 	async function requestFriend() {
 	    try {
 	        if (friendStat === "pending") {
-	            alert("이미 친구신청 했습니다. 어쩌면 저 사람은 당신과 친구가 되고 싶지 않을 수 있습니다.");
+                errorToast();
 	        }
 			else {
 	            await postApi({
@@ -206,7 +191,7 @@
 				friendStat = friendInfo.friendStatus;
 	        }
 	    } catch (error) {
-	        alert("친구신청 실패");
+            errorToast();
 	    }
 	}
 
@@ -217,7 +202,6 @@
             } });
             isFriend = false;
         } catch (error) {
-            alert("wer");
         }
     }
 
@@ -245,7 +229,7 @@
                 blockedFriends.push(newBlockedFriend);
                 localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
             } catch (error) {
-                alert("블럭 오류");
+                errorToast();
             }
         }
         else
@@ -269,10 +253,58 @@
                     localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
 				}
             } catch (error) {
-                alert("블럭 해제 오류");
+                errorToast();
             }
         }
     }
+
+    let isNickChange : boolean = false;
+    let inputElement : string;
+
+// 닉네임 변경
+    $: profile_info.nickname;
+
+    function handleNicknameChange() {
+        if (isNickChange === false)
+        {
+            isNickChange = true;
+        }
+        else
+        {
+            isNickChange = false;
+        }
+    }
+
+    async function handleChangeNickname() {
+        if (inputElement.length === 0 ||inputElement === profile_info.nickname)
+        {
+            errorToast();
+            return;
+        }
+        if (inputElement.length > 10)
+        {
+            errorToast();
+            return;
+        }
+        try {
+            await petchApi({ path: 'user/'+profile_info.id , data:{
+                "nickname" : inputElement
+            },
+        });
+        profile_info.nickname = inputElement;
+        inputElement = "";
+        isNickChange = true;
+
+        } catch (error) {
+            errorToast();
+        }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+        if (event.key === 'Enter') {
+            handleChangeNickname();
+        }
+  }
 
 </script>
 
@@ -288,7 +320,10 @@
                 bind:files={uploaded_pic}
                 on:change={uploadHandler}
                 >얼굴 개시</FileButton>
-            <button on:click={handleChangeNickname}>가짜이름 변경</button>
+            <button on:click={handleNicknameChange}>가짜이름 변경</button>
+            {#if isNickChange}
+                <input class="input" type="text" placeholder="바꿀 닉네임 넣어요. 10글자 아래로." bind:value={inputElement} on:keydown={handleKeyDown}/>
+            {/if}
         </div>
       {:else}
         <div>
@@ -318,9 +353,7 @@
                         <h1>디스이즈 구-글 인증</h1>
                         <img src={qr} alt="QR코드" class="w-64 h-64 mb-4">
                         <div style="display: flex; justify-content: center; align-items: center;">
-                            <button type="button" class="btn variant-ghost" on:click={close_qr}>
-                                닫기
-                            </button>
+                            <input class="input" type="text" placeholder="이거 진짜 했으면 구글 인증기 코드를 입력하고 엔터 누르던지" bind:value={inputCode} on:keydown={close_qr}/>
                         </div>
                     </div>
                 </div>
@@ -352,3 +385,4 @@
         </div>
     {/if}
 </div>
+<Toast max={5} />

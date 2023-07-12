@@ -197,6 +197,16 @@ export class FriendsService {
 
   // Block a user
   async blockUser(user_from: string, user_to: string): Promise<boolean> {
+    const friendShip: Friend = await this.friendRepository.findOne({
+      where: {
+        user_to: { id: user_to },
+        user_from: { id: user_from },
+      },
+    })
+
+    if (friendShip)
+      this.friendRepository.delete(friendShip);
+
     const blockship: Friend = this.friendRepository.create({
       user_from: { id: user_from },
       user_to: { id: user_to },

@@ -10,6 +10,18 @@
   let authKey : string;
   let errorClass = "";
 
+  import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
+
+	function errorToast(msg: string) {
+        const t: ToastSettings = {
+            message: msg,
+            hideDismiss: true,
+            timeout: 3000
+        };
+        toastStore.trigger(t);
+	}
+
   async function handleSubmit(input: string): Promise<void> {
     try {
         response = await postApi({ path: 'two-factor/authentication/' + id, data:
@@ -24,7 +36,7 @@
     }
 
     } catch (error) {
-      alert("에러");
+      errorToast("에러");
     }
   }
 
@@ -72,6 +84,7 @@
     <circle cx={$coords_b.x} cy={$coords_b.y} r="30" fill="blue" />
   </svg>
 </div>
+<Toast max={5} />
 
 <style>
   .wrapper {
