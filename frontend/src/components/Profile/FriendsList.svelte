@@ -1,6 +1,5 @@
 <script lang="ts">
     export let friend: friendDTO;
-    export let userInfo: UserDTO;
     $: friend;
 
     import { Avatar } from '@skeletonlabs/skeleton';

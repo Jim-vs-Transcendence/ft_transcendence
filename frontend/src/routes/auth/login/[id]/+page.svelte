@@ -56,7 +56,7 @@
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
-    html, body, .container {
+    .container {
         height: 100%;
         margin: 0;
         padding: 0;

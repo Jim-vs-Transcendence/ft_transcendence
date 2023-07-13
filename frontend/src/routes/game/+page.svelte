@@ -55,7 +55,7 @@
         toastStore.trigger(t);
 	}
 
-	onMount(async() => {
+	onMount(async(): Promise<any> => {
 		audio = new Audio(music);
 
 		try{
@@ -102,9 +102,9 @@
 
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-5">
-		<div on:mouseenter={awesomePlay} on:click={main}>
+		<button on:mouseenter={awesomePlay} on:click={main} aria-label="Back to main">
 			<img src={Img} alt="back to main">
-		</div>
+		</button>
 	</div>
 </div>
 <Toast max={5} />

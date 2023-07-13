@@ -210,7 +210,6 @@
 	}
 
 	function removeEvent() {
-		window.removeEventListener('popstate', handlePopState);
 		window.removeEventListener('resize', resizeCanvas);
 		window.removeEventListener('keydown', handleKeyPress);
 		unsubscribeGame();
@@ -220,7 +219,7 @@
 		errorToast('잘못된 버튼입니다.');
 	}
 
-	onMount(async () => {
+	onMount(async (): Promise<any> => {
 		if (io_game === undefined) {
 			removeEvent();
 			await goto('/main');

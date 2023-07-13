@@ -37,7 +37,20 @@
             {#if history.winLose }
                 <span class="text-2xl" style="font-weight: 700;">이김</span>
             {:else}
-                <span class="text-2xl"  style="font-weight: 700;" on:click={goJIM}>JIM</span>
+                <span
+                    class="text-2xl"
+                    role="button"
+                    tabindex="0"
+                    style="font-weight: 700;"
+                    on:click={goJIM}
+                    on:keydown={(e) => {
+                        if (e.key === 'Enter') {
+                            goJIM();
+                        }
+                    }}
+                >
+                    JIM
+                </span>
             {/if}
             <span style="font-weight: 500">
                 {history.player1} {history.player1_score} vs {history.player2_score} {history.player2}
@@ -48,15 +61,3 @@
 
     <br><footer class="card-footer text-center">전적 조회는 최근 5회만 지원됩니다. 자세한 내용은 고개를 돌려 고객센터에 문의하세요.</footer>
 </div>
-
-<style>
-    svg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        pointer-events: auto;
-    }
-</style>

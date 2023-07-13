@@ -140,7 +140,7 @@ async function doSearch() {
             <div class="overflow-y-scroll">
                 <dl class="list-dl">
                 {#each friendList as friend}
-                    <FriendsList friend={friend} userInfo={userInfo} />
+                    <FriendsList friend={friend} />
                 {/each}
                 </dl>
             </div>
@@ -160,9 +160,9 @@ async function doSearch() {
   <h1 class="h1 text-center -mt-3 col-span-3">
     <!-- 메인 로고 -->
     <span class="text-3xl bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone">
-        <span on:click={goHome} style="cursor: alias;">Jim&nbsp;</span><!--typeof answer === "string" &&
-        --><span on:click={goGame} style="cursor: progress;">vs</span><!--
-        --><span on:click={goHome} style="cursor: alias;">&nbsp;Transcendence</span>
+      <span role="button" tabindex="0" on:click={goHome} on:keydown={event => event.key === 'Enter' && goHome()} style="cursor: alias;">Jim&nbsp;</span><!--
+      --><span role="button" tabindex="0" on:click={goGame} on:keydown={event => event.key === 'Enter' && goGame()} style="cursor: progress;">vs</span><!--
+      --><span role="button" tabindex="0" on:click={goHome} on:keydown={event => event.key === 'Enter' && goHome()} style="cursor: alias;">&nbsp;Transcendence</span>
     </span>
   </h1>
   <div slot="trail" class="flex items-center space-x-6">

@@ -148,7 +148,7 @@
 
 	let userInfo: UserDTO;
 	// 옵션 페이지에서만 작동 안 함. 왜
-	onMount(async () => {
+	onMount(async (): Promise<any> => {
 		if ( io_game === undefined) {
 			await goto('/main');
 		}
@@ -204,9 +204,18 @@
 		</li>
 		{#if io_game.id === gameClientOption._roomName}
 			<li>
-				<span class="flex justify-center items-center" on:click={setScore}
-					>"참 잘했어요" 도장 개수 변경</span
+				<span class="flex justify-center items-center"
+							on:click={setScore}
+							on:keydown={(event) => {
+								if (event.key === 'Enter') {
+									setScore();
+								}
+							}}
+							tabindex="0"
+							role="button"
 				>
+					"참 잘했어요" 도장 개수 변경
+				</span>
 			</li>
 			<li>
 				<span class="flex justify-center items-center">병풍 색 조절</span>

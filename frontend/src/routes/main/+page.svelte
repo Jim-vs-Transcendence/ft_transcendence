@@ -147,6 +147,8 @@
 		<div
 			class="col-start-2 col-span-3 logo-item m-1 variant-filled-surface cursor-pointer"
 			id="room"
+			role="button"
+			tabindex="0"
 			on:mousedown={() => {
 				JoinRoom(room);
 			}}

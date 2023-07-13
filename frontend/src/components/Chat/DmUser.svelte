@@ -26,7 +26,17 @@
     }
 </script>
 
-<div class="cursor-pointer hover:variant-glass-surface" on:click={ftDmChat} >
+<div
+    class="cursor-pointer hover:variant-glass-surface"
+    role="button"
+    tabindex="0"
+    on:click={ftDmChat}
+    on:keydown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            ftDmChat();
+        }
+    }}
+>
     <Avatar
         bind:src={dmUserInfo._userInfo.avatar}
         width="w-7"

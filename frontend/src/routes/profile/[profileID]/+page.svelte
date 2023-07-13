@@ -55,7 +55,7 @@
 		}
 	}
 
-	onMount(async () => {
+	onMount(async (): Promise<any> => {
 
 		try{
 			//1. token기반

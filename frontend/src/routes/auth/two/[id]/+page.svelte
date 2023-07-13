@@ -64,7 +64,7 @@
 
 </script>
 
-<div class="wrapper" on:mousemove="{e => {
+<div class="wrapper" role="presentation" on:mousemove="{e => {
   coords_r.set({ x: e.clientX - 50, y: e.clientY });
   coords_g.set({ x: e.clientX , y: e.clientY - 200 });
   coords_b.set({ x: e.clientX + 50, y: e.clientY - 50 });
@@ -78,7 +78,7 @@
     </div>
   </div>
 
-  <svg style="pointer-events: none;">
+  <svg aria-hidden="true" style="pointer-events: none;">
     <circle cx={$coords_r.x} cy={$coords_r.y} r="20" fill="red" />
     <circle cx={$coords_g.x} cy={$coords_g.y} r="25" fill="green" />
     <circle cx={$coords_b.x} cy={$coords_b.y} r="30" fill="blue" />
