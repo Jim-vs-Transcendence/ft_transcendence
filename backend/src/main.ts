@@ -2,11 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from 'src/util/swagger';
 import * as cookieParser from 'cookie-parser';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  console.log('HOOOOOOOOOOOOOST', configService.get<string>('HOST'));
+
   app.enableCors({
-    origin: ['http://10.14.9.5:5173'],
+    origin: [configService.get<string>('HOST')],
     credentials: true,
   });
 
