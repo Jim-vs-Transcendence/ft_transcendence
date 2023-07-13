@@ -46,7 +46,11 @@ services:
 
   frontend: # svelte
     restart: always
-    build: frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL?}
     depends_on:
       - backend
     expose:
