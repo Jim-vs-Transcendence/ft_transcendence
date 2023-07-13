@@ -15,7 +15,7 @@
 		audio.pause();
         await authToken.login(id);
         clearTimeout(timer);
-        goto('/main');
+        await goto('/main');
     }
 
     function startScrolling() {

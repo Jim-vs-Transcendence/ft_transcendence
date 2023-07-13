@@ -7,7 +7,7 @@
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import type { Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
-    import { Toast, toastStore } from '@skeletonlabs/skeleton';
+	import { Toast, toastStore } from '@skeletonlabs/skeleton';
 	import type { ToastSettings } from '@skeletonlabs/skeleton';
 
 	function errorToast(msg: string) {
@@ -20,6 +20,13 @@
 	}
 
 	let io_game: Socket;
+
+	let setScoreFlag: boolean = false;
+	$: setScoreFlag;
+
+	let setColorFlag: boolean = false;
+	$: setColorFlag;
+
 
 	const unsubscribeGame = gameSocketStore.subscribe((_gameSocket: Socket) => {
 		io_game = _gameSocket;
@@ -57,24 +64,27 @@
 		io_game.emit('optionReady', gameClientOption);
 	}
 
-	function setScore() {
-		const input: string | null = prompt(
-			'몇판 내기 게임인가요? 숫자를 가이드의 안내에 따라 신중하게 입력하세요'
-		);
-		if (input === null) {
-			return null;
-		}
-		const num: number = parseInt(input, 10);
-		if (num === 3) {
-			score = 3;
-		} else if (num == 5) {
-			score = 5;
-		} else if (num == 6) {
-			score = 6;
-		} else if (num >= 10) {
-			errorToast('사용자의 피로도를 고려해 10점 이상은 진행할 수 없습니다');
-		} else {
-			errorToast('잘못된 숫자입니다.');
+	let	Score: string = "";
+
+	function setScore(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			if (Score === null) {
+				return null;
+			}
+			const num: number = parseInt(Score, 10);
+			if (num === 3) {
+				score = 3;
+			} else if (num == 5) {
+				score = 5;
+			} else if (num == 6) {
+				score = 6;
+			} else if (num >= 10) {
+				errorToast('사용자의 피로도를 고려해 10점 이상은 진행할 수 없습니다');
+			} else {
+				errorToast('잘못된 숫자입니다.');
+			}
+			setScoreFlag = false;
+			Score = "";
 		}
 	}
 
@@ -105,21 +115,27 @@
 	import LoadingMessage from '../../../components/Auth/LoadingMessage.svelte';
 	let isColorSelect: boolean = false;
 
-	function onStepHandler(e: { step: number; state: { current: number; total: number }; }): void {
-		if (e.detail.state.current === 3) {
-			const input: string | null = prompt(
-				'문제 : 조금 전 예문에서 나온 color의 개수는 몇 개 인가요?'
-			);
-			if (input === null) {
+	let colorAnswer: string = "";
+	function colorQuiz(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			if (colorAnswer === null) {
 				errorToast('정답을 입력하세요');
 				isColorSelect = false;
 			}
-			const num: number = parseInt(input, 10);
+			const num: number = parseInt(colorAnswer, 10);
 			if (num === 30) {
 			} else {
 				errorToast('오답입니다');
 				isColorSelect = false;
 			}
+			colorAnswer = "";
+			setColorFlag = false;
+		}
+	}
+
+	function onStepHandler(e: { step: number; state: { current: number; total: number }; }): void {
+		if (e.detail.state.current === 3) {
+			setColorFlag = true;
 		}
 	}
 
@@ -205,10 +221,10 @@
 		{#if io_game.id === gameClientOption._roomName}
 			<li>
 				<span class="flex justify-center items-center"
-							on:click={setScore}
+							on:click={() => { setScoreFlag = true; }}
 							on:keydown={(event) => {
 								if (event.key === 'Enter') {
-									setScore();
+									setScoreFlag = true;
 								}
 							}}
 							tabindex="0"
@@ -217,6 +233,16 @@
 					"참 잘했어요" 도장 개수 변경
 				</span>
 			</li>
+			{#if setScoreFlag}
+				<div class="fixed inset-0 flex items-center justify-center z-50">
+					<div class="card p-4">
+							<h1 style="text-align: center;">몇판 내기 게임인가요?<br>숫자를 가이드의 안내에 따라 신중하게 입력하세요<br></h1>
+							<div style="display: flex; justify-content: center; align-items: center;">
+									<input class="input" type="text" placeholder="엔터를 눌러주세요" bind:value={Score} on:keydown={setScore}/>
+							</div>
+					</div>
+				</div>
+			{/if}
 			<li>
 				<span class="flex justify-center items-center">병풍 색 조절</span>
 				<button type="button" class="btn variant-filled" on:click={isClick}>색깔 변경</button>
@@ -257,6 +283,16 @@
 							(traditionally orange, green, purple) and tertiary colors. The study of colors in general
 							is called color science.
 						</Step>
+						{#if setColorFlag}
+							<div class="fixed inset-0 flex items-center justify-center z-50">
+								<div class="card p-4">
+										<h1 style="text-align: center;">'문제 : 조금 전 예문에서 나온 color의 개수는 몇 개 인가요?'<br></h1>
+										<div style="display: flex; justify-content: center; align-items: center;">
+												<input class="input" type="text" placeholder="엔터를 눌러주세요" bind:value={colorAnswer} on:keydown={colorQuiz}/>
+										</div>
+								</div>
+							</div>
+						{/if}
 						<Step>
 							<svelte:fragment slot="header">쉬어가는 공간</svelte:fragment>
 							이제 거의 다 왔습니다.
