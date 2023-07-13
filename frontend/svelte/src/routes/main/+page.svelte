@@ -35,7 +35,7 @@
 			ft_onMount_room_create();
 			ft_onMount_room_join();
 		} catch (error) {
-			console.log('socket loading error.');
+			console.log('socket loading error');
 		}
 		gameSocket.emit('userInMain')
 	});
@@ -78,7 +78,7 @@
 	   ================================================================================ */
 	function ft_onMount_room_create() {
 		socket.on('room-create', (data: ChatRoomJoinIF) => {
-			if (!data._pass) return errorToast('이미 존재하는 방입니다.');
+			if (!data._pass) return errorToast('이미 존재하는 방입니다');
 			goto('/main/' + data._room_name);
 		});
 	}
@@ -160,7 +160,7 @@
 		</div>
 	{/each}
 </div>
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />
 
 <style>
   .button-container {

@@ -9,7 +9,7 @@
 
     function errorToast() {
         const t: ToastSettings = {
-            message: '잘못된 접근',
+            message: '잘못된 접근입니다',
             hideDismiss: true,
             timeout: 3000
         };
@@ -106,5 +106,5 @@
 		<MatchHistory {profile_info}/>
 	  </div>
 </div>
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />
 {/if}

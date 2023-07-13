@@ -86,7 +86,7 @@ export async function CreateSocket (socketStore : Writable<Socket>) {
 				{
 					let searchedUser : UserDTO | null = await getApi({ path: 'user/' + data._from})
         			if (typeof searchedUser === "string" || searchedUser === null || searchedUser === undefined)
-          				return errorToast(data._from + ' user정보 찾을 수 없습니다')
+          				return errorToast(data._from + ' 유저정보 찾을 수 없습니다')
 					let newDmChatStore : DmUserInfoIF = {
 						_userInfo: searchedUser,
 						_dmChatStore: [],

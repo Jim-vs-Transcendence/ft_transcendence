@@ -103,4 +103,4 @@
     </footer>
 	</div>
 {/if}
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />

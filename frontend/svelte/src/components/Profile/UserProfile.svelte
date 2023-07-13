@@ -36,9 +36,9 @@
     import { Toast, toastStore } from '@skeletonlabs/skeleton';
     import type { ToastSettings } from '@skeletonlabs/skeleton';
 
-    function errorToast() {
+    function errorToast(msg: string) {
         const t: ToastSettings = {
-            message: 'Fail',
+            message: msg,
             hideDismiss: true,
             timeout: 3000
         };
@@ -71,7 +71,7 @@
                 },
             })
             } catch (error) {
-                errorToast();
+                errorToast('two factor 업데이트 실패');
             }
         }
         else
@@ -82,7 +82,7 @@
                 },
             })
             } catch (error) {
-                errorToast()
+                errorToast('two factor 업데이트 실패')
             }
         }
     }
@@ -103,7 +103,7 @@
                         popQR = false;
                     }
             } catch (error) {
-                errorToast();
+                errorToast('two factor 인증 실패');
             }
         }
     }
@@ -136,7 +136,7 @@
                 isBlocked = false;
 		}
 		catch(error){
-            errorToast();
+            errorToast('유저 정보를 가져올 수 없습니다');
 			goto('/main');
 		}
 	});
@@ -151,11 +151,11 @@
             const file = uploaded_pic[0];
 
 			if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
-                errorToast();
+                errorToast('잘못된 파일 형식입니다');
                 return;
             }
             if (file.size > 5 * 1024 * 1024) {
-                errorToast();
+                errorToast('5MB 이하의 파일만 업로드 가능합니다');
                 return;
             }
             const formData = new FormData();
@@ -176,7 +176,7 @@
 	async function requestFriend() {
 	    try {
 	        if (friendStat === "pending") {
-                errorToast();
+                errorToast("이미 동무 요청을 보냈습니다");
 	        }
 			else {
 	            await postApi({
@@ -191,7 +191,7 @@
 				friendStat = friendInfo.friendStatus;
 	        }
 	    } catch (error) {
-            errorToast();
+            errorToast('동무 요청을 보낼 수 없습니다');
 	    }
 	}
 
@@ -229,7 +229,7 @@
                 blockedFriends.push(newBlockedFriend);
                 localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
             } catch (error) {
-                errorToast();
+                errorToast('검열에 실패했습니다');
             }
         }
         else
@@ -253,7 +253,7 @@
                     localStorage.setItem(BlOCKED_USER_KEY, JSON.stringify(blockedFriends));
 				}
             } catch (error) {
-                errorToast();
+                errorToast('검열 해제에 실패했습니다');
             }
         }
     }
@@ -276,14 +276,14 @@
     }
 
     async function handleChangeNickname() {
-        if (inputElement.length === 0 ||inputElement === profile_info.nickname)
+        if (inputElement.length === 0 || inputElement === profile_info.nickname)
         {
-            errorToast();
+            errorToast('잘못된 가짜이름 입니다');
             return;
         }
         if (inputElement.length > 10)
         {
-            errorToast();
+            errorToast('너무 긴 가짜이름으로는 변경할 수 없습니다');
             return;
         }
         try {
@@ -296,7 +296,7 @@
         isNickChange = true;
 
         } catch (error) {
-            errorToast();
+            errorToast('가짜이름을 변경할 수 없습니다');
         }
     }
 
@@ -385,4 +385,4 @@
         </div>
     {/if}
 </div>
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />

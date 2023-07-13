@@ -65,11 +65,11 @@
                 }, 0)
             }
             catch {
-                errorToast('오류 : ' + data._from + ' user정보를 가져올 수 없습니다.')
+                errorToast('오류 : ' + data._from + ' 유저정보를 가져올 수 없습니다')
             }
         })
       } catch (error) {
-        return errorToast('DM loading error')
+        return errorToast('DM 로딩 실패')
       }
     })
 
@@ -137,7 +137,7 @@
                 socket.emit('dm-chat', dmChatData);
         }
         catch (error) {
-            errorToast('오류: 상대방의 생사유무를 확인할 수 없습니다.')
+            errorToast('오류: 상대방의 생사유무를 확인할 수 없습니다')
         }
     }
 </script>
@@ -197,4 +197,4 @@
         </div>
     </section>
 {/if}
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />

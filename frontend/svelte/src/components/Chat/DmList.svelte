@@ -32,7 +32,7 @@
           await ftUpdateDmList()
         }
       } catch (error) {
-        return errorToast('DM list loading error')
+        return errorToast('DM 리스트 로딩 실패')
       }
   })
 
@@ -48,7 +48,7 @@
         await ftUpdateChatLocalStorage(key, newDmChatStore)
       }
     } catch (error) {
-      errorToast('오류: 사용자 정보를 가져올 수 없습니다.')
+      errorToast('오류: 사용자 정보를 가져올 수 없습니다')
     }
   }
 
@@ -77,17 +77,17 @@
         opponentUserId = opponentUserId.trim()
         if (!(opponentUserId)) {
           opponentUserId = ''
-          return errorToast('찾고자하는 user를 입력하세요')
+          return errorToast('찾고자하는 유저를 입력하세요')
         }
         else if (opponentUserId === userInfo.id) {
-          return errorToast('DM 대상으로 자신을 추가할 수는 없습니다.')
+          return errorToast('DM 대상으로 자신을 추가할 수는 없습니다')
         }
         else if (opponentUserId in dmStoreData) {
-          return errorToast('이미 ' + opponentUserId + '은(는) DM 대상으로 등록되었습니다.')
+          return errorToast('이미 ' + opponentUserId + '은(는) DM 대상으로 등록되었습니다')
         }
         let searchedUser : UserDTO | null = await getApi({ path: 'user/' + opponentUserId})
         if (typeof searchedUser === "string" || searchedUser === null || searchedUser === undefined)
-          return errorToast(opponentUserId + ' user정보 찾을 수 없습니다')
+          return errorToast(opponentUserId + ' 유저정보 찾을 수 없습니다')
         let newDmChatStore : DmUserInfoIF = {
             _userInfo: searchedUser,
             _dmChatStore: [],
@@ -95,7 +95,7 @@
         await ftUpdateChatLocalStorage(opponentUserId, newDmChatStore)
       } catch (error )
       {
-          errorToast('오류 : ' + opponentUserId + ' user정보를 가져올 수 없습니다.')
+          errorToast('오류 : ' + opponentUserId + ' 유저정보를 가져올 수 없습니다')
       }
   }
 
@@ -121,4 +121,4 @@
       </div>
     </main>
   </div>
-  <Toast max={5} />
+  <Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />

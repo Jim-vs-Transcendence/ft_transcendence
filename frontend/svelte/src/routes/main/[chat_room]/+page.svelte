@@ -20,9 +20,9 @@
 
 	let toastID: string = '';
 
-	function errorToast(): void {
+	function errorToast(msg: string): void {
 			const t: ToastSettings = {
-					message: 'Fail',
+					message: msg,
 					hideDismiss: true,
 					timeout: 3000
 			};
@@ -83,8 +83,9 @@
 
 	onMount(async () => {
 		try {
-			if (socket === undefined)
+			if (socket === undefined) {
 				await goto("/main");
+			}
 			/* ===== chat-connect ===== */
 			chat_data._room_name = $page.params['chat_room'];
 
@@ -126,7 +127,7 @@
 			/* ===== chat-set-admin ===== */
 			socket.on('chat-set-admin', (data: ChatAuthDTO) => {
 				if (!data._check)
-					return errorToast(); //권한 설정 실패
+					return errorToast('권한 설정에 실패했습니다'); //권한 설정 실패
 				/// 권한 변경
 			});
 
@@ -135,7 +136,7 @@
 
 			async function handleGameInvite(data: string) {
 				let send_data : GameInvitationData = { acceptFlag: false, opponentPlayer: data};
-				confirmToast('게임초대', send_data);
+				confirmToast('&nbsp&nbsp&nbsp&nbsp&nbsp게임초대&nbsp&nbsp&nbsp&nbsp&nbsp', send_data);
 			}
 
 			socket_game.on('opPlayerExit', () => {
@@ -153,6 +154,7 @@
 	});
 
 	onDestroy(() => {
+		toastStore.close(toastID);
 		unsubscribe();
 		unsubscribe_game();
 		if (socket !== undefined)
@@ -179,7 +181,7 @@
         if (!(chat_data._msg))
             return
         else if (chat_data._msg.length >= 300)
-            return errorToast();
+            return errorToast('300자 이내로 입력해주세요');
 		if (chat_data._msg.length && chat_data._msg != '\n')
 			socket.emit('chat-msg-event', chat_data);
 		chat_data._msg = '';
@@ -198,7 +200,6 @@
 	}
 
 	const main = async () => {
-		console.log('go to main@')
 		await goto('/main')
 	}
 

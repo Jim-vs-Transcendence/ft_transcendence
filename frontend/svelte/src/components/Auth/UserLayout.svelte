@@ -171,4 +171,4 @@ async function doSearch() {
     <button type="button" class="btn btn-sm variant-filled" on:click={openDrawer}>동무 ! 목록</button>
   </div>
 </AppBar>
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />

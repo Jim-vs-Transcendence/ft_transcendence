@@ -36,7 +36,7 @@
     }
 
     } catch (error) {
-      errorToast("에러");
+      errorToast("two factor 인증에 실패했습니다");
     }
   }
 
@@ -84,7 +84,7 @@
     <circle cx={$coords_b.x} cy={$coords_b.y} r="30" fill="blue" />
   </svg>
 </div>
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />
 
 <style>
   .wrapper {

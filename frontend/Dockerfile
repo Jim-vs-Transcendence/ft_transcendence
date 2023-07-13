@@ -12,4 +12,4 @@ RUN cd NestJS_Front && npm ci && npm cache clean --force
 # build code -> dist
 # 이 때 음성파일 cp 됨
 COPY --chown=node:node . .
-RUN chown -R node:node /app/svelte && cd svelte && npm run build
+RUN chown -R node:node /app/svelte && cd svelte && npm run rebuild

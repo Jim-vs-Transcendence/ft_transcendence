@@ -62,7 +62,7 @@
 			userInfo = await auth.isLogin();
 		}
 		catch(error){
-			errorToast('오류 : 프로필을 출력할 수 없습니다1');
+			errorToast('잘못된 접근입니다');
 			await goto('/main');
 		}
 
@@ -107,4 +107,4 @@
 		</button>
 	</div>
 </div>
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />

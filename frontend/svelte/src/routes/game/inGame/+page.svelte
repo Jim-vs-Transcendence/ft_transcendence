@@ -216,7 +216,7 @@
 	}
 
 	function dummyRetry() {
-		errorToast('잘못된 버튼입니다.');
+		errorToast('잘못된 버튼입니다');
 	}
 
 	onMount(async (): Promise<any> => {
@@ -228,7 +228,7 @@
 		try {
 			userInfo = await auth.isLogin();
 		} catch (error) {
-			errorToast('오류 : 프로필을 출력할 수 없습니다1');
+			errorToast('잘못된 접근입니다');
 			removeEvent();
 			await goto('/main');
 		}
@@ -330,7 +330,7 @@
 		{/if}
 	</div>
 </div>
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />
 
 <style>
 	.button-container {

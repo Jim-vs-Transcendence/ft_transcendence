@@ -81,7 +81,7 @@
 			} else if (num >= 10) {
 				errorToast('사용자의 피로도를 고려해 10점 이상은 진행할 수 없습니다');
 			} else {
-				errorToast('잘못된 숫자입니다.');
+				errorToast('잘못된 숫자입니다');
 			}
 			setScoreFlag = false;
 			Score = "";
@@ -172,7 +172,7 @@
 		try {
 			userInfo = await auth.isLogin();
 		} catch (error) {
-			errorToast('오류 : 프로필을 출력할 수 없습니다1');
+			errorToast('잘못된 접근입니다');
 			await goto('/main');
 		}
 
@@ -236,7 +236,7 @@
 			{#if setScoreFlag}
 				<div class="fixed inset-0 flex items-center justify-center z-50">
 					<div class="card p-4">
-							<h1 style="text-align: center;">몇판 내기 게임인가요?<br>숫자를 가이드의 안내에 따라 신중하게 입력하세요<br></h1>
+							<h1 style="text-align: center;"><br>몇판 내기 게임인가요?<br> 숫자를 가이드의 안내에 따라 신중하게 입력하세요 <br><br> </h1>
 							<div style="display: flex; justify-content: center; align-items: center;">
 									<input class="input" type="text" placeholder="엔터를 눌러주세요" bind:value={Score} on:keydown={setScore}/>
 							</div>
@@ -341,4 +341,4 @@
 		{/if}
 	</ul>
 </div>
-<Toast max={5} />
+<Toast max={5} buttonDismiss={'btn variant-filled'} buttonDismissLabel={'거절'} />
