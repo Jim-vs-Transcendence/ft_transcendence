@@ -1,6 +1,6 @@
 <script lang="ts">
     import UserLayout from "../../components/Auth/UserLayout.svelte";
-    import { auth, authToken } from '../../service/store';
+    import { auth } from '../../service/store';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
     import LoadingMessage from "../../components/Auth/LoadingMessage.svelte";

@@ -6,9 +6,7 @@
     $: isFriend;
     $: friendStat;
 
-    import { page } from '$app/stores';
     import { onMount } from 'svelte';
-	import { auth } from '../../service/store';
 	import { goto } from '$app/navigation';
     import '../../service/friendDTO';
 
@@ -31,8 +29,6 @@
     import { getApi, petchApi, postApi, delApi, postApiWithFile } from '../../service/api';
 
     // Two-factor toggle
-    import { SlideToggle } from '@skeletonlabs/skeleton';
-
     import { Toast, toastStore } from '@skeletonlabs/skeleton';
     import type { ToastSettings } from '@skeletonlabs/skeleton';
 
@@ -308,7 +304,6 @@
 
 </script>
 
-<!-- <div class="card flex flex-col items-center"> -->
 <div class="card flex flex-col items-center">
     <header class="card-header"></header>
     <img src="{profile_info.avatar}" alt="인트라 프로필" class="w-48 h-48 rounded-full mb-4">
@@ -363,7 +358,6 @@
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label class="flex items-center">
                 <input type="range" bind:value={twoFactor} max="100" />
-                <!-- <SlideToggle name="slide" bind:checked={profile_info.two_factor} on:click={two_factor_toggle} /> -->
                 <span class="ml-2">
                     {text}
                 </span>

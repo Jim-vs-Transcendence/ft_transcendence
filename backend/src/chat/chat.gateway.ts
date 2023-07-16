@@ -8,17 +8,11 @@ import {
 	WebSocketGateway,
 	WebSocketServer,
 } from '@nestjs/websockets';
-import { Namespace, Server, Socket } from 'socket.io';
-import { ConnectionClosedEvent } from 'typeorm';
+import { Namespace, Socket } from 'socket.io';
 import { DmChatDTO, ChatMsgDTO, ChatRoomDTO, ChatAuthDTO, RoomCheckDTO, ChatRoomJoinDTO, ChatUserDTO, Authority, ChatRoomSendDTO, ChatActionDTO } from './dto/chat.dto';
 import { UsersService } from 'src/users/users.service';
 import { TokenService } from 'src/auth/token/token.service';
-import userDTO from 'src/users/user.dto';
-import { userInfo } from 'os';
-import { channel } from 'diagnostics_channel';
-import { timeout } from 'rxjs';
-import { parentPort } from 'worker_threads';
-'../../'
+
 let channel_list: Map<string, ChatRoomDTO> = new Map<string, ChatRoomDTO>();
 let socket_list: Map<string, Socket> = new Map<string, Socket>();
 

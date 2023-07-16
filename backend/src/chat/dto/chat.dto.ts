@@ -1,5 +1,5 @@
 
-import { IsBoolean, IsNumber, IsObject, IsOptional, IsString, isBoolean, isEnum, isObject } from 'class-validator';
+import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import userDTO from 'src/users/user.dto';
 
 /* ================================================================================

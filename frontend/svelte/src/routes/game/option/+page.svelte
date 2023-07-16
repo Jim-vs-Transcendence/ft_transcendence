@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { createBrowserHistory } from 'history';
 	import { goto } from '$app/navigation';
 	import { auth } from '../../../service/store';
 	import { petchApi } from '../../../service/api';
 	import { gameClientOption } from '$lib/gameData';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import type { Socket } from 'socket.io-client';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { Toast, toastStore } from '@skeletonlabs/skeleton';
 	import type { ToastSettings } from '@skeletonlabs/skeleton';
 

@@ -1,5 +1,3 @@
-import { Socket } from 'socket.io';
-
 export class GameMoveData {
 	ballX: number;
 	ballY: number;

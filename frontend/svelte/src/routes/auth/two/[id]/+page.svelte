@@ -1,9 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
   import { page } from '$app/stores';
-  import LoadingMessage from '../../../../components/Auth/LoadingMessage.svelte';
   import { postApi } from '../../../../service/api';
-  import { onMount } from 'svelte';
 
   const id = $page.params.id;
   let response: boolean;

@@ -12,7 +12,7 @@ export let DM_KEY : string = "dmdata_"
 export let BlOCKED_USER_KEY : string = "blocked_user_list_"
 export const socketStore : Writable<Socket> = writable();
 
-import { Toast, toastStore } from '@skeletonlabs/skeleton';
+import { toastStore } from '@skeletonlabs/skeleton';
 import type { ToastSettings } from '@skeletonlabs/skeleton';
 
 function errorToast(msg: string) {

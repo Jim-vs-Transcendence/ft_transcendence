@@ -1,9 +1,8 @@
 <script lang="ts">
 
-	import { createBrowserHistory } from 'history';
 	import type { Socket } from 'socket.io-client';
 	import type { GamePlayerData, GameUpdateData, GameMoveData } from '$lib/gameData';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { gameClientOption } from '$lib/gameData';
 	import { auth } from '../../../service/store';

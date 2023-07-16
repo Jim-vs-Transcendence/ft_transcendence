@@ -40,7 +40,7 @@
 						},
 					},
 					autohide: false,
-					callback: (response) => {
+					callback: (response: any) => {
 						toastID = response.id;
 						if (response.status === 'closed') {
 							socket_game.emit("inviteResponse", data);
@@ -113,7 +113,7 @@
 				}
 			})
 
-			socket.on("chat-leave", (data) => {
+			socket.on("chat-leave", () => {
 				goto("/main");
 			})
 

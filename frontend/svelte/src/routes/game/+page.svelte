@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { createBrowserHistory } from 'history';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { Socket } from 'socket.io-client';
 	import { gameSocketStore } from '$lib/webSocketConnection_game';
 	import { goto } from '$app/navigation';

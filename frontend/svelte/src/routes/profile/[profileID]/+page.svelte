@@ -2,7 +2,7 @@
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
 	import { getApi } from '../../../service/api';
-	import { auth, authToken } from '../../../service/store';
+	import { auth } from '../../../service/store';
 	import { goto } from '$app/navigation';
 	import { Toast, toastStore } from '@skeletonlabs/skeleton';
     import type { ToastSettings } from '@skeletonlabs/skeleton';

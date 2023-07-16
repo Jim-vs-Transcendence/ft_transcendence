@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { getApi, petchApi, delApi, postApi } from "../service/api";
+import { getApi } from "../service/api";
 import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
 

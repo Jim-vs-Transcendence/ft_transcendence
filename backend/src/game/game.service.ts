@@ -296,7 +296,6 @@ export class GameService {
 		}
 	}
 
-
 	// gameUpdateData를 보낸다
 	public paddleUp(room: GameRoom, clientId: string) {
 		if (room.leftPlayer && clientId === room.leftPlayer.socketId) {

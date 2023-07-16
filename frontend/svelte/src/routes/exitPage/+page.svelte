@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import { CreateSocket, socketStore } from '$lib/webSocketConnection_chat';
+	import { socketStore } from '$lib/webSocketConnection_chat';
 	import type { Socket } from "socket.io-client";
 	import { onDestroy } from "svelte";
 
