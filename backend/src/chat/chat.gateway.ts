@@ -183,6 +183,8 @@ export class ChatGateway
 			if (room._password !== payload._room_password)
 				return 0;
 			else {
+				if (room._users.has(userid))
+					return 0;
 				const user_info: ChatUserDTO = new ChatUserDTO();
 				user_info._authority = Authority.USER;
 				user_info._is_muted = false;
