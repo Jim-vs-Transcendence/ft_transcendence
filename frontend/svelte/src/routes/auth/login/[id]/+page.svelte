@@ -28,7 +28,7 @@
 
 		timer = setTimeout(async () => {
             goMain();
-        }, 2.8000);
+        }, 28000);
         // Set an interval to remove itself
         return () => clearInterval(interval);
     }

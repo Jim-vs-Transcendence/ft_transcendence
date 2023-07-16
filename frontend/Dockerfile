@@ -10,7 +10,6 @@ COPY --chown=node:node ./NestJS_Front/package*.json ./NestJS_Front
 RUN chown -R node:node /app
 RUN cd svelte && npm ci && npm cache clean --force
 RUN cd NestJS_Front && npm ci && npm cache clean --force
-RUN echo "VITE_API_URL"=${VITE_API_URL} > svelte/.env
 
 # build code -> dist
 # 이 때 음성파일 cp 됨
