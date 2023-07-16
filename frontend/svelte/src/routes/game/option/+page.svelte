@@ -132,7 +132,7 @@
 		}
 	}
 
-	function onStepHandler(e: { step: number; state: { current: number; total: number }; }): void {
+	function onStepHandler(e: { step: number; detail: {state: { current: number; total: number } }; }): void {
 		if (e.detail.state.current === 3) {
 			setColorFlag = true;
 		}

@@ -76,11 +76,6 @@
 		socket_game = _socket;
 	});
 
-	const gameQuit = async() => {
-		socket_game.emit('gameQuit');
-		await goto('/main');
-	}
-
 	onMount(async () => {
 		try {
 			if (socket === undefined) {
@@ -101,7 +96,6 @@
 			socket.on("chat-self-update", (data: ChatUserIF)=>{
 				user_self = data;
 			})
-
 
 			/* ===== chat-refresh ===== */
 			socket.on('chat-refresh', (data: ChatRoomSendIF | string) => {
@@ -211,19 +205,21 @@
 	<div class="bg-surface-500/30 p-10">
 		<TabGroup>
 			<Tab bind:group={tabSet} name="tab1" value={0}> 채팅방 유저</Tab>
-			{#if user_self._authority === Authority.OWNER
-				|| user_self._authority === Authority.ADMIN}
+			{#if user_self && (user_self._authority === Authority.OWNER
+				|| user_self._authority === Authority.ADMIN)}
 				<Tab bind:group={tabSet} name="tab2" value={1}> 거절된 유저</Tab>
 			{/if}
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
 					{#each [... room._users] as [userid_list, chatUser]}
+						{#if user_self}
 						<ChatUserList
 							bind:user_self={user_self}
 							bind:userid_list={userid_list}
 							bind:chatUser={chatUser}
 							bind:channel_name={channel_name}
 						/>
+						{/if}
 					{/each}
 				{/if}
 				{#if tabSet === 1}
@@ -238,7 +234,7 @@
 	</div>
 	<div bind:this={elemChat} class="max-h-[700px] p-4 overflow-y-auto space-y-4">
 		{#each msg_list as msg}
-			{#if (msg._user_name == user_self._user_info.id)}
+			{#if user_self && user_self._user_info && (msg._user_name === user_self._user_info.id)}
 				<div class="grid grid-cols-[auto_1fr] gap-5">
 					<Avatar src="{msg._user_avatar}" width="w-12" />
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
